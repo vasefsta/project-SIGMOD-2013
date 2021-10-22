@@ -52,7 +52,8 @@ int map_destroy(MapNode map, int size){
 
         while (node){
             MapNode next = node->next;
-
+            
+            free(node->query->length);
             free(node->query);
             free(node);
 
