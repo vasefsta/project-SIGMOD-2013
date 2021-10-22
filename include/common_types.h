@@ -6,7 +6,7 @@ typedef void* Pointer;
 
 // ####################################################################
 
-typedef struct query {
+struct query {
     String words;
     unsigned short length; 
 };

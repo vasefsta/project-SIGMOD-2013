@@ -3,6 +3,8 @@
 
 #include "ADTMap.h"
 
+
+
 MapNode map_create(int size) {
     size *= 1.2;
 
@@ -38,16 +40,16 @@ void map_insert(MapNode map, Query query, int size) {
         new->query = query;
         new->next = NULL;
 
-        node->next = new;
+        node->next = new; 
     }
 
 }
 
 int map_destroy(MapNode map, int size){
 
+    MapNode Temp =  map;
     for(int i = 0; i < size; i++){
 
-        MapNode Temp = &map[i];
         MapNode Temp2;
 
         while (Temp){
@@ -60,9 +62,9 @@ int map_destroy(MapNode map, int size){
             Temp = Temp2;
 
         }
-        
     }
 
+    return 1;
 }
 
 unsigned int hash_string(Query query) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
@@ -71,8 +73,8 @@ unsigned int hash_string(Query query) {     	// djb2 hash function, απλή, γ
     
     int hash = 5381;
     
-    for (char s = value; s != '\0'; s++)
-		hash = (hash << 5) + hash + s;			// hash = (hash  33) + s. Το foo << 5 είναι γρηγορότερη εκδοχή του foo  32.
+    for (char* s = value; *s != '\0'; s++)
+		hash = (hash << 5) + hash + *s;			// hash = (hash  33) + s. Το foo << 5 είναι γρηγορότερη εκδοχή του foo  32.
     
 
     return hash;

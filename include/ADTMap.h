@@ -2,7 +2,7 @@
 
 typedef struct mapnode* MapNode;
 
-typedef struct mapnode {
+struct mapnode {
     Query query;
     MapNode next;
 };
