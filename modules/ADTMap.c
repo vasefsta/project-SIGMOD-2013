@@ -12,3 +12,17 @@ MapNode map_create(int size) {
 
     return map;
 }
+
+int map_insert(MapNode map, Query query) {
+    int position = hash_string(query);
+
+    String tmp_query = map[position].query;
+    MapNode node = &map[position];
+
+    while (tmp_query){
+        node = node->next;
+        tmp_query = node->query;
+    }
+
+    node->query = query;
+}
