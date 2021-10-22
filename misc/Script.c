@@ -4,7 +4,7 @@
 
 int main(){
     char Array[40][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", "mall", "hospital", "hello", "world", "beautiful", "water", "music", "chocolate",
-    "sunny", "beach", "summer", "winter", "autumn", "spring", "diving", "cream", "sotira", "book", "potatoes", "poetry", "athletes", "salad" , "lobster", "forest"
+    "sunny", "beach", "summer", "winter", "autumn", "spring", "diving", "cream", "sotira", "book", "potatoes", "poetry", "athletes", "salad" , "lobster", "forest",
     "rock", "metal", "jazz", "guitar", "simple", "love", "hate", "kiss","friends", "trip" }; 
 
 
