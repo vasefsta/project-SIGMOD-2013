@@ -10,8 +10,8 @@ typedef struct mapnode {
 
 MapNode map_create(int size);
 
-int map_insert(MapNode map, Query query);
+void map_insert(MapNode map, Query query, int size);
 
-int map_destroy(DestroyFunc destroy);
+int map_destroy(MapNode map, int size);
 
 unsigned int hash_string(Query query);

@@ -1,8 +1,11 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "ADTMap.h"
 
 MapNode map_create(int size) {
+    size *= 1.2;
+
     MapNode map = malloc(sizeof(*map)*size);
 
     for (int i = 0; i < size; i++) {
@@ -13,16 +16,64 @@ MapNode map_create(int size) {
     return map;
 }
 
-int map_insert(MapNode map, Query query) {
-    int position = hash_string(query);
+void map_insert(MapNode map, Query query, int size) {
+    assert(query);
 
-    String tmp_query = map[position].query;
+    int position = hash_string(query);
+    position %= size;
+
     MapNode node = &map[position];
 
-    while (tmp_query){
-        node = node->next;
-        tmp_query = node->query;
+    if(map[position].query == NULL){
+
+        map[position].query = query;
+        
+    } else {
+
+        while (node->next){
+            node = node->next;
+        }
+
+        MapNode new = malloc(sizeof(*new));
+        new->query = query;
+        new->next = NULL;
+
+        node->next = new;
     }
 
-    node->query = query;
+}
+
+int map_destroy(MapNode map, int size){
+
+    for(int i = 0; i < size; i++){
+
+        MapNode Temp = &map[i];
+        MapNode Temp2;
+
+        while (Temp){
+            Temp2 = Temp->next;
+
+            if(Temp->query != NULL)
+                free(Temp->query);
+
+            free(Temp);
+            Temp = Temp2;
+
+        }
+        
+    }
+
+}
+
+unsigned int hash_string(Query query) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
+
+    String value = query->words;
+    
+    int hash = 5381;
+    
+    for (char s = value; s != '\0'; s++)
+		hash = (hash << 5) + hash + s;			// hash = (hash  33) + s. Το foo << 5 είναι γρηγορότερη εκδοχή του foo  32.
+    
+
+    return hash;
 }
