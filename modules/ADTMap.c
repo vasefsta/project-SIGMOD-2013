@@ -47,22 +47,21 @@ void map_insert(MapNode map, Query query, int size) {
 
 int map_destroy(MapNode map, int size){
 
-    MapNode Temp =  map;
     for(int i = 0; i < size; i++){
+        MapNode node =  map[i].next;
 
-        MapNode Temp2;
+        while (node){
+            MapNode next = node->next;
 
-        while (Temp){
-            Temp2 = Temp->next;
+            free(node->query);
+            free(node);
 
-            if(Temp->query != NULL)
-                free(Temp->query);
-
-            free(Temp);
-            Temp = Temp2;
-
+            node = next;
         }
+
     }
+
+    free(map);
 
     return 1;
 }
