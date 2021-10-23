@@ -3,6 +3,10 @@
 
 #include "ADTMap.h"
 
+struct mapnode {
+    Pointer value;
+    MapNode next;
+};
 
 
 MapNode map_create(int size) {
@@ -11,24 +15,24 @@ MapNode map_create(int size) {
     MapNode map = malloc(sizeof(*map)*size);
 
     for (int i = 0; i < size; i++) {
-        map[i].query = NULL;
+        map[i].value = NULL;
         map[i].next = NULL;
     }
 
     return map;
 }
 
-void map_insert(MapNode map, Query query, int size) {
-    assert(query);
+void map_insert(MapNode map, Pointer value, int size) {
+    assert(value);
 
-    int position = hash_string(query);
+    int position = hash_string(value);
     position %= size;
 
     MapNode node = &map[position];
 
-    if(map[position].query == NULL){
+    if(map[position].value == NULL){
 
-        map[position].query = query;
+        map[position].value = value;
         
     } else {
 
@@ -37,7 +41,7 @@ void map_insert(MapNode map, Query query, int size) {
         }
 
         MapNode new = malloc(sizeof(*new));
-        new->query = query;
+        new->value = value;
         new->next = NULL;
 
         node->next = new; 
@@ -45,7 +49,7 @@ void map_insert(MapNode map, Query query, int size) {
 
 }
 
-int map_destroy(MapNode map, int size){
+int map_destroy(MapNode map, DestroyFunc destroy, int size){
 
     for(int i = 0; i < size; i++){
         MapNode node =  map[i].next;
@@ -53,8 +57,11 @@ int map_destroy(MapNode map, int size){
         while (node){
             MapNode next = node->next;
             
-            free(node->query->length);
-            free(node->query);
+            if (destroy)
+                destroy(node->value);
+            
+            // free(node->query->words);
+            // free(node->query);
             free(node);
 
             node = next;
@@ -67,10 +74,7 @@ int map_destroy(MapNode map, int size){
     return 1;
 }
 
-unsigned int hash_string(Query query) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
-
-    String value = query->words;
-    
+unsigned int hash_string(String value) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
     int hash = 5381;
     
     for (char* s = value; *s != '\0'; s++)
