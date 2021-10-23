@@ -29,6 +29,16 @@ void list_insert(Listnode list, Pointer value){
     }
 }
 
+
+Listnode list_find(Listnode list, CompareFunc compare, Pointer value) {
+    for (Listnode node = list; list != NULL; node = node->next) {
+        if (!compare(value, node->value))
+            return node;
+    }
+
+    return NULL;
+}
+
 void list_destroy(Listnode list, DestroyFunc destroy ) {         //Opos kai dipote NULL stin destroy
     
     while (list) {
