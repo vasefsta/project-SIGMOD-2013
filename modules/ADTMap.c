@@ -27,8 +27,14 @@ MapNode map_create(int size) {
 void map_insert(MapNode map, Pointer value, int size) {
     assert(value);
 
-    int position = hash_string((String)value);
+
+    Query q = value;
+    unsigned int position = hash_string(q->words);
+    
     position %= size;
+
+    printf("Map insert %d\n", position);
+
 
     MapNode node = &map[position];
 
@@ -76,8 +82,9 @@ int map_destroy(MapNode map, DestroyFunc destroy, int size){
 
 int map_find(MapNode map, int size, Query query){
 
-    int position = hash_string((String)query->words);
+    unsigned int position = hash_string((String)query->words);
     position %= size;
+    printf("Map find %d\n", position);
 
     MapNode Temp = &map[position];
 
@@ -98,7 +105,7 @@ int map_find(MapNode map, int size, Query query){
 
 
 unsigned int hash_string(String value) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
-    int hash = 5381;
+    unsigned int hash = 5381;
     
     for (char* s = value; *s != '\0'; s++)
 		hash = (hash << 5) + hash + *s;			// hash = (hash  33) + s. Το foo << 5 είναι γρηγορότερη εκδοχή του foo  32.

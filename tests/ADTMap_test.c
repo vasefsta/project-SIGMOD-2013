@@ -40,7 +40,7 @@ void test_insert(void) {
 	q3->words = strdup("xartino to feggarai oeoeoeo");
 	q3->length = 4;
 
-	q4->words = strdup("pezuna kalliopu");
+	q4->words = strdup("pezuna kalliopi");
 	q4->length = 2;
 
 	q2->words = strdup("Pezuna kalliopi");
