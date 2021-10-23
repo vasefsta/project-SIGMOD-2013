@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "ADTMap.h"
 
@@ -26,7 +27,7 @@ MapNode map_create(int size) {
 void map_insert(MapNode map, Pointer value, int size) {
     assert(value);
 
-    int position = hash_string(value);
+    int position = hash_string((String)value);
     position %= size;
 
     MapNode node = &map[position];
@@ -61,6 +62,7 @@ int map_destroy(MapNode map, DestroyFunc destroy, int size){
             
             if (destroy){
                 destroy(node->value);
+                puts("AAAAAAAAAAAa");
                 free(node);
             }
             node = next;
@@ -71,6 +73,29 @@ int map_destroy(MapNode map, DestroyFunc destroy, int size){
     free(map);
     return 1;
 }
+
+int map_find(MapNode map, int size, Query query){
+
+    int position = hash_string((String)query->words);
+    position %= size;
+
+    MapNode Temp = &map[position];
+
+
+    while (Temp){
+        if(Temp->value){
+            puts("VVVVVVVV");
+            Query q1 = Temp->value;
+            if(strcmp(q1->words, query->words) == 0){
+                puts("AAAAAAAAAAAA");
+                return 1;
+            }
+        }
+        Temp = Temp->next;
+    }
+    return 0;
+}
+
 
 unsigned int hash_string(String value) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
     int hash = 5381;
