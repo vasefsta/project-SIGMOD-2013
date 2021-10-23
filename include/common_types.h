@@ -11,6 +11,9 @@ struct query {
     unsigned short length; 
 };
 
+
+
+
 typedef struct query* Query;
 
 // ####################################################################
