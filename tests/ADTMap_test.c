@@ -6,7 +6,7 @@
 
 void destroy_query(Query query) {
 	free(query->words);
-	// free(query);
+	free(query);
 }
 
 void test_create(void) {
@@ -19,33 +19,27 @@ void test_create(void) {
 	// αρχικοποιείται με μέγεθος 0 (δηλαδή χωρίς κόμβους)
 	TEST_ASSERT(map != NULL);
 	
-	map_destroy(map, NULL, size);
+	map_destroy(map, (DestroyFunc)destroy_query, size);
 }
 
 void test_insert(void) {
 	MapNode map = map_create(100);
+	
+	TEST_ASSERT(map != NULL);
 
-	struct query q1[3];
-
-	q1[0].words = strdup("hello world");
-	q1[0].length = 2;
-
-	q1[1].words = strdup("kwstis palamas");
-	q1[1].length = 2;
-
-	q1[2].words = strdup("xartino to feggarai oeoeoeo");
-	q1[2].length = 4;
+	Query q1 = malloc(sizeof(struct query));
 
 
-	for (int i = 0; i < 3; i++) {
-		map_insert(map, &q1[i], 100);
-	} 
+	q1->words = strdup("xartino to feggarai oeoeoeo");
+	q1->length = 4;
+
+
+	map_insert(map, q1, 100);
 
 	map_destroy(map, (DestroyFunc)destroy_query, 100);	
 }
 
 TEST_LIST = {
-	// { "create", test_create },
 
 	{ "map_create", test_create },
 	{ "map_insert", test_insert },

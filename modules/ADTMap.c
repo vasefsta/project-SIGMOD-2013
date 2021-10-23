@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 #include "ADTMap.h"
@@ -31,11 +32,8 @@ void map_insert(MapNode map, Pointer value, int size) {
     MapNode node = &map[position];
 
     if(map[position].value == NULL){
-
         map[position].value = value;
-        
     } else {
-
         while (node->next){
             node = node->next;
         }
@@ -54,23 +52,23 @@ int map_destroy(MapNode map, DestroyFunc destroy, int size){
     for(int i = 0; i < size; i++){
         MapNode node =  map[i].next;
 
+        if(map[i].value){
+            destroy(map[i].value);
+        }
+
         while (node){
             MapNode next = node->next;
             
-            if (destroy)
+            if (destroy){
                 destroy(node->value);
-            
-            // free(node->query->words);
-            // free(node->query);
-            free(node);
-
+                free(node);
+            }
             node = next;
         }
 
     }
 
     free(map);
-
     return 1;
 }
 
