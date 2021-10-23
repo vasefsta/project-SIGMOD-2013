@@ -10,36 +10,50 @@ struct mapnode {
     MapNode next;
 };
 
+struct map {
+    MapNode hashtable;
+    unsigned int size;
+    unsigned int capacity;
+    CompareFunc compare_function;
+    HashFunc hash_function;
+};
 
-MapNode map_create(int size) {
+
+Map map_create( CompareFunc compare_function, int size) {
     size *= 1.2;
 
-    MapNode map = malloc(sizeof(*map)*size);
+    Map map = malloc(sizeof(*map));
+    map->size = size;
+    map->capacity = 0;
+    map->compare_function = compare_function;
+    map->hashtable = malloc(sizeof(struct mapnode)*size);
 
     for (int i = 0; i < size; i++) {
-        map[i].value = NULL;
-        map[i].next = NULL;
+        map->hashtable[i].value = NULL;
+        map->hashtable[i].next = NULL;
     }
 
     return map;
 }
 
-void map_insert(MapNode map, Pointer value, int size) {
+void map_set_hash_function(Map map, HashFunc hash_function) {
+    map->hash_function = hash_function;
+}
+
+int map_capacity(Map map) {
+    return map->capacity;
+}
+
+void map_insert(Map map, Pointer value) {
     assert(value);
 
+    unsigned int position = map->hash_function(value);
+    position %= map->size; 
 
-    Query q = value;
-    unsigned int position = hash_string(q->words);
-    
-    position %= size;
+    MapNode node = &map->hashtable[position];
 
-    printf("Map insert %d\n", position);
-
-
-    MapNode node = &map[position];
-
-    if(map[position].value == NULL){
-        map[position].value = value;
+    if(node->value == NULL){
+        node->value = value;
     } else {
         while (node->next){
             node = node->next;
@@ -52,15 +66,16 @@ void map_insert(MapNode map, Pointer value, int size) {
         node->next = new; 
     }
 
+    map->capacity++;
 }
 
-int map_destroy(MapNode map, DestroyFunc destroy, int size){
+int map_destroy(Map map, DestroyFunc destroy){
 
-    for(int i = 0; i < size; i++){
-        MapNode node =  map[i].next;
+    for(int i = 0; i < map->size; i++){
+        MapNode node =  map->hashtable[i].next;
 
-        if(map[i].value){
-            destroy(map[i].value);
+        if(map->hashtable[i].value){
+            destroy(map->hashtable[i].value);
         }
 
         while (node){
@@ -68,37 +83,32 @@ int map_destroy(MapNode map, DestroyFunc destroy, int size){
             
             if (destroy){
                 destroy(node->value);
-                puts("AAAAAAAAAAAa");
                 free(node);
             }
             node = next;
         }
-
     }
 
+    free(map->hashtable);
     free(map);
+
     return 1;
 }
 
-int map_find(MapNode map, int size, Query query){
+int map_find(Map map, Pointer value){
+    unsigned int position = map->hash_function(value);
+    position %= map->size;
 
-    unsigned int position = hash_string((String)query->words);
-    position %= size;
-    printf("Map find %d\n", position);
-
-    MapNode Temp = &map[position];
+    MapNode node = &map->hashtable[position];
 
 
-    while (Temp){
-        if(Temp->value){
-            puts("VVVVVVVV");
-            Query q1 = Temp->value;
-            if(strcmp(q1->words, query->words) == 0){
-                puts("AAAAAAAAAAAA");
+    while (node){
+        if(node->value){
+            if(!(map->compare_function(value, node->value))){
                 return 1;
             }
         }
-        Temp = Temp->next;
+        node = node->next;
     }
     return 0;
 }

@@ -2,14 +2,21 @@
 
 typedef struct mapnode* MapNode;
 
+typedef struct map* Map;
+
+typedef unsigned int (*HashFunc)(Pointer value);
 
 
-MapNode map_create(int size);
+Map map_create( CompareFunc compare_function, int size);
 
-void map_insert(MapNode map, Pointer value, int size);
+void map_insert(Map map, Pointer value);
 
-int map_destroy(MapNode map, DestroyFunc destroy, int size);
+int map_capacity(Map map);
 
-int map_find(MapNode map, int size, Query query);
+int map_destroy(Map map, DestroyFunc destroy);
+
+int map_find(Map map, Pointer value);
+
+void map_set_hash_function(Map map, HashFunc hash);
 
 unsigned int hash_string(String value);
