@@ -1,37 +1,57 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ADTLinkedList.h"
 
+struct listnode {
+    Pointer value;
+    ListNode next;
+};
+
+struct list {
+    ListNode dummyNode;
+    int size;
+};
 
 
-Listnode list_create(){
-    Listnode new = malloc(sizeof(*new));
-    new->next = NULL;
-    new->value = NULL;
-
-    return new;
-}
-
-void list_insert(Listnode list, Pointer value){
+List list_create(){
+    List list = malloc(sizeof(*list));
     
-    if(list->value == NULL){
-        list->value = value;
-    } else {
-        while (list->next){
-            list = list->next;
-        }
-        Listnode new = malloc(sizeof(*new));
-        new->value = value;
-        new->next = NULL;
+    list->dummyNode = malloc(sizeof(*(list->dummyNode)));
+    list->dummyNode->next = NULL;
+    list->dummyNode->value = NULL;
+    list->size = 0;
 
-        list->next = new;
+    return list;
+}
+
+int list_size(List list) {
+    return list->size;
+}
+
+ListNode list_first(List list) {
+    return list->dummyNode->next;
+}
+
+void list_insert(List list, Pointer value){
+    ListNode node = list->dummyNode;
+
+    while (node->next){
+        node = node->next;
     }
+
+    ListNode new = malloc(sizeof(*new));
+    new->value = value;
+    new->next = NULL;
+    
+    node->next = new;
+    list->size++;
 }
 
 
-Listnode list_find(Listnode list, CompareFunc compare, Pointer value) {
-    for (Listnode node = list; list != NULL; node = node->next) {
+ListNode list_find(List list, CompareFunc compare, Pointer value) {
+    for (ListNode node = list_first(list); list != NULL; node = node->next) {
         if (!compare(value, node->value))
             return node;
     }
@@ -39,17 +59,29 @@ Listnode list_find(Listnode list, CompareFunc compare, Pointer value) {
     return NULL;
 }
 
-void list_destroy(Listnode list, DestroyFunc destroy ) {         //Opos kai dipote NULL stin destroy
-    
-    while (list) {
-
-        Listnode next = list->next;
-
-        if(destroy)
-            destroy(list->value);
-            
-        free(list);
-        list = next;
+Pointer list_find_next(List list, CompareFunc compare, Pointer value) {
+    for (ListNode node = list_first(list); list != NULL; node = node->next) {
+        if (!compare(value, node->value))
+            return node->next->value;
     }
 
+    return NULL;
+}
+
+void list_destroy(List list, DestroyFunc destroy) {         //Opos kai dipote NULL stin destroy
+    ListNode node = list_first(list);
+
+    while (node) {
+
+        ListNode next = node->next;
+
+        if(destroy)
+            destroy(node->value);
+            
+        free(node);
+        node = next;
+    }
+
+    free(list->dummyNode);
+    free(list);
 }

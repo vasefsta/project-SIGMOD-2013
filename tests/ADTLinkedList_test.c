@@ -8,34 +8,23 @@ int compare_queries(Query a, Query b) {
 	return strcmp(a->words,b->words);
 }
 
-int get_size(Listnode list){
-    int count = 0;
 
-    while (list){
-        count++;
-        list = list->next;
-    }
-    printf("%d\n", count);
-    return count;
-}
-
-void destroy (Listnode list){
-    free(list->value);
-    free(list);
+void destroy(Query query){
+    free(query->words);
+    free(query);
 }
 
 
 void test_create(){
-    Listnode list = list_create();
+    List list = list_create();
 
     TEST_ASSERT(list != NULL);
 
     list_destroy(list, NULL);
-
 }
 
 void test_insert(){
-    Listnode list = list_create();
+    List list = list_create();
 
     TEST_ASSERT(list != NULL);
 
@@ -64,9 +53,9 @@ void test_insert(){
     list_insert(list, query4);
 
 
-    TEST_ASSERT(get_size(list) == 4);
+    TEST_ASSERT(list_size(list) == 4);
 
-    Listnode result = list_find(list, (CompareFunc) compare_queries, query1);
+    ListNode result = list_find(list, (CompareFunc) compare_queries, query1);
 
     TEST_ASSERT(result != NULL);
 
