@@ -34,13 +34,60 @@ BKTree create_bk_tree(MatchType type){
 
 ErrorCode insert_bknode(BKTree bktree, Pointer value){
 
+    BKNode new = malloc(sizeof(*new));
+    new->children = NULL;
+    new->value = value;
+
+    if(bktree->root == NULL){
+        bktree->root = new;
+        return EC_SUCCESS;
+    }
+
+    return insert(bktree->root, new, bktree->compare);
+}
+
+ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
+    int dist = compare(bkparent->value, new->value);
+
+    if(!bkparent->children){
+        bkparent->children = list_create();
+        list_insert(bkparent->children, new);
+        return EC_SUCCESS;
+    }
+
+    BKNode child = list_find(bkparent->children, compare, new);
+
+    if(!child){
+        list_insert(bkparent->children, new);
+        return EC_SUCCESS;
+    } else {
+        return insert(child, new, compare);
+    }
+
 }
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy){
+    destroy(bktree->root);
+    free(bktree);
 
 }
 
+void destroy(BKNode node){
+    free(node->value);
+    while (node->children){
+
+    }
+    
+
+}
+
+
+
+
+//compare functions 
+
 int hamming_distance(Pointer value1, Pointer value2){
+    
     String word1 = value1;
 
     String word2 = value2;
