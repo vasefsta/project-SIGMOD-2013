@@ -3,7 +3,7 @@
 
 struct bknode {
     Pointer value;
-    Listnode children;
+    List children;
 };
 
 struct bktree {
