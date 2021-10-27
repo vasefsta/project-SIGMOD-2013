@@ -11,7 +11,7 @@ BKTree create_bk_tree(MatchType type);
 
 ErrorCode insert_bknode(BKTree bktree, Pointer value);
 
-void bk_tree_destroy(BKTree bktree, DestroyFunc destroy);
+void bk_destroy(BKTree bktree, DestroyFunc destroy);
 
 ErrorCode insert(BKNode bknode, BKNode new, CompareFunc compare);
 

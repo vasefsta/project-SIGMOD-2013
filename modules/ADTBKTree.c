@@ -58,7 +58,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     ListNode node;
     BKNode child;
 
-    for(node = list_first(bkparent); node != NULL; node = list_find_next(node)){
+    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
         child = list_node_value(node);
         if(compare(child->value, bkparent->value) == dist)
             break;
@@ -74,9 +74,10 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
 }
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy){
-    destroy(bktree->root);
+    if (destroy)
+        destroy(bktree->root);
+    
     free(bktree);
-
 }
 
 void destroy(BKNode bknode){
