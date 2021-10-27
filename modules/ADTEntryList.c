@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <string.h>
+
 #include "ADTEntryList.h"
 
 
@@ -19,6 +21,7 @@ Entry create_entry(String word) {      // NA APOFASISOUME AN PREPEI NA EPISTREFE
 ErrorCode destroy_entry(Entry entry) {
     free(entry->word);
     list_destroy(entry->payload, NULL);
+    return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i list_destroy leitourgei swsta
 }
 
 EntryList create_entry_list() {
@@ -33,6 +36,7 @@ unsigned int get_number_entries(EntryList entrylist) {
 
 ErrorCode add_entry(EntryList entrylist, Entry new_entry){
     list_insert(entrylist, new_entry);
+    return EC_SUCCESS;      // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i list_insert leitourgei swsta
 }
 
 Entry get_first(EntryList entrylist){
@@ -52,6 +56,7 @@ Entry get_next(EntryList entrylist, Entry current_entry){
 }
 
 ErrorCode destroy_entry_list(EntryList entrylist){
-    list_destroy(entrylist, destroy_entry);
+    list_destroy(entrylist, (DestroyFunc)destroy_entry);
+    return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i destroy_entry_list leitourgei swsta
 }
 

@@ -14,6 +14,57 @@ struct bktree {
     CompareFunc compare;    //hamming or edit
 };
 
+
+ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
+    int dist = compare(bkparent->value, new->value);
+
+    if(!bkparent->children){
+        bkparent->children = list_create();
+        list_insert(bkparent->children, new);
+        return EC_SUCCESS;
+    }
+
+    ListNode node;
+    BKNode child;
+
+    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
+        child = list_node_value(node);
+        if(compare(child->value, bkparent->value) == dist)
+            break;
+    }
+
+    if(!node){
+        list_insert(bkparent->children, new);
+        return EC_SUCCESS;
+    } else {
+        return insert(child, new, compare);
+    }
+
+}
+
+BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
+    int dist = compare(bkparent->value, value);
+
+    if (!dist)
+        return bkparent;
+
+    for (ListNode listnode = list_first(bkparent->children);
+        listnode != NULL;
+        listnode = list_find_next(listnode)) {
+            BKNode bknode = list_node_value(listnode); 
+            int res = compare(bknode->value, value);
+
+            if (!res)
+                return bknode;
+            else if (res == dist)
+                find(bknode, compare, value);
+        }
+
+    return NULL;
+}
+
+
+
 BKTree bk_create(MatchType type){
     BKTree new_tree = malloc(sizeof(*new_tree));
 
@@ -54,53 +105,7 @@ BKNode bk_find (BKTree bktree, Pointer value) {
     return find(bktree->root, bktree->compare, value);
 }
 
-const BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
-    int dist = compare(bkparent->value, value);
 
-    if (!dist)
-        return bkparent;
-
-    for (ListNode listnode = list_first(bkparent->children);
-        listnode != NULL;
-        listnode = list_find_next(listnode)) {
-            BKNode bknode = list_node_value(listnode); 
-            int res = compare(bknode->value, value);
-
-            if (!res)
-                return bknode;
-            else if (res == dist)
-                find(bknode, compare, value);
-        }
-
-    return NULL;
-}
-
-const ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
-    int dist = compare(bkparent->value, new->value);
-
-    if(!bkparent->children){
-        bkparent->children = list_create();
-        list_insert(bkparent->children, new);
-        return EC_SUCCESS;
-    }
-
-    ListNode node;
-    BKNode child;
-
-    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
-        child = list_node_value(node);
-        if(compare(child->value, bkparent->value) == dist)
-            break;
-    }
-
-    if(!node){
-        list_insert(bkparent->children, new);
-        return EC_SUCCESS;
-    } else {
-        return insert(child, new, compare);
-    }
-
-}
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy){
     if (destroy)

@@ -1,5 +1,6 @@
 #include "acutest.h"
 #include "ADTBKTree.h"
+#include "ADTEntryList.h"
 
 char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", "mall", "hospital", "hello", "world", "beautiful", "water", "music", "chocolate",
 "sunny", "beach", "summer", "winter", "autumn", "spring", "diving", "cream", "sotira", "book", "potatoes", "poetry", "athletes", "salad" , "lobster", "forest",
@@ -10,7 +11,7 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 
 
 void test_create(){
-    BKTree bktree = create_bk_tree(MT_EDIT_DIST);
+    BKTree bktree = bk_create(MT_EDIT_DIST);
 
     TEST_ASSERT(bktree != NULL);
 
@@ -19,27 +20,22 @@ void test_create(){
 
 
 void test_insert(){
-    BKTree bktree = create_bk_tree(MT_EDIT_DIST);
+    BKTree bktree = bk_create(MT_EDIT_DIST);
 
     TEST_ASSERT(bktree != NULL);
 
     int N = 50;
-    String strArray[N];
+    Entry entriesArray[N];
     for (int i = 0; i < 50; i++) {
-        strArray[i] = strdup(Array[i]);
+        entriesArray[i] = create_entry(Array[i]);
 
-        insert_bknode(bktree, strArray[i]);
+        bk_insert(bktree, entriesArray[i]);
     }
 
     for (int i = 0; i < 50; i++) {
-        bk_find(bktree, strArray[i]);
+        BKNode result = bk_find(bktree, entriesArray[i]);
+        TEST_ASSERT(result != NULL);
     }
-
-
-
-
-
-
 }
 
 
@@ -47,7 +43,7 @@ void test_insert(){
 TEST_LIST = {
 
 	{ "bktree_create", test_create },
-    // { "bktree_insert", test_insert },
+    { "bktree_insert", test_insert },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 
