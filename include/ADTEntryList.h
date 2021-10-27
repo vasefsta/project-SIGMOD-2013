@@ -6,12 +6,12 @@
 
 struct entry{
     String word;
-    ListNode payload;
+    List payload;
 };
 
 typedef struct entry* Entry;
 
-typedef ListNode EntryList;
+typedef List EntryList;
 
 Entry create_entry(String word);
 
