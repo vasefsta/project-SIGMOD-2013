@@ -89,7 +89,7 @@ void destroy(BKNode bknode){
         BKNode temp = list_node_value(node);
         destroy(temp);
     }
-    
+
     free(bknode->value);
     free(bknode);
 }
@@ -120,53 +120,48 @@ int hamming_distance(Pointer value1, Pointer value2){
 
 }
 
-int edit_distance(Pointer value1, Pointer value2){
-    String word1 = value1;
+int find_min(int one, int two, int three){
+    int min = one;
 
+    if(two < min)
+        min = two;
+
+    if (three < min)
+        min = three;
+
+    return min;
+}
+
+int edit_distance(Pointer value1, Pointer value2) {
+
+    String word1 = value1;
     String word2 = value2;
 
     int len1 = strlen(word1);
     int len2 = strlen(word2);
 
-    int matrix[len1 + 1][len2 + 1];         //Create array
+    int array[len1 + 1][len2 + 1];
 
-    for (int i = 0; i <= len1; i++){        //Initialize for word1 and NULL ex. '' and 'word1' [1, 2, 3, 4, 5]
-        matrix[i][0] = i;
-    }
-    for (int i = 0; i <= len2; i++){        //initialize for word2 and NULL ex. '' and 'word2  [1, 2, 3, 4, 5]
-        matrix[0][i] = i;
-    }
-
-    for (int i = 1; i <= len1; i++){        //Lopp through word letter to letter.
-        char c1;
-
-        c1 = word1[i - 1];                  //get letter from word1.
-
-        for (int j = 1; j <= len2; j++){    //compare with letters from word2.
-            char c2;
-
-            c2 = word2[j - 1];              //get letter from word2.
-            if (c1 == c2){                  //if letters are same no further action needed
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {                        
-                int delete;
-                int insert;
-                int substitute;
-                int minimum;
-
-                delete = matrix[i - 1][j] + 1;  
-                insert = matrix[i][j - 1] + 1;  
-                substitute = matrix[i - 1][j - 1] + 1;  
-                minimum = delete;                       //find min from those 3
-                if (insert < minimum){
-                    minimum = insert;
-                }
-                if (substitute < minimum){
-                    minimum = substitute;
-                }
-                matrix[i][j] = minimum;     //matrix in this position is the min.
+    array[0][0] = 1;
+    for(int i = 1; i < len1 + 1; i++){
+        array[i][0] = i;
+    } 
+    for(int i = 1; i < len2 + 1; i++){
+        array[0][i] = i;
+    } 
+    int value;
+    
+    for(int i = 1; i < len1 + 1; i++){
+        for(int j = 1; j < len2 + 1; j++){
+            if(word1[i] == word2[j])
+                value = find_min(array[i-1][j], array[i][j-1], array[i-1][j-1]);
+            else{
+                value = find_min(array[i-1][j], array[i][j-1], array[i-1][j-1]) + 1;
             }
+            array[i][j] = value;
         }
     }
-    return matrix[len1][len2];
+
+    return array[len1][len2];
+  
 }
