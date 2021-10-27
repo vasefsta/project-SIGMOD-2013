@@ -19,23 +19,35 @@ void test_create(){
 }
 
 
+void destroy_entrys(Entry entry){
+    list_destroy(entry->payload, (DestroyFunc) NULL);
+    free(entry);
+}
+
 void test_insert(){
     BKTree bktree = bk_create(MT_EDIT_DIST);
 
     TEST_ASSERT(bktree != NULL);
 
-    int N = 50;
+    int N = 5;
     Entry entriesArray[N];
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 5; i++) {
         entriesArray[i] = create_entry(Array[i]);
 
         bk_insert(bktree, entriesArray[i]);
     }
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 5; i++) {
         BKNode result = bk_find(bktree, entriesArray[i]);
+        if(result != NULL){
+            Entry entry = bk_node_value(result);
+            printf("%s\n",entry->word);
+        }
         TEST_ASSERT(result != NULL);
     }
+
+    bk_destroy(bktree, (DestroyFunc) destroy_entrys);
+
 }
 
 
