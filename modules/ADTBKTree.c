@@ -55,7 +55,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
         return EC_SUCCESS;
     }
 
-    BKNode child = list_find(bkparent->children, compare, new);
+    BKNode child = list_find(bkparent, compare, new);
 
     if(!child){
         list_insert(bkparent->children, new);

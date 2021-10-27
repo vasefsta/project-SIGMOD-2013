@@ -59,13 +59,12 @@ ListNode list_find(List list, CompareFunc compare, Pointer value) {
     return NULL;
 }
 
-Pointer list_find_next(List list, CompareFunc compare, Pointer value) {
-    for (ListNode node = list_first(list); list != NULL; node = node->next) {
-        if (!compare(value, node->value))
-            return node->next->value;
-    }
+Pointer list_node_value(List list, CompareFunc compare, ListNode node) {
+    return node->value;
+}
 
-    return NULL;
+ListNode list_find_next(List list, CompareFunc compare, ListNode node) {
+        return node->next;
 }
 
 void list_destroy(List list, DestroyFunc destroy) {         //Opos kai dipote NULL stin destroy

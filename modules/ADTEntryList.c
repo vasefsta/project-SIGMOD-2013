@@ -36,11 +36,19 @@ ErrorCode add_entry(EntryList entrylist, Entry new_entry){
 }
 
 Entry get_first(EntryList entrylist){
-    return list_first(entrylist);
+    ListNode node = list_first(entrylist);
+    return list_node_value(entrylist, compare_entries, node);
 }
 
 Entry get_next(EntryList entrylist, Entry current_entry){
-    return list_find_next(entrylist, compare_entries, current_entry);
+    for (ListNode node = list_first(entrylist); 
+        node != NULL; 
+        node = list_find_next(entrylist, compare_entries, node)) {
+            Entry entry = list_node_value(entrylist, compare_entries, node);
+            if (!compare_entries(entry, current_entry))
+                return entry;
+    }
+    return NULL;
 }
 
 ErrorCode destroy_entry_list(EntryList entrylist){
