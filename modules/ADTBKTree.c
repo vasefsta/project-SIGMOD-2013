@@ -77,8 +77,6 @@ void destroy(BKNode node){
     while (node->children){
 
     }
-    
-
 }
 
 
