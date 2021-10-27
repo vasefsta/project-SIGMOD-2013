@@ -27,7 +27,5 @@ Entry get_first(EntryList entrylist);
 
 Entry get_next(EntryList entrylist, Entry current_entry);
 
-Pointer list_find_next(List list, CompareFunc conpare, Pointer value);
-
 ErrorCode destroy_entry_list(EntryList entrylist);
 
