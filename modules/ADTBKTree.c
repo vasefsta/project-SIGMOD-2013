@@ -79,11 +79,18 @@ void bk_destroy(BKTree bktree, DestroyFunc destroy){
 
 }
 
-void destroy(BKNode node){
-    free(node->value);
-    while (node->children){
+void destroy(BKNode bknode){
 
+    if(!bknode)
+        return;
+
+    for(ListNode node = list_first(bknode->children); node != NULL; node = list_find_next(node)){
+        BKNode temp = list_node_value(node);
+        destroy(temp);
     }
+    
+    free(bknode->value);
+    free(bknode);
 }
 
 
@@ -146,9 +153,9 @@ int edit_distance(Pointer value1, Pointer value2){
                 int substitute;
                 int minimum;
 
-                delete = matrix[i - 1][j] + 1;  //case 1 delete is needed to have same strings
-                insert = matrix[i][j - 1] + 1;  //case 1 insert is needed to have same strings
-                substitute = matrix[i - 1][j - 1] + 1;  //case 1 substitute is needed to have same strings;
+                delete = matrix[i - 1][j] + 1;  
+                insert = matrix[i][j - 1] + 1;  
+                substitute = matrix[i - 1][j - 1] + 1;  
                 minimum = delete;                       //find min from those 3
                 if (insert < minimum){
                     minimum = insert;
