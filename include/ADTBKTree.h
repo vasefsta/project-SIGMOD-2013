@@ -7,13 +7,13 @@ typedef struct bktree* BKTree;
 
 typedef struct bknode* BKNode;
 
-BKTree create_bk_tree(MatchType type);
+BKTree bk_create(MatchType type);
 
-ErrorCode insert_bknode(BKTree bktree, Pointer value);
+ErrorCode bk_insert(BKTree bktree, Pointer value);
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy);
 
-ErrorCode insert(BKNode bknode, BKNode new, CompareFunc compare);
+BKNode bk_find (BKTree bktree, Pointer value);
 
 int hamming_distance(Pointer value1, Pointer value2);
 

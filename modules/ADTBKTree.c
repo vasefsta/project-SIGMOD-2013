@@ -14,7 +14,7 @@ struct bktree {
     CompareFunc compare;
 };
 
-BKTree create_bk_tree(MatchType type){
+BKTree bk_create(MatchType type){
     BKTree new_tree = malloc(sizeof(*new_tree));
 
     if (type == MT_EDIT_DIST)
@@ -32,7 +32,7 @@ BKTree create_bk_tree(MatchType type){
 
 }   
 
-ErrorCode insert_bknode(BKTree bktree, Pointer value){
+ErrorCode bk_insert(BKTree bktree, Pointer value){
 
     BKNode new = malloc(sizeof(*new));
     new->children = NULL;
@@ -46,7 +46,36 @@ ErrorCode insert_bknode(BKTree bktree, Pointer value){
     return insert(bktree->root, new, bktree->compare);
 }
 
-ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
+BKNode bk_find (BKTree bktree, Pointer value) {
+    if(bktree->root == NULL){
+        return NULL;
+    }
+
+    return find(bktree->root, bktree->compare, value);
+}
+
+const BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
+    int dist = compare(bkparent->value, value);
+
+    if (!dist)
+        return bkparent;
+
+    for (ListNode listnode = list_first(bkparent->children);
+        listnode != NULL;
+        listnode = list_find_next(listnode)) {
+            BKNode bknode = list_node_value(listnode); 
+            int res = compare(bknode->value, value);
+
+            if (!res)
+                return bknode;
+            else if (res == dist)
+                find(bknode, compare, value);
+        }
+
+    return NULL;
+}
+
+const ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     int dist = compare(bkparent->value, new->value);
 
     if(!bkparent->children){
