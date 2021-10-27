@@ -59,11 +59,11 @@ ListNode list_find(List list, CompareFunc compare, Pointer value) {
     return NULL;
 }
 
-Pointer list_node_value(List list, CompareFunc compare, ListNode node) {
+Pointer list_node_value(ListNode node) {
     return node->value;
 }
 
-ListNode list_find_next(List list, CompareFunc compare, ListNode node) {
+ListNode list_find_next(ListNode node) {
         return node->next;
 }
 

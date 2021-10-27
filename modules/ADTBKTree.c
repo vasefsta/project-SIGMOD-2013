@@ -55,9 +55,16 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
         return EC_SUCCESS;
     }
 
-    BKNode child = list_find(bkparent, compare, new);
+    ListNode node;
+    BKNode child;
 
-    if(!child){
+    for(node = list_first(bkparent); node != NULL; node = list_find_next(node)){
+        child = list_node_value(node);
+        if(compare(child->value, bkparent->value) == dist)
+            break;
+    }
+
+    if(!node){
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     } else {

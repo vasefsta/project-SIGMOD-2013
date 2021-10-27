@@ -37,14 +37,14 @@ ErrorCode add_entry(EntryList entrylist, Entry new_entry){
 
 Entry get_first(EntryList entrylist){
     ListNode node = list_first(entrylist);
-    return list_node_value(entrylist, compare_entries, node);
+    return list_node_value(node);
 }
 
 Entry get_next(EntryList entrylist, Entry current_entry){
     for (ListNode node = list_first(entrylist); 
         node != NULL; 
-        node = list_find_next(entrylist, compare_entries, node)) {
-            Entry entry = list_node_value(entrylist, compare_entries, node);
+        node = list_find_next(node)) {
+            Entry entry = list_node_value(node);
             if (!compare_entries(entry, current_entry))
                 return entry;
     }

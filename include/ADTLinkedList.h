@@ -19,6 +19,6 @@ void list_destroy(List list, DestroyFunc destoy);
 
 ListNode list_find(List list, CompareFunc compare, Pointer value);
 
-Pointer list_node_value(List list, CompareFunc compare, ListNode node);
+Pointer list_node_value(ListNode node);
 
-ListNode list_find_next(List list, CompareFunc compare, ListNode node);
+ListNode list_find_next(ListNode node);
