@@ -5,13 +5,13 @@
 #include <string.h>
 
 struct bknode {
-    Pointer value;
-    List children;
+    Pointer value;      //Pointer to struct Entry
+    List children;      //List that value in nodes is a bknode
 };
 
 struct bktree {
     BKNode root;
-    CompareFunc compare;
+    CompareFunc compare;    //hamming or edit
 };
 
 BKTree bk_create(MatchType type){

@@ -5,7 +5,7 @@
 #include "ADTLinkedList.h"
 
 struct listnode {
-    Pointer value;
+    Pointer value;          //General list
     ListNode next;
 };
 
