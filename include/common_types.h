@@ -7,10 +7,9 @@ typedef void* Pointer;
 // ####################################################################
 
 struct query {
-    String words;
-    unsigned short length; 
+    String words;                       //Save query as string
+    unsigned short length;              //number of words of query
 };
-
 
 
 

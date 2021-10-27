@@ -5,8 +5,8 @@
 #include "core.h"
 
 struct entry{
-    String word;
-    List payload;
+    String word;                //Holds keyword for queries who have the same keyword
+    List payload;               //List that holds queries that have the same keyword "word"
 };
 
 typedef struct entry* Entry;
