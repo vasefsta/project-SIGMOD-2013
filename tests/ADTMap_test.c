@@ -12,6 +12,9 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "carribean", "spray", "hookah", "chair", "sofa", "basket", "apple", "banana", "orange", "peach", "strawberry", "blue", "pink", "yellow", "brown", "black",
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
+void destroy_word(String word) {
+	free(word);
+}
 
 unsigned int hash_function(String word) {
 	return hash_string(word);
@@ -44,22 +47,23 @@ void test_insert(void) {
 	TEST_ASSERT(map != NULL);
 
 	int N = 50;
-
+	String strArray[N];
+	
 	for (int i = 0; i < N; i++) {
-		map_insert(map, Array[i]);
-		TEST_ASSERT(map_find(map, Array[i]));
+		strArray[i] = strdup(Array[i]);
+		map_insert(map, strArray[i]);
+		TEST_ASSERT(map_find(map, strArray[i]));
 	}
 
 	TEST_ASSERT(map_capacity(map) == 50);
 
-	map_destroy(map, NULL);	
+	map_destroy(map, (DestroyFunc) destroy_word);	
 }
 
 TEST_LIST = {
 
 	{ "map_create", test_create },
 	{ "map_insert", test_insert },
-	// { "map_find", 	test_find },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

@@ -83,8 +83,8 @@ int map_destroy(Map map, DestroyFunc destroy){
             
             if (destroy){
                 destroy(node->value);
-                free(node);
             }
+            free(node);
             node = next;
         }
     }
