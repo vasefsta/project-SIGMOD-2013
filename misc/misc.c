@@ -14,14 +14,12 @@ Query convert_to_query(String string){
 
     while (token != NULL){
         count++;
-        token = strtok(NULL, " ");
-        
+        token = strtok(NULL, " ");   
     }
     
     query->length = count;
     //Free string na ginete meta tin sinartisi
 }
-
 
 
 int main(){

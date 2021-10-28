@@ -36,7 +36,7 @@ ListNode list_first(List list) {
 
 void list_insert(List list, Pointer value){
     ListNode node = list->dummyNode;
-
+    
     while (node->next){
         node = node->next;
     }

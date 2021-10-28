@@ -1,5 +1,6 @@
 #include "ADTBKTree.h"
 #include "ADTLinkedList.h"
+#include "ADTEntryList.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,8 +18,9 @@ struct bktree {
 
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     int dist = compare(bkparent->value, new->value);
-
+    Entry entry = bkparent->value;
     if(!bkparent->children){
+        Entry entry = bkparent->value;
         bkparent->children = list_create();
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
@@ -32,35 +34,51 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
         if(compare(child->value, bkparent->value) == dist)
             break;
     }
+    Entry entry2 = new->value ;
 
     if(!node){
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     } else {
+        entry = child->value;
         return insert(child, new, compare);
+
     }
 
 }
 
-BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
-    int dist = compare(bkparent->value, value);
+Pointer bk_node_value(BKNode node){
+    return node->value;
+}
 
-    if (!dist)
+BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
+    Entry entry = bkparent->value;
+    Entry e2 = value;
+
+    int dist = compare(entry, value);
+    if(dist == 0)
         return bkparent;
 
-    for (ListNode listnode = list_first(bkparent->children);
-        listnode != NULL;
-        listnode = list_find_next(listnode)) {
-            BKNode bknode = list_node_value(listnode); 
-            int res = compare(bknode->value, value);
+    if(bkparent->children == NULL){
+        return NULL;
+    }
 
-            if (!res)
-                return bknode;
-            else if (res == dist)
-                find(bknode, compare, value);
-        }
+    ListNode node;
+    BKNode child; 
 
-    return NULL;
+    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
+        child = list_node_value(node);
+        if(compare(child->value, bkparent->value) == dist)
+            break;
+    }
+
+    if(!node){
+        return NULL;
+    } else {
+        entry = child->value;
+        return find(child, compare, value);
+    }
+
 }
 
 
@@ -88,45 +106,55 @@ ErrorCode bk_insert(BKTree bktree, Pointer value){
     BKNode new = malloc(sizeof(*new));
     new->children = NULL;
     new->value = value;
-
+    Entry entry = value;
     if(bktree->root == NULL){
         bktree->root = new;
         return EC_SUCCESS;
     }
 
-    return insert(bktree->root, new, bktree->compare);
+    Entry entry2 = bktree->root->value;
+    int res = insert(bktree->root, new, bktree->compare);
+
+    puts("");
+    puts("");
+    return res;
 }
 
 BKNode bk_find (BKTree bktree, Pointer value) {
     if(bktree->root == NULL){
         return NULL;
     }
-
     return find(bktree->root, bktree->compare, value);
 }
 
 
-
-void bk_destroy(BKTree bktree, DestroyFunc destroy){
-    if (destroy)
-        destroy(bktree->root);
-    
-    free(bktree);
-}
-
-void destroy(BKNode bknode){
+void destroy(BKNode bknode, DestroyFunc destroy_value){
 
     if(!bknode)
         return;
 
-    for(ListNode node = list_first(bknode->children); node != NULL; node = list_find_next(node)){
-        BKNode temp = list_node_value(node);
-        destroy(temp);
-    }
+    if(bknode->children != NULL){
 
-    free(bknode->value);
+        for(ListNode node = list_first(bknode->children); node != NULL; node = list_find_next(node)){
+            BKNode temp = list_node_value(node);
+            destroy(temp, destroy_value);
+        }
+
+    } 
+
+    if (destroy_value) 
+        destroy_value(bknode->value);
+    
+    list_destroy(bknode->children, NULL);
     free(bknode);
 }
+
+void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
+    destroy(bktree->root, (DestroyFunc) destroy_value);
+    
+    free(bktree);
+}
+
 
 
 
@@ -167,35 +195,56 @@ int find_min(int one, int two, int three){
 }
 
 int edit_distance(Pointer value1, Pointer value2) {
+    Entry e1 = value1;
+    Entry e2 = value2;
 
-    String word1 = value1;
-    String word2 = value2;
+
+    String word1 = e1->word;
+    String word2 = e2->word;
 
     int len1 = strlen(word1);
     int len2 = strlen(word2);
 
-    int array[len1 + 1][len2 + 1];
+        int matrix[len1 + 1][len2 + 1];         //Create array
 
-    array[0][0] = 1;
-    for(int i = 1; i < len1 + 1; i++){
-        array[i][0] = i;
-    } 
-    for(int i = 1; i < len2 + 1; i++){
-        array[0][i] = i;
-    } 
-    int value;
-    
-    for(int i = 1; i < len1 + 1; i++){
-        for(int j = 1; j < len2 + 1; j++){
-            if(word1[i] == word2[j])
-                value = find_min(array[i-1][j], array[i][j-1], array[i-1][j-1]);
-            else{
-                value = find_min(array[i-1][j], array[i][j-1], array[i-1][j-1]) + 1;
-            }
-            array[i][j] = value;
-        }
+    for (int i = 0; i <= len1; i++){        //Initialize for word1 and NULL ex. '' and 'word1' [1, 2, 3, 4, 5]
+        matrix[i][0] = i;
+    }
+    for (int i = 0; i <= len2; i++){        //initialize for word2 and NULL ex. '' and 'word2  [1, 2, 3, 4, 5]
+        matrix[0][i] = i;
     }
 
-    return array[len1][len2];
+    for (int i = 1; i <= len1; i++){        //Lopp through word letter to letter.
+        char c1;
+
+        c1 = word1[i - 1];                  //get letter from word1.
+
+        for (int j = 1; j <= len2; j++){    //compare with letters from word2.
+            char c2;
+
+            c2 = word2[j - 1];              //get letter from word2.
+            if (c1 == c2){                  //if letters are same no further action needed
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {                        
+                int delete;
+                int insert;
+                int substitute;
+                int minimum;
+
+                delete = matrix[i - 1][j] + 1;  //case 1 delete is needed to have same strings
+                insert = matrix[i][j - 1] + 1;  //case 1 insert is needed to have same strings
+                substitute = matrix[i - 1][j - 1] + 1;  //case 1 substitute is needed to have same strings;
+                minimum = delete;                       //find min from those 3
+                if (insert < minimum){
+                    minimum = insert;
+                }
+                if (substitute < minimum){
+                    minimum = substitute;
+                }
+                matrix[i][j] = minimum;     //matrix in this position is the min.
+            }
+        }
+    }
+    return matrix[len1][len2];
   
 }
