@@ -10,6 +10,12 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
 
+const void destroy_entries(Entry entry){
+    list_destroy(entry->payload, NULL);
+    free(entry);
+}
+
+
 void test_create(){
     BKTree bktree = bk_create(MT_EDIT_DIST);
 
@@ -18,11 +24,6 @@ void test_create(){
     bk_destroy(bktree, NULL);
 }
 
-
-void destroy_entrys(Entry entry){
-    list_destroy(entry->payload, NULL);
-    free(entry);
-}
 
 void test_insert(){
     BKTree bktree = bk_create(MT_EDIT_DIST);
@@ -42,7 +43,7 @@ void test_insert(){
         TEST_ASSERT(result != NULL);
     }
 
-    bk_destroy(bktree, (DestroyFunc) destroy_entrys);
+    bk_destroy(bktree, (DestroyFunc) destroy_entries);
 }
 
 
