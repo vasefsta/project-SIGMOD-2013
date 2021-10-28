@@ -127,9 +127,8 @@ void destroy(BKNode bknode, DestroyFunc destroy_value){
                 BKNode bknode = list_node_value(node);
                 destroy(bknode, (DestroyFunc)destroy_value); 
         }
-        
-        if ((bknode->children))
-            list_destroy(bknode->children, NULL);
+                
+        list_destroy(bknode->children, NULL);
     } 
 
     if (destroy_value)
