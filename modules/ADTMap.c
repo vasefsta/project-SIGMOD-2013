@@ -74,7 +74,7 @@ int map_destroy(Map map, DestroyFunc destroy){
     for(int i = 0; i < map->size; i++){
         MapNode node =  map->hashtable[i].next;
 
-        if(map->hashtable[i].value){
+        if(destroy && map->hashtable[i].value){
             destroy(map->hashtable[i].value);
         }
 
