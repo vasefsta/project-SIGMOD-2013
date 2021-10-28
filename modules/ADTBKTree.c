@@ -18,9 +18,7 @@ struct bktree {
 
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     int dist = compare(bkparent->value, new->value);
-    Entry entry = bkparent->value;
     if(!bkparent->children){
-        Entry entry = bkparent->value;
         bkparent->children = list_create();
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
@@ -34,13 +32,11 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
         if(compare(child->value, bkparent->value) == dist)
             break;
     }
-    Entry entry2 = new->value ;
 
     if(!node){
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     } else {
-        entry = child->value;
         return insert(child, new, compare);
 
     }
@@ -52,10 +48,7 @@ Pointer bk_node_value(BKNode node){
 }
 
 BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
-    Entry entry = bkparent->value;
-    Entry e2 = value;
-
-    int dist = compare(entry, value);
+    int dist = compare(bkparent->value, value);
     if(dist == 0)
         return bkparent;
 
@@ -75,7 +68,6 @@ BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
     if(!node){
         return NULL;
     } else {
-        entry = child->value;
         return find(child, compare, value);
     }
 
@@ -106,17 +98,13 @@ ErrorCode bk_insert(BKTree bktree, Pointer value){
     BKNode new = malloc(sizeof(*new));
     new->children = NULL;
     new->value = value;
-    Entry entry = value;
     if(bktree->root == NULL){
         bktree->root = new;
         return EC_SUCCESS;
     }
 
-    Entry entry2 = bktree->root->value;
     int res = insert(bktree->root, new, bktree->compare);
 
-    puts("");
-    puts("");
     return res;
 }
 
@@ -129,34 +117,31 @@ BKNode bk_find (BKTree bktree, Pointer value) {
 
 
 void destroy(BKNode bknode, DestroyFunc destroy_value){
-
-    if(!bknode)
+    if (!bknode)
         return;
 
-    if(bknode->children != NULL){
-
-        for(ListNode node = list_first(bknode->children); node != NULL; node = list_find_next(node)){
-            BKNode temp = list_node_value(node);
-            destroy(temp, destroy_value);
+    if ((bknode->children)) {
+        for (ListNode node = list_first(bknode->children);
+            node != NULL;
+            node = list_find_next(node)) {
+                BKNode bknode = list_node_value(node);
+                destroy(bknode, (DestroyFunc)destroy_value); 
         }
-
+        
+        if ((bknode->children))
+            list_destroy(bknode->children, NULL);
     } 
 
-    if (destroy_value) 
+    if (destroy_value)
         destroy_value(bknode->value);
     
-    list_destroy(bknode->children, NULL);
     free(bknode);
 }
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
-    destroy(bktree->root, (DestroyFunc) destroy_value);
-    
+    destroy(bktree->root, (DestroyFunc)destroy_value);
     free(bktree);
 }
-
-
-
 
 
 //compare functions 

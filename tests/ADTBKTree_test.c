@@ -20,7 +20,7 @@ void test_create(){
 
 
 void destroy_entrys(Entry entry){
-    list_destroy(entry->payload, (DestroyFunc) NULL);
+    list_destroy(entry->payload, NULL);
     free(entry);
 }
 
@@ -29,25 +29,20 @@ void test_insert(){
 
     TEST_ASSERT(bktree != NULL);
 
-    int N = 5;
+    int N = 50;
     Entry entriesArray[N];
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < N; i++) {
         entriesArray[i] = create_entry(Array[i]);
 
         bk_insert(bktree, entriesArray[i]);
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < N; i++) {
         BKNode result = bk_find(bktree, entriesArray[i]);
-        if(result != NULL){
-            Entry entry = bk_node_value(result);
-            printf("%s\n",entry->word);
-        }
         TEST_ASSERT(result != NULL);
     }
 
     bk_destroy(bktree, (DestroyFunc) destroy_entrys);
-
 }
 
 
