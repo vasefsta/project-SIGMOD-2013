@@ -44,6 +44,23 @@ void test_insert(){
     }
 
     bk_destroy(bktree, (DestroyFunc) destroy_entries);
+
+    bktree = bk_create(MT_HAMMING_DIST);
+
+    TEST_ASSERT(bktree != NULL);
+
+    for (int i = 0; i < N; i++) {
+        entriesArray[i] = create_entry(Array[i]);
+
+        bk_insert(bktree, entriesArray[i]);
+    }
+
+    for (int i = 0; i < N; i++) {
+        BKNode result = bk_find(bktree, entriesArray[i]);
+        TEST_ASSERT(result != NULL);
+    }
+
+    bk_destroy(bktree, (DestroyFunc) destroy_entries);
 }
 
 
