@@ -2,6 +2,7 @@
 
 #include "core.h"
 #include "common_types.h"
+#include "ADTEntryList.h"
 
 typedef struct bktree* BKTree;
 
@@ -15,7 +16,7 @@ Pointer bk_node_value(BKNode node);
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy);
 
-BKNode bk_find (BKTree bktree, Pointer value);
+int bk_find (BKTree bktree, Pointer value, EntryList entrylist, int thresholds);
 
 int hamming_distance(Pointer value1, Pointer value2);
 

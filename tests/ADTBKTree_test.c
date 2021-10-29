@@ -25,7 +25,7 @@ void test_create(){
 }
 
 
-void test_insert(){
+void test_insert_edit(){
     BKTree bktree = bk_create(MT_EDIT_DIST);
 
     TEST_ASSERT(bktree != NULL);
@@ -38,29 +38,57 @@ void test_insert(){
         bk_insert(bktree, entriesArray[i]);
     }
 
-    for (int i = 0; i < N; i++) {
-        BKNode result = bk_find(bktree, entriesArray[i]);
-        TEST_ASSERT(result != NULL);
-    }
+    EntryList entrylist = create_entry_list();
+
+    int threshold = 0;
+
+    Entry entry = create_entry("guitar");
+
+    bk_find(bktree, entry, entrylist, threshold);
+
+    printf("%d num of entries \n", get_number_entries(entrylist));
 
     bk_destroy(bktree, (DestroyFunc) destroy_entries);
 
-    bktree = bk_create(MT_HAMMING_DIST);
+    list_destroy(entrylist, NULL);
+
+    list_destroy(entry->payload, NULL);
+
+    free(entry);
+
+}
+
+void test_insert_hamming(){
+    BKTree bktree = bk_create(MT_EDIT_DIST);
 
     TEST_ASSERT(bktree != NULL);
 
+    int N = 50;
+    Entry entriesArray[N];
     for (int i = 0; i < N; i++) {
         entriesArray[i] = create_entry(Array[i]);
 
         bk_insert(bktree, entriesArray[i]);
     }
 
-    for (int i = 0; i < N; i++) {
-        BKNode result = bk_find(bktree, entriesArray[i]);
-        TEST_ASSERT(result != NULL);
-    }
+    EntryList entrylist = create_entry_list();
+
+    int threshold = 0;
+
+    Entry entry = create_entry("guitar");
+
+    bk_find(bktree, entry, entrylist, threshold);
+
+    printf("%d num of entries \n", get_number_entries(entrylist));
 
     bk_destroy(bktree, (DestroyFunc) destroy_entries);
+
+    list_destroy(entrylist, NULL);
+
+    list_destroy(entry->payload, NULL);
+
+    free(entry);
+
 }
 
 
@@ -68,7 +96,8 @@ void test_insert(){
 TEST_LIST = {
 
 	{ "bktree_create", test_create },
-    { "bktree_insert", test_insert },
+    { "bktree_insert_edit", test_insert_edit },
+    { "bktree_insert_hamming", test_insert_hamming },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

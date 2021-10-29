@@ -51,7 +51,7 @@ void list_insert(List list, Pointer value){
 
 
 ListNode list_find(List list, CompareFunc compare, Pointer value) {
-    for (ListNode node = list_first(list); list != NULL; node = node->next) {
+    for (ListNode node = list_first(list); node != NULL; node = node->next) {
         if (!compare(value, node->value))
             return node;
     }

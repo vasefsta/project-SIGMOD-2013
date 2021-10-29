@@ -47,30 +47,32 @@ Pointer bk_node_value(BKNode node){
     return node->value;
 }
 
-BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
-    int dist = compare(bkparent->value, value);
-    if(dist == 0)
-        return bkparent;
+int find(BKNode bkparent, CompareFunc compare, Pointer value, EntryList entrylist ,int threshold) {
+    int dist_value_parent = compare(bkparent->value, value);
+    int low_range = dist_value_parent - threshold;
+
+    if (low_range < 0)
+        low_range = 0;
+
+    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) )
+        add_entry(entrylist, value);
 
     if(bkparent->children == NULL){
-        return NULL;
+        return -1;
     }
 
-    ListNode node;
-    BKNode child; 
+    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
+        BKNode child = list_node_value(node);
+        int dist_parent_child = compare(child->value, bkparent->value);
 
-    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
-        child = list_node_value(node);
-        if(compare(child->value, bkparent->value) == dist)
-            break;
+        if(dist_value_parent < 0){
+            find(child, compare, value, entrylist, threshold);
+        }
+        else if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range)){
+            find(child, compare, value, entrylist, threshold);            
+        }
     }
-
-    if(!node){
-        return NULL;
-    } else {
-        return find(child, compare, value);
-    }
-
+    return 0;
 }
 
 
@@ -108,11 +110,11 @@ ErrorCode bk_insert(BKTree bktree, Pointer value){
     return res;
 }
 
-BKNode bk_find (BKTree bktree, Pointer value) {
+int bk_find (BKTree bktree, Pointer value, EntryList entrylist, int threshold) {
     if(bktree->root == NULL){
-        return NULL;
+        return -1;
     }
-    return find(bktree->root, bktree->compare, value);
+    return find(bktree->root, bktree->compare, value,entrylist, threshold);
 }
 
 
@@ -147,15 +149,16 @@ void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
 
 int hamming_distance(Pointer value1, Pointer value2){
     
-    String word1 = value1;
+    Entry e1 = value1;
+    Entry e2 = value2;
 
-    String word2 = value2;
+    String word1 = e1->word;
+    String word2 = e2->word;
 
     if(strlen(word1) != strlen(word2))
         return -1;
 
     int hamming_dist = 0;
-
 
     for(int i = 0; i < strlen(word1); i++){
         if(word1[i] != word2[i])
