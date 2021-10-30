@@ -44,7 +44,7 @@ int map_capacity(Map map) {
     return map->capacity;
 }
 
-void map_insert(Map map, Pointer value) {
+ErrorCode map_insert(Map map, Pointer value) {
     assert(value);
 
     unsigned int position = map->hash_function(value);
@@ -67,6 +67,8 @@ void map_insert(Map map, Pointer value) {
     }
 
     map->capacity++;
+
+    return EC_SUCCESS;
 }
 
 int map_destroy(Map map, DestroyFunc destroy){
@@ -95,7 +97,7 @@ int map_destroy(Map map, DestroyFunc destroy){
     return 1;
 }
 
-int map_find(Map map, Pointer value){
+Pointer map_find(Map map, Pointer value){
     unsigned int position = map->hash_function(value);
     position %= map->size;
 
@@ -105,12 +107,12 @@ int map_find(Map map, Pointer value){
     while (node){
         if(node->value){
             if(!(map->compare_function(value, node->value))){
-                return 1;
+                return node->value;
             }
         }
         node = node->next;
     }
-    return 0;
+    return NULL;
 }
 
 

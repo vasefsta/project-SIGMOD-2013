@@ -1,12 +1,13 @@
 #include "ADTBKTree.h"
 #include "ADTLinkedList.h"
-#include "ADTEntryList.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+
+
 struct bknode {
-    Pointer value;      //Pointer to struct Entry
+    Entry entry;      //Entry to struct Entry
     List children;      //List that value in nodes is a bknode
 };
 
@@ -17,7 +18,8 @@ struct bktree {
 
 
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
-    int dist = compare(bkparent->value, new->value);
+    int dist = compare(bkparent->entry->word, new->entry->word);
+
     if(!bkparent->children){
         bkparent->children = list_create();
         list_insert(bkparent->children, new);
@@ -27,9 +29,9 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     ListNode node;
     BKNode child;
 
-    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
+    for (node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
         child = list_node_value(node);
-        if(compare(child->value, bkparent->value) == dist)
+        if(compare(child->entry->word, bkparent->entry->word) == dist)
             break;
     }
 
@@ -38,81 +40,36 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
         return EC_SUCCESS;
     } else {
         return insert(child, new, compare);
-
     }
-
 }
 
-Pointer bk_node_value(BKNode node){
-    return node->value;
-}
 
-BKNode find(BKNode bkparent, CompareFunc compare, Pointer value) {
-    int dist = compare(bkparent->value, value);
-    if(dist == 0)
-        return bkparent;
+int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word, int threshold) {
+    int dist_value_parent = compare(bkparent->entry->word, word);
+    int low_range = dist_value_parent - threshold;
+
+    if (low_range < 0)
+        low_range = 0;
+
+    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) )
+        add_entry(entrylist, bkparent->entry);
 
     if(bkparent->children == NULL){
-        return NULL;
+        return -1;
     }
 
-    ListNode node;
-    BKNode child; 
+    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
+        BKNode child = list_node_value(node);
+        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);
 
-    for(node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
-        child = list_node_value(node);
-        if(compare(child->value, bkparent->value) == dist)
-            break;
+        if(dist_value_parent < 0){
+            find(child, compare, entrylist, word, threshold);
+        }
+        else if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range)){
+            find(child, compare, entrylist, word, threshold);            
+        }
     }
-
-    if(!node){
-        return NULL;
-    } else {
-        return find(child, compare, value);
-    }
-
-}
-
-
-
-BKTree bk_create(MatchType type){
-    BKTree new_tree = malloc(sizeof(*new_tree));
-
-    if (type == MT_EDIT_DIST)
-        new_tree->compare = edit_distance;
-    else if (type == MT_HAMMING_DIST)
-        new_tree->compare = hamming_distance;
-    else{
-        free(new_tree);
-        return NULL;
-    }
-
-    new_tree->root = NULL;
-    
-    return new_tree;
-
-}   
-
-ErrorCode bk_insert(BKTree bktree, Pointer value){
-
-    BKNode new = malloc(sizeof(*new));
-    new->children = NULL;
-    new->value = value;
-    if(bktree->root == NULL){
-        bktree->root = new;
-        return EC_SUCCESS;
-    }
-
-    int res = insert(bktree->root, new, bktree->compare);
-
-    return res;
-}
-
-BKNode bk_find (BKTree bktree, Pointer value) {
-    if(bktree->root == NULL){
-        return NULL;
-    }
-    return find(bktree->root, bktree->compare, value);
+    return 0;
 }
 
 
@@ -132,10 +89,60 @@ void destroy(BKNode bknode, DestroyFunc destroy_value){
     } 
 
     if (destroy_value)
-        destroy_value(bknode->value);
+        destroy_value(bknode->entry);
     
     free(bknode);
 }
+
+
+
+BKTree bk_create(MatchType type){
+    BKTree new_tree = malloc(sizeof(*new_tree));
+
+    if (type == MT_EDIT_DIST)
+        new_tree->compare = edit_distance;
+    else if (type == MT_HAMMING_DIST)
+        new_tree->compare = hamming_distance;
+    else{
+        free(new_tree);
+        return NULL;
+    }
+
+    new_tree->root = NULL;
+    
+    return new_tree;
+}   
+
+
+ErrorCode bk_insert(BKTree bktree, Entry entry){
+
+    BKNode new = malloc(sizeof(*new));
+    new->entry = entry;
+    new->children = NULL;
+
+    if(bktree->root == NULL){
+        bktree->root = new;
+        return EC_SUCCESS;
+    }
+
+    int res = insert(bktree->root, new, bktree->compare);
+
+    return res;
+}
+
+Entry bk_node_value(BKNode node){
+    return node->entry;
+}
+
+int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
+    if(bktree->root == NULL){
+        return -1;
+    }
+
+    return find(bktree->root, bktree->compare, entrylist, word, n);
+}
+
+
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
     destroy(bktree->root, (DestroyFunc)destroy_value);
@@ -146,9 +153,7 @@ void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
 //compare functions 
 
 int hamming_distance(Pointer value1, Pointer value2){
-    
     String word1 = value1;
-
     String word2 = value2;
 
     if(strlen(word1) != strlen(word2))
@@ -156,14 +161,12 @@ int hamming_distance(Pointer value1, Pointer value2){
 
     int hamming_dist = 0;
 
-
     for(int i = 0; i < strlen(word1); i++){
         if(word1[i] != word2[i])
             hamming_dist++;
     }
 
     return hamming_dist;
-
 }
 
 int find_min(int one, int two, int three){
@@ -179,12 +182,8 @@ int find_min(int one, int two, int three){
 }
 
 int edit_distance(Pointer value1, Pointer value2) {
-    Entry e1 = value1;
-    Entry e2 = value2;
-
-
-    String word1 = e1->word;
-    String word2 = e2->word;
+    String word1 = value1;
+    String word2 = value2;
 
     int len1 = strlen(word1);
     int len2 = strlen(word2);
@@ -211,6 +210,4 @@ int edit_distance(Pointer value1, Pointer value2) {
     }
 
     return array[len1][len2];
-
-
 }

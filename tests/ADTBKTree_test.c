@@ -25,7 +25,7 @@ void test_create(){
 }
 
 
-void test_insert(){
+void test_insert_edit(){
     BKTree bktree = bk_create(MT_EDIT_DIST);
 
     TEST_ASSERT(bktree != NULL);
@@ -38,29 +38,112 @@ void test_insert(){
         bk_insert(bktree, entriesArray[i]);
     }
 
+    int threshold = 0;
+
     for (int i = 0; i < N; i++) {
-        BKNode result = bk_find(bktree, entriesArray[i]);
-        TEST_ASSERT(result != NULL);
+        EntryList entrylist = create_entry_list();
+        
+        bk_find(bktree, entrylist, entriesArray[i]->word, threshold);
+        
+        TEST_ASSERT(get_number_entries(entrylist) == 1);
+
+        Entry entry = find_entry(entrylist, entriesArray[i]);
+
+        int res = strcmp(entry->word, entriesArray[i]->word);
+
+        TEST_ASSERT(res == 0);
+
+        list_destroy(entrylist, NULL);
     }
+
+
+    Entry entry = create_entry("guitar");
+    threshold = 20;
+
+    EntryList entrylist = create_entry_list();
+
+    bk_find(bktree, entrylist, entry->word, threshold);
+
+    TEST_ASSERT(get_number_entries(entrylist) == N);
+
+    for (int i = 0; i < N; i++) {
+        Entry entry = find_entry(entrylist, entriesArray[i]);
+
+        int res = strcmp(entry->word, entriesArray[i]->word);
+
+        TEST_ASSERT(res == 0);
+    }
+
 
     bk_destroy(bktree, (DestroyFunc) destroy_entries);
 
-    bktree = bk_create(MT_HAMMING_DIST);
+    list_destroy(entrylist, NULL);
+
+    list_destroy(entry->payload, NULL);
+
+    free(entry);
+
+}
+
+void test_insert_hamming(){
+    BKTree bktree = bk_create(MT_HAMMING_DIST);
 
     TEST_ASSERT(bktree != NULL);
 
+    int N = 50;
+    Entry entriesArray[N];
     for (int i = 0; i < N; i++) {
         entriesArray[i] = create_entry(Array[i]);
 
         bk_insert(bktree, entriesArray[i]);
     }
 
+    int threshold = 0;
+
     for (int i = 0; i < N; i++) {
-        BKNode result = bk_find(bktree, entriesArray[i]);
-        TEST_ASSERT(result != NULL);
+        EntryList entrylist = create_entry_list();
+        
+        bk_find(bktree, entrylist, entriesArray[i]->word, threshold);
+
+        TEST_ASSERT(get_number_entries(entrylist) == 1);
+
+        Entry entry = find_entry(entrylist, entriesArray[i]);
+
+        int res = strcmp(entry->word, entriesArray[i]->word);
+
+        TEST_ASSERT(res == 0);
+
+        list_destroy(entrylist, NULL);
     }
 
+
+    Entry entry = create_entry("guitar");       // mas emfanise tis lexeis me mikos 6 pou exoun threshold =20 apo thn guitar
+    threshold = 20;
+
+    EntryList entrylist = create_entry_list();
+
+    bk_find(bktree, entrylist, entry->word, threshold);
+
+    for (int i = 0; i < N; i++) {
+        Entry entry = find_entry(entrylist, entriesArray[i]);
+
+        if (entry) {
+            int res = strcmp(entry->word, entriesArray[i]->word);
+            TEST_ASSERT(res == 0);
+
+        }
+
+    }
+
+    TEST_ASSERT(get_number_entries(entrylist) == 12);
+
     bk_destroy(bktree, (DestroyFunc) destroy_entries);
+
+    list_destroy(entrylist, NULL);
+
+    list_destroy(entry->payload, NULL);
+
+    free(entry);
 }
 
 
@@ -68,7 +151,8 @@ void test_insert(){
 TEST_LIST = {
 
 	{ "bktree_create", test_create },
-    { "bktree_insert", test_insert },
+    { "bktree_insert_edit", test_insert_edit },
+    { "bktree_insert_hamming", test_insert_hamming },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

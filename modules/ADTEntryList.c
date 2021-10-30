@@ -55,8 +55,18 @@ Entry get_next(EntryList entrylist, Entry current_entry){
     return NULL;
 }
 
+Entry find_entry(EntryList entrylist, Entry current_entry) {
+    ListNode node = list_find(entrylist, (CompareFunc)compare_entries, current_entry);
+
+    if (node) {
+        Entry entry = list_node_value(node);
+        return entry;
+    } else
+        return NULL;
+}
+
 ErrorCode destroy_entry_list(EntryList entrylist){
-    list_destroy(entrylist, (DestroyFunc)destroy_entry);
+    list_destroy(entrylist, NULL);//Evala null dame je edulepsen anti destroy entry
     return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i destroy_entry_list leitourgei swsta
 }
 
