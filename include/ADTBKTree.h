@@ -2,6 +2,7 @@
 
 #include "core.h"
 #include "common_types.h"
+#include "ADTEntryList.h"
 
 #include "ADTEntryList.h"
 

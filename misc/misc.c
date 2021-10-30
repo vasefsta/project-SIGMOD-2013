@@ -1,4 +1,9 @@
 #include "common_types.h"
+#include "core.h"
+#include "ADTLinkedList.h"
+#include "ADTEntryList.h"
+#include "ADTMap.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -18,21 +23,90 @@ Query convert_to_query(String string){
     }
     
     query->length = count;
+
+    return query;
     //Free string na ginete meta tin sinartisi
 }
 
+List deduplicated_words(String filename){
+    FILE *FP = fopen(filename,"r");
+
+    if(!FP)
+        return NULL;
+    
+
+
+    char buffer[MAX_WORD_LENGTH+1];
+    char letter[2];
+    letter[1] = '\0';
+    char a;
+
+
+    List list = list_create();
+
+    strcpy(buffer, "");
+
+    while ((a = fgetc(FP)) != EOF){
+        if(a == ' '){
+            
+            if(!list_find(list, (CompareFunc) strcmp, buffer)){
+                printf("Inserting to list%s ", buffer);
+                String value = strdup(buffer);
+                list_insert(list, value);
+                strcpy(buffer, "");
+            }
+
+        } else {
+            letter[0] = a;
+            strcat(buffer, letter);
+        }
+    }
+
+    fclose(FP);
+    
+    return list;
+
+}
+
+const int compare(Entry entry, String value){
+    return strcmp(entry->word, value);
+}
+
+ map_of_queries(String filename){
+
+    FILE *FP = fopen(filename, "r");
+    if(FP == NULL)
+        return NULL;
+
+    long int buffsize = MAX_QUERY_LENGTH;
+    String buffer = NULL;
+
+    size_t bytes;
+
+    EntryList entrylist = create_entry_list();
+
+    while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){
+        Query new_query = convert_to_query(buffer);
+
+
+
+    }
+
+    return NULL;
+
+}
+
+
 
 int main(){
-    char temp[8] = "Ena Dio";
-    char *string = strdup(temp);
+   
 
-    Query new = convert_to_query(string);
-    free(string);
+    map_of_queries("./queries.txt");
 
-    printf("%d\n", new->length);
-    puts(new->words);
+    // List list = deduplicated_words("./documents/Document1");
+    
 
-    free(new->words);
+    // list_destroy(list, (DestroyFunc) free);
 
-    free(new);
+
 }
