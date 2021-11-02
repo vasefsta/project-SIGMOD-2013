@@ -1,4 +1,4 @@
-![example workflow](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/<WORKFLOW_FILE>/badge.svg)
+![example workflow](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg)
 # project-SIGMOD-2013
 
 Σημειωση: 
