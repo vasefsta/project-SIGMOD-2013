@@ -8,54 +8,51 @@
 MAKE += --silent
 
 # Ολα τα directories μέσα στο programs directory
-PROGRAMS = $(subst programs/, , $(wildcard programs/*))
+PROGRAMS = $($(wildcard programs/*))
 
 # Compile: όλα, προγράμματα, βιβλιοθήκη και tests
-all: programs lib tests
+all: programs tests
 
 # Η παρακάτω γραμμή δημιουργεί ένα target programs-<foo> για οποιοδήποτε <foo>. Η μεταβλητή $* περιέχει το "foo"
 programs-%:
-	$(MAKE) -C programs/$*
+	$(MAKE) -C programs/
 
-programs: $(addprefix programs-, $(PROGRAMS))		# depend στο programs-<foo> για κάθε στοιχείο του PROGRAMS
+programs: $(addprefix programs-%, programs/$*)		# depend στο programs-<foo> για κάθε στοιχείο του PROGRAMS
+
 
 tests:
 	$(MAKE) -C tests all
 
-lib:
-	$(MAKE) -C lib all
 
 # Εκτέλεση: όλα, προγράμματα, tests
-run: run-tests run-programs
+run: run-programs run-tests
 
-run-programs-%:
+run-programs:
 	$(MAKE) -C programs/$* run
 
-run-programs: $(addprefix run-programs-, $(PROGRAMS))
-
-run-tests:
+run-tests: $(addprefix run-programs-, $(PROGRAMS))
 	$(MAKE) -C tests run
 
 # Εκτέλεση με valgrind: όλα, προγράμματα, tests
-valgrind: valgrind-tests valgrind-programs
+valgrind: valgrind-programs valgrind-tests 
 
-valgrind-programs-%:
+valgrind-programs:
 	$(MAKE) -C programs/$* valgrind
 
-valgrind-programs: $(addprefix valgrind-programs-, $(PROGRAMS))
 
-valgrind-tests:
+valgrind-tests: $(addprefix valgrind-programs-, $(PROGRAMS))
 	$(MAKE) -C tests valgrind
 
+
+clean: clean-programs clean-tests
 # Εκκαθάριση
-clean-programs-%:
+clean-programs:
 	$(MAKE) -C programs/$* clean
 
-clean: $(addprefix clean-programs-, $(PROGRAMS))
+clean-tests: $(addprefix clean-programs-, $(PROGRAMS))
 	$(MAKE) -C tests clean
-	$(MAKE) -C lib clean
 
 # Δηλώνουμε ότι οι παρακάτω κανόνες είναι εικονικοί, δεν παράγουν αρχεία. Θέλουμε δηλαδή
 # το "make programs" να εκτελεστεί παρόλο που υπάρχει ήδη ένα directory "programs".
 #
-.PHONY: programs tests lib run run-programs run-tests clean
+.PHONY: programs tests run run-programs run-tests clean
