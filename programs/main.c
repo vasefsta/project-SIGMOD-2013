@@ -151,11 +151,11 @@ void destroy_query(Query q){
 
 int main(){
 
-    EntryList entrylist = create_entry_list();
-    Map map = map_of_queries("../misc/queries.txt", entrylist);
+    // EntryList entrylist = create_entry_list();
+    // Map map = map_of_queries("../misc/queries.txt", entrylist);
 
 
-    map_destroy(map,(DestroyFunc) destroy_query);
+    // map_destroy(map,(DestroyFunc) destroy_query);
 
     // List list = deduplicated_words("../misc/documents/Document1");
     
@@ -163,5 +163,5 @@ int main(){
 
     // destroy_entry_list(entrylist);
 
-
+    return 0;
 }
