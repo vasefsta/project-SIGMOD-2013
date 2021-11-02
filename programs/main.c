@@ -157,9 +157,11 @@ int main(){
 
     map_destroy(map,(DestroyFunc) destroy_query);
 
-    List list = deduplicated_words("../misc/documents/Document1");
+    // List list = deduplicated_words("../misc/documents/Document1");
     
-    list_destroy(list, (DestroyFunc) free);
+    // list_destroy(list, (DestroyFunc) free);
+
+    // destroy_entry_list(entrylist);
 
 
 }
