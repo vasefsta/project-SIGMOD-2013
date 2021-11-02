@@ -13,8 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: tests
-      run: ./tests/
+    - name: make run
+      run: make run CFLAGS=-fPIC
     - name: make
       run: make
     - name: make check
