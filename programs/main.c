@@ -99,6 +99,11 @@ int hash_func(Query query){
     return hash_string(query->words);
 }
 
+
+const int compare_entry_string(String word, Entry e1){
+    return (strcmp(e1->word, word));
+}
+
 Map map_of_queries(String filename, EntryList entrylist){
     
 
@@ -123,7 +128,7 @@ Map map_of_queries(String filename, EntryList entrylist){
         String *Array = Seperate_sentence(new_query);
 
         for(int i = 0; i < new_query->length; i++){
-            ListNode node = list_find(entrylist, (CompareFunc) strcmp, Array[i]);
+            ListNode node = list_find(entrylist, (CompareFunc) compare_entry_string, Array[i]);
             Entry entry;
             if(node != NULL){
                 entry = list_node_value(node);
@@ -158,24 +163,28 @@ int main(){
     int err;
 
     EntryList entrylist = create_entry_list();
-    Map map = map_of_queries("../misc/queries.txt", entrylist);
     EntryList result = create_entry_list();
+    
+    Map map = map_of_queries("../misc/queries.txt", entrylist);
 
     List list = deduplicated_words("../misc/documents/Document1");
 
     Index index_exact = create_index(MT_EXACT_MATCH, 100);
 
+
+
     err = build_entry_index(index_exact, entrylist);
 
-    // if(err != EC_SUCCESS){
-    //     perror("Exiting...");
-    //     return -1;
-    // }
+    if(err != EC_SUCCESS){
+        perror("Exiting...");
+        return -1;
+    }
+
+    
+    // printf("Number of entries in result = %d\n", get_number_entries(entrylist));
+
 
     // err = lookup_entry_index(index_exact, "sotira", 0, result);    
-
-    // printf("Number of entries in result = %d\n", get_number_entries(result));
-
 
 
 //###################################################################
