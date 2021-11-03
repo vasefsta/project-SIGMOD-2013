@@ -18,8 +18,8 @@ Query convert_to_query(String string){
     int count = 0;
 
     String token = strtok(string, " ");
-
-    while (token != NULL){
+    
+    while (token != NULL ){
         count++;
         token = strtok(NULL, " ");   
     }
@@ -141,6 +141,7 @@ Map map_of_queries(String filename, EntryList entrylist){
                 entry = create_entry(Array[i]);
                 list_insert(entry->payload, new_query);
                 add_entry(entrylist, entry);
+                printf("Adding entry %s in list\n", entry->word);
             }
         }
 
