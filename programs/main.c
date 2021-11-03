@@ -17,11 +17,11 @@ Query convert_to_query(String string){
 
     int count = 0;
 
-    String token = strtok(string, " ");
-    
+    String token = strtok(string, " \t\n");
+
     while (token != NULL ){
         count++;
-        token = strtok(NULL, " ");   
+        token = strtok(NULL, "  \t\n");   
     }
     
     query->length = count;
@@ -36,12 +36,12 @@ String *Seperate_sentence(Query query){
 
     int i  = 0;
 
-    String token = strtok(dummy, " ");
+    String token = strtok(dummy, " \t\n");
 
     Array[i] = strdup(token);
 
 
-    while( (token = strtok(NULL, " ")) != NULL){
+    while( (token = strtok(NULL, " \t\n")) != NULL){
         i++;
         Array[i] = strdup(token);
     }
@@ -164,7 +164,7 @@ const void destroy_query(Query q){
 
 
 int main(){
-    int err;
+    int err = 0;
 
     EntryList entrylist = create_entry_list();
     EntryList result = create_entry_list();
@@ -178,18 +178,18 @@ int main(){
     printf("Number of entries in result = %d\n", get_number_entries(entrylist));
 
 
-    // err = build_entry_index(index_exact, entrylist);
+    err = build_entry_index(index_exact, entrylist);
 
-    if(err != EC_SUCCESS){
-        perror("Exiting...");
-        return -1;
-    }
+    // if(err != EC_SUCCESS){
+    //     perror("Exiting...");
+    //     return -1;
+    // }
 
     // err = lookup_entry_index(index_exact, "sotira", 0, result);    
 
 
 
-
+    list_destroy(result, NULL);
 //###################################################################
 
     list_destroy(list, (DestroyFunc) free);
