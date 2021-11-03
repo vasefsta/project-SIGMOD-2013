@@ -155,20 +155,34 @@ const void destroy_query(Query q){
 
 
 int main(){
+    int err;
 
     EntryList entrylist = create_entry_list();
     Map map = map_of_queries("../misc/queries.txt", entrylist);
+    EntryList result = create_entry_list();
 
     List list = deduplicated_words("../misc/documents/Document1");
 
-
     Index index_exact = create_index(MT_EXACT_MATCH, 100);
 
-    destroy_entry_index(index_exact);
+    err = build_entry_index(index_exact, entrylist);
 
-    // build_entry_index()
-    
+    // if(err != EC_SUCCESS){
+    //     perror("Exiting...");
+    //     return -1;
+    // }
+
+    // err = lookup_entry_index(index_exact, "sotira", 0, result);    
+
+    // printf("Number of entries in result = %d\n", get_number_entries(result));
+
+
+
+//###################################################################
+
     list_destroy(list, (DestroyFunc) free);
+
+    destroy_entry_index(index_exact);
 
     destroy_entry_list(entrylist, (DestroyFunc) destroy_entry);
 
