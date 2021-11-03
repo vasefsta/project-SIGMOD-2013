@@ -50,8 +50,14 @@ Entry get_next(EntryList entrylist, Entry current_entry){
         node != NULL; 
         node = list_find_next(node)) {
             Entry entry = list_node_value(node);
-            if (!compare_entries(entry, current_entry))
+            if (!compare_entries(entry, current_entry)){
+                node = list_find_next(node);
+                
+                if(node == NULL)
+                    return NULL;
+                Entry entry = list_node_value(node);
                 return entry;
+            }
     }
     return NULL;
 }

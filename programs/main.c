@@ -177,7 +177,6 @@ int main(){
 
     printf("Number of entries in result = %d\n", get_number_entries(entrylist));
 
-
     err = build_entry_index(index_exact, entrylist);
 
     // if(err != EC_SUCCESS){
