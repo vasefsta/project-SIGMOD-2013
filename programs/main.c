@@ -45,6 +45,7 @@ String *Seperate_sentence(Query query){
         Array[i] = strdup(token);
     }
 
+    free(dummy);
     return Array;
 }
 
@@ -127,14 +128,18 @@ Map map_of_queries(String filename, EntryList entrylist){
             if(node != NULL){
                 entry = list_node_value(node);
                 list_insert(entry->payload, new_query);
+                free(Array[i]);
             } else {
                 entry = create_entry(Array[i]);
                 entry->payload = list_create();
                 list_insert(entry->payload, new_query);
+                add_entry(entrylist, entry);
             }
         }
 
+        free(Array);
     }
+
     
     free(buffer);
     
@@ -144,24 +149,24 @@ Map map_of_queries(String filename, EntryList entrylist){
 
 }
 
-void destroy_query(Query q){
+const void destroy_query(Query q){
     free(q->words);
     free(q);
 }
 
 int main(){
 
-    // EntryList entrylist = create_entry_list();
-    // Map map = map_of_queries("../misc/queries.txt", entrylist);
+    EntryList entrylist = create_entry_list();
+    Map map = map_of_queries("../misc/queries.txt", entrylist);
 
 
-    // map_destroy(map,(DestroyFunc) destroy_query);
+    map_destroy(map,(DestroyFunc) destroy_query);
 
     // List list = deduplicated_words("../misc/documents/Document1");
     
     // list_destroy(list, (DestroyFunc) free);
 
-    // destroy_entry_list(entrylist);
+    destroy_entry_list(entrylist);
 
     return 0;
 }

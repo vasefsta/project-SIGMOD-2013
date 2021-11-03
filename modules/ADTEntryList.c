@@ -21,6 +21,7 @@ Entry create_entry(String word) {      // NA APOFASISOUME AN PREPEI NA EPISTREFE
 ErrorCode destroy_entry(Entry entry) {
     free(entry->word);
     list_destroy(entry->payload, NULL);
+    free(entry);
     return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i list_destroy leitourgei swsta
 }
 
@@ -66,7 +67,7 @@ Entry find_entry(EntryList entrylist, Entry current_entry) {
 }
 
 ErrorCode destroy_entry_list(EntryList entrylist){
-    list_destroy(entrylist, NULL);//Evala null dame je edulepsen anti destroy entry
+    list_destroy(entrylist, (DestroyFunc)destroy_entry);//Evala null dame je edulepsen anti destroy entry
     return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i destroy_entry_list leitourgei swsta
 }
 
