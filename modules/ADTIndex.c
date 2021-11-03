@@ -1,9 +1,26 @@
-#include "stdlib.h"
+#include <stdlib.h>
+#include <string.h>
 
 #include "ADTIndex.h"
 #include "ADTMap.h"
 #include "ADTBKTree.h"
 
+unsigned int hash_function(String word) {
+	return hash_string(word);
+}
+
+Index create_index(MatchType matchtype, int size) {
+    Index index = malloc(sizeof(*index));
+
+    if (matchtype == MT_EXACT_MATCH)
+        index->index = map_create((CompareFunc)strcmp, size);
+    else if (matchtype == MT_HAMMING_DIST || matchtype == MT_EDIT_DIST)
+        index->index = bk_create(matchtype);
+    
+    index->matchtype = matchtype;
+
+    return index;
+}
 
 ErrorCode build_entry_index(Index index, const EntryList entrylist) {
     ErrorCode errcode;
@@ -43,5 +60,9 @@ ErrorCode destroy_entry_index(Index index) {
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST) 
         bk_destroy((BKTree)index->index, NULL);
     else 
-        map_destroy((Map)index, NULL);
+        map_destroy((Map)index->index, NULL);
+
+    free(index);
+
+    return EC_SUCCESS;
 }

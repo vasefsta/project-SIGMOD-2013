@@ -66,8 +66,8 @@ Entry find_entry(EntryList entrylist, Entry current_entry) {
         return NULL;
 }
 
-ErrorCode destroy_entry_list(EntryList entrylist){
-    list_destroy(entrylist, (DestroyFunc)destroy_entry);//Evala null dame je edulepsen anti destroy entry
+ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value){
+    list_destroy(entrylist, (DestroyFunc)destroy_value);//Evala null dame je edulepsen anti destroy entry
     return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i destroy_entry_list leitourgei swsta
 }
 

@@ -12,6 +12,8 @@ struct index {
     MatchType matchtype;
 };
 
+Index create_index(MatchType matchtype, int size);
+
 ErrorCode build_entry_index(Index index, const EntryList entrylist);
 
 ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result);

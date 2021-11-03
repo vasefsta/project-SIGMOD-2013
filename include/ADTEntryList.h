@@ -29,5 +29,5 @@ Entry get_next(EntryList entrylist, Entry current_entry);
 
 Entry find_entry(EntryList entrylist, Entry current_entry);
 
-ErrorCode destroy_entry_list(EntryList entrylist);
+ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value);
 

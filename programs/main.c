@@ -3,6 +3,7 @@
 #include "ADTLinkedList.h"
 #include "ADTEntryList.h"
 #include "ADTMap.h"
+#include "ADTIndex.h"
 
 
 #include <stdlib.h>
@@ -71,14 +72,13 @@ List deduplicated_words(String filename){
     strcpy(buffer, "");
 
     while ((a = fgetc(FP)) != EOF){
-        if(a == ' '){
+        if(a == ' ' || a == '\n'){
             if(!list_find(list, (CompareFunc) strcmp, buffer)){
-                printf("Inserting to list %s ", buffer);
+                puts(buffer);
                 String value = strdup(buffer);
                 list_insert(list, value);
-                strcpy(buffer, "");
-            }
-
+            } 
+            strcpy(buffer, "");
         } else {
             letter[0] = a;
             strcat(buffer, letter);
@@ -131,7 +131,6 @@ Map map_of_queries(String filename, EntryList entrylist){
                 free(Array[i]);
             } else {
                 entry = create_entry(Array[i]);
-                entry->payload = list_create();
                 list_insert(entry->payload, new_query);
                 add_entry(entrylist, entry);
             }
@@ -154,19 +153,26 @@ const void destroy_query(Query q){
     free(q);
 }
 
+
 int main(){
 
     EntryList entrylist = create_entry_list();
     Map map = map_of_queries("../misc/queries.txt", entrylist);
 
+    List list = deduplicated_words("../misc/documents/Document1");
+
+
+    Index index_exact = create_index(MT_EXACT_MATCH, 100);
+
+    destroy_entry_index(index_exact);
+
+    // build_entry_index()
+    
+    list_destroy(list, (DestroyFunc) free);
+
+    destroy_entry_list(entrylist, (DestroyFunc) destroy_entry);
 
     map_destroy(map,(DestroyFunc) destroy_query);
-
-    // List list = deduplicated_words("../misc/documents/Document1");
-    
-    // list_destroy(list, (DestroyFunc) free);
-
-    destroy_entry_list(entrylist);
 
     return 0;
 }
