@@ -99,7 +99,7 @@ int hash_func(Query query){
     return hash_string(query->words);
 }
 
-const int compare_entry_string(Entry e1, Entry e2){
+int compare_entry_string(Entry e1, Entry e2){
     return (strcmp(e1->word, e2->word));
 }
 
@@ -173,23 +173,29 @@ int main(){
 
     List list = deduplicated_words("../misc/documents/Document1");
 
-    Index index_exact = create_index(MT_EXACT_MATCH, 100);
+    Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry_string, 100);
 
     printf("Number of entries in result = %d\n", get_number_entries(entrylist));
 
     err = build_entry_index(index_exact, entrylist);
 
-    // if(err != EC_SUCCESS){
-    //     perror("Exiting...");
-    //     return -1;
-    // }
+    if(err != EC_SUCCESS){
+        perror("Exiting...");
+        return -1;
+    }
 
-    // err = lookup_entry_index(index_exact, "sotira", 0, result);    
+    err = lookup_entry_index(index_exact, "sotira", 0, result);    
+
+    for (Entry entry = get_first(result); 
+        entry != NULL; 
+        entry = get_next(result, entry)) {
+            puts("AAAAAAa");
+    }
 
 
 
-    list_destroy(result, NULL);
 //###################################################################
+    list_destroy(result, (DestroyFunc) free);
 
     list_destroy(list, (DestroyFunc) free);
 

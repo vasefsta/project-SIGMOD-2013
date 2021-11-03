@@ -103,7 +103,6 @@ Pointer map_find(Map map, Pointer value){
 
     MapNode node = &map->hashtable[position];
 
-
     while (node){
         if(node->value){
             if(!(map->compare_function(value, node->value))){

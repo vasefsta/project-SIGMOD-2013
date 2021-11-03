@@ -42,6 +42,9 @@ ErrorCode add_entry(EntryList entrylist, Entry new_entry){
 
 Entry get_first(EntryList entrylist){
     ListNode node = list_first(entrylist);
+    if(node == NULL)
+        return NULL;
+        
     return list_node_value(node);
 }
 

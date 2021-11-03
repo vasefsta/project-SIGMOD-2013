@@ -12,7 +12,7 @@ struct index {
     MatchType matchtype;
 };
 
-Index create_index(MatchType matchtype, int size);
+Index create_index(MatchType matchtype, CompareFunc compare,  int size);
 
 ErrorCode build_entry_index(Index index, const EntryList entrylist);
 

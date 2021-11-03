@@ -52,7 +52,7 @@ void test_insert(void) {
 	for (int i = 0; i < N; i++) {
 		strArray[i] = strdup(Array[i]);
 		map_insert(map, strArray[i]);
-		TEST_ASSERT(map_find(map, strArray[i]));
+		TEST_ASSERT(map_find(map, strArray[i]) != NULL);
 	}
 
 	TEST_ASSERT(map_capacity(map) == 50);

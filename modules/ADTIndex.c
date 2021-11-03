@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "ADTIndex.h"
 #include "ADTMap.h"
@@ -9,11 +10,12 @@ unsigned int hash_function(String word) {
 	return hash_string(word);
 }
 
-Index create_index(MatchType matchtype, int size) {
+
+Index create_index(MatchType matchtype, CompareFunc compare, int size) {
     Index index = malloc(sizeof(*index));
 
     if (matchtype == MT_EXACT_MATCH){
-        index->index = (Map) map_create((CompareFunc)strcmp, size);
+        index->index = (Map) map_create((CompareFunc) compare, size);
         map_set_hash_function(index->index, (HashFunc) hash_function);
     }
     else if (matchtype == MT_HAMMING_DIST || matchtype == MT_EDIT_DIST)
@@ -47,10 +49,13 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList 
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST)
         bk_find((BKTree)index, result, word, threshold);
     else {
-        Entry entry = create_entry(word);
+        String word2 = strdup(word);
+        Entry entry = create_entry(word2);
         Entry res = map_find((Map)index->index, entry);
-
-        list_insert(result, res);
+        if(res != NULL){
+            puts("AAAAAAAAaa");
+            list_insert(result, res);
+        }
 
         destroy_entry(entry);
     }
