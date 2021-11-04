@@ -20,7 +20,8 @@ int main(){
         for (int k = 0; k < times; k++){
             int num = rand()%40;
             
-            strncat(String, Array[num], strlen(Array[num])+1);
+            strncat(String, Array[num], strlen(Array[num]));
+            if(k != times-1)
             strcat(String, " ");
         }
         puts(String);

@@ -34,8 +34,8 @@ List unique_queries(EntryList entrylist) {
         List list = get_entry_payload(entry);
 
         for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){
-            if(list_find(list_of_queries, listnode) == NULL){
-                Query query = list_node_value(listnode);
+            Query query = list_node_value(listnode);
+            if(list_find(list_of_queries, query) == NULL){
                 list_insert(list_of_queries, query);
             }
         }
@@ -68,9 +68,8 @@ List find_complete_queries(EntryList entrylist){
 
 Query convert_to_query(String string){
     Query query = malloc(sizeof(*query));
-
     query->words = strdup(string);
-
+    puts(query->words);
     int count = 0;
 
     String token = strtok(string, " \t\n");
@@ -173,6 +172,7 @@ Map map_of_queries(String filename, EntryList entrylist){
     int i = 0;
     while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){
         i++;
+        buffer[strlen(buffer)-1] = '\0';
         Query new_query = convert_to_query(buffer);
         map_insert(map, new_query);
 
@@ -250,7 +250,7 @@ int main(){
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is complete...\n",query->words);
+        printf("%s is a complete query...\n\n",query->words);
     }
 
     list_destroy(complete_list, NULL);
