@@ -74,7 +74,6 @@ List deduplicated_words(String filename){
     while ((a = fgetc(FP)) != EOF){
         if(a == ' ' || a == '\n'){
             if(!list_find(list, buffer)){
-                puts(buffer);
                 String value = strdup(buffer);
                 list_insert(list, value);
             } 
@@ -100,6 +99,8 @@ int hash_func(Query query){
 }
 
 int compare_entries(Entry e1, Entry e2){
+    puts(get_entry_word(e1));
+    puts(get_entry_word(e2));
     return (strcmp(get_entry_word(e1), get_entry_word(e2)));
 }
 
@@ -161,8 +162,7 @@ const void destroy_query(Query q){
 
 
 int main(){
-    int err = 0;
-
+    
     EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
     EntryList result = create_entry_list((CompareFunc)compare_entries);
     
@@ -176,12 +176,22 @@ int main(){
     Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
 
     puts("Building index...");
-    err = build_entry_index(index_exact, entrylist);
+    build_entry_index(index_exact, entrylist);
+     puts("#############################");
+     puts("#############################");
+     puts("#############################");
 
-    if(err != EC_SUCCESS){
-        perror("Exiting...");
-        return -1;
+    for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
+        String word = list_node_value(node);
+        lookup_entry_index(index_exact, word, 0, result);
+
+        printf("%d\n",get_number_entries(result));
     }
+
+    for(Entry entry = get_first(result); entry != NULL; entry = get_next(entrylist, entry)){
+        puts(get_entry_word(entry));
+    }
+
 
 
 //###################################################################
