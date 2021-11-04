@@ -171,7 +171,7 @@ int main(){
     puts("Inserting queries in hashtable and entrylist...");
     Map map = map_of_queries("../misc/queries.txt", entrylist);
 
-        
+
     puts("Deduplicating \"Document1\"...");
     List list = deduplicated_words("../misc/documents/Document1");
 
@@ -184,9 +184,6 @@ int main(){
         perror("Exiting...");
         return -1;
     }
-
-//    err = lookup_entry_index(index_exact, "sotira", 0, result);    
-
 
 
 //###################################################################
