@@ -10,6 +10,11 @@ unsigned int hash_function(String word) {
 	return hash_string(word);
 }
 
+struct index {
+    Pointer index;
+    MatchType matchtype;
+};
+
 
 Index create_index(MatchType matchtype, CompareFunc compare, int size) {
     Index index = malloc(sizeof(*index));
