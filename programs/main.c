@@ -10,6 +10,62 @@
 #include <string.h>
 #include <stdio.h>
 
+int compare_queries(Query q1, Query q2){
+    return strcmp(q1->words, q2->words);
+}
+
+int times_in_list(EntryList entrylist, Query query) {
+
+    int count = 0; 
+
+    for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){
+        if(list_find(get_entry_payload(entry), query) != NULL)
+            count++;
+    }
+    return count;
+}
+
+
+List unique_queries(EntryList entrylist) {
+
+    List list_of_queries = list_create( (CompareFunc) compare_queries);
+
+    for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){
+        List list = get_entry_payload(entry);
+
+        for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){
+            if(list_find(list_of_queries, listnode) == NULL){
+                Query query = list_node_value(listnode);
+                list_insert(list_of_queries, query);
+            }
+        }
+    }
+
+    return list_of_queries;
+
+}
+
+
+List find_complete_queries(EntryList entrylist){
+
+    List complete_list = list_create((CompareFunc) compare_queries);
+
+    List unique = unique_queries(entrylist);
+
+    for(ListNode listnode = list_first(unique); listnode != NULL; listnode = list_find_next(listnode)){
+        Query query = list_node_value(listnode);
+        int times = times_in_list(entrylist, query);
+        if(query->length == times)
+            list_insert(complete_list, query);
+    }
+
+    list_destroy(unique, NULL);
+
+    return complete_list;
+
+}
+
+
 Query convert_to_query(String string){
     Query query = malloc(sizeof(*query));
 
@@ -90,17 +146,12 @@ List deduplicated_words(String filename){
 
 }
 
-const int compare(Query query1, Query query2){
-    return strcmp(query1->words, query2->words);
-}
 
 int hash_func(Query query){
     return hash_string(query->words);
 }
 
 int compare_entries(Entry e1, Entry e2){
-    puts(get_entry_word(e1));
-    puts(get_entry_word(e2));
     return (strcmp(get_entry_word(e1), get_entry_word(e2)));
 }
 
@@ -117,7 +168,7 @@ Map map_of_queries(String filename, EntryList entrylist){
     size_t bytes;
 
 
-    Map map = map_create( (CompareFunc) compare, 120);
+    Map map = map_create( (CompareFunc) compare_queries, 120);
     map_set_hash_function(map, (HashFunc) hash_func);
     int i = 0;
     while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){
@@ -128,13 +179,13 @@ Map map_of_queries(String filename, EntryList entrylist){
         String *Array = Seperate_sentence(new_query);
 
         for(int i = 0; i < new_query->length; i++){
-            Entry e1 = create_entry(Array[i], NULL);            
+            Entry e1 = create_entry(Array[i], (CompareFunc) compare_queries);            
             Entry entry = find_entry(entrylist, e1);
             if(entry != NULL){
                 list_insert(get_entry_payload(entry), new_query);
                 free(Array[i]);
             } else {
-                entry = create_entry(Array[i], NULL);
+                entry = create_entry(Array[i], (CompareFunc) compare_queries);
                 list_insert(get_entry_payload(entry), new_query);
                 add_entry(entrylist, entry);
             }
@@ -162,40 +213,51 @@ const void destroy_query(Query q){
 
 
 int main(){
+    puts("");
     
     EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
     EntryList result = create_entry_list((CompareFunc)compare_entries);
     
     puts("Inserting queries in hashtable and entrylist...");
     Map map = map_of_queries("../misc/queries.txt", entrylist);
+    puts("");
 
 
     puts("Deduplicating \"Document1\"...");
     List list = deduplicated_words("../misc/documents/Document1");
+    puts("");
 
     Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
 
     puts("Building index...");
     build_entry_index(index_exact, entrylist);
-     puts("#############################");
-     puts("#############################");
-     puts("#############################");
+    puts("");
 
+    puts("Looking for words in index...");   
     for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
         String word = list_node_value(node);
-        lookup_entry_index(index_exact, word, 0, result);
-
-        printf("%d\n",get_number_entries(result));
+        lookup_entry_index(index_exact, word, 0, result, (CompareFunc) compare_queries);
     }
+    puts("");
 
     for(Entry entry = get_first(result); entry != NULL; entry = get_next(entrylist, entry)){
-        puts(get_entry_word(entry));
+        //puts(get_entry_word(entry));
     }
 
 
+    List complete_list = find_complete_queries(result);
+
+
+    for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
+        Query query = list_node_value(node);
+        printf("%s is complete...\n",query->words);
+    }
+
+    list_destroy(complete_list, NULL);
 
 //###################################################################
-    list_destroy(result, (DestroyFunc) free);
+    
+    list_destroy(result, (DestroyFunc) NULL);
 
     list_destroy(list, (DestroyFunc) free);
 
