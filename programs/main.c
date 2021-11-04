@@ -128,10 +128,8 @@ Map map_of_queries(String filename, EntryList entrylist){
 
         for(int i = 0; i < new_query->length; i++){
             Entry e1 = create_entry(Array[i], NULL);            
-            ListNode node = list_find(entrylist, e1);
-            Entry entry;
-            if(node != NULL){
-                entry = list_node_value(node);
+            Entry entry = find_entry(entrylist, e1);
+            if(entry != NULL){
                 list_insert(get_entry_payload(entry), new_query);
                 free(Array[i]);
             } else {
