@@ -74,7 +74,6 @@ List deduplicated_words(String filename){
     while ((a = fgetc(FP)) != EOF){
         if(a == ' ' || a == '\n'){
             if(!list_find(list, (CompareFunc) strcmp, buffer)){
-                puts(buffer);
                 String value = strdup(buffer);
                 list_insert(list, value);
             } 
@@ -138,7 +137,6 @@ Map map_of_queries(String filename, EntryList entrylist){
                 entry = create_entry(Array[i]);
                 list_insert(get_entry_payload(entry), new_query);
                 add_entry(entrylist, entry);
-                printf("Adding entry %s in list\n", get_entry_word(entry));
             }
             List e1_payload = get_entry_payload(e1);
             list_destroy(e1_payload, NULL);
@@ -165,18 +163,24 @@ const void destroy_query(Query q){
 
 int main(){
     int err = 0;
-
+    puts(" ");
+    puts(" ");
+    puts(" ");
+    puts("Creating entrylist from queries...");
     EntryList entrylist = create_entry_list();
     EntryList result = create_entry_list();
     
+    puts("Inserting queries in hashtable and entrylist...");
     Map map = map_of_queries("../misc/queries.txt", entrylist);
 
+
+    puts("Deduplicating \"Document1\"...");
     List list = deduplicated_words("../misc/documents/Document1");
 
+    puts("Creating index...");
     Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry_string, 100);
 
-    printf("Number of entries in result = %d\n", get_number_entries(entrylist));
-
+    puts("Building index...");
     err = build_entry_index(index_exact, entrylist);
 
     if(err != EC_SUCCESS){
@@ -184,13 +188,7 @@ int main(){
         return -1;
     }
 
-    err = lookup_entry_index(index_exact, "sotira", 0, result);    
-
-    for (Entry entry = get_first(result); 
-        entry != NULL; 
-        entry = get_next(result, entry)) {
-            puts("AAAAAAa");
-    }
+//    err = lookup_entry_index(index_exact, "sotira", 0, result);    
 
 
 
