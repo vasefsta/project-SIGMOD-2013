@@ -37,14 +37,17 @@ Map map_create( CompareFunc compare_function, int size) {
 }
 
 void map_set_hash_function(Map map, HashFunc hash_function) {
+    assert(map);
     map->hash_function = hash_function;
 }
 
 int map_capacity(Map map) {
+    assert(map);
     return map->capacity;
 }
 
 ErrorCode map_insert(Map map, Pointer value) {
+    assert(map);
     assert(value);
 
     unsigned int position = map->hash_function(value);
@@ -72,6 +75,7 @@ ErrorCode map_insert(Map map, Pointer value) {
 }
 
 int map_destroy(Map map, DestroyFunc destroy){
+    assert(map);
 
     for(int i = 0; i < map->size; i++){
         MapNode node =  map->hashtable[i].next;
@@ -98,6 +102,9 @@ int map_destroy(Map map, DestroyFunc destroy){
 }
 
 Pointer map_find(Map map, Pointer value){
+    assert(map);
+    assert(value);
+    
     unsigned int position = map->hash_function(value);
     position %= map->size;
 

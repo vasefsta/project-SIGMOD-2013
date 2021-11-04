@@ -16,7 +16,7 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 
 
 void test_create(){
-    List list = list_create();
+    List list = list_create(NULL);
 
     TEST_ASSERT(list != NULL);
 
@@ -24,7 +24,7 @@ void test_create(){
 }
 
 void test_insert(){ 
-    List list = list_create();
+    List list = list_create((CompareFunc) strcmp);
 
     TEST_ASSERT(list != NULL);
 
@@ -32,7 +32,7 @@ void test_insert(){
 
 	for (int i = 0; i < N; i++) {
 		list_insert(list, Array[i]);
-        TEST_ASSERT((list_find(list, (CompareFunc) strcmp, Array[i]) != NULL));
+        TEST_ASSERT((list_find(list, Array[i]) != NULL));
 	}
 
     list_destroy(list, NULL);

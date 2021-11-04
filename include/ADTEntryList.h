@@ -8,7 +8,7 @@ typedef struct entry* Entry;
 
 typedef List EntryList;
 
-Entry create_entry(String word);
+Entry create_entry(String word, CompareFunc compare);
 
 String get_entry_word(Entry entry);
 
@@ -16,7 +16,9 @@ List get_entry_payload(Entry entry);
 
 ErrorCode destroy_entry(Entry entry);
 
-EntryList create_entry_list();
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EntryList create_entry_list(CompareFunc compare);
 
 unsigned int get_number_entries(EntryList entrylist);
 

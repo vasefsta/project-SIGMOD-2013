@@ -66,14 +66,19 @@ List deduplicated_words(String filename){
     char a;
 
 
-    List list = list_create();
+    List list = list_create((CompareFunc) strcmp);
             
 
     strcpy(buffer, "");
 
     while ((a = fgetc(FP)) != EOF){
         if(a == ' ' || a == '\n'){
+<<<<<<< HEAD
             if(!list_find(list, (CompareFunc) strcmp, buffer)){
+=======
+            if(!list_find(list, buffer)){
+                puts(buffer);
+>>>>>>> d19d6101e15e5f911fc14408a0764efd37a2c249
                 String value = strdup(buffer);
                 list_insert(list, value);
             } 
@@ -98,7 +103,7 @@ int hash_func(Query query){
     return hash_string(query->words);
 }
 
-int compare_entry_string(Entry e1, Entry e2){
+int compare_entries(Entry e1, Entry e2){
     return (strcmp(get_entry_word(e1), get_entry_word(e2)));
 }
 
@@ -126,15 +131,15 @@ Map map_of_queries(String filename, EntryList entrylist){
         String *Array = Seperate_sentence(new_query);
 
         for(int i = 0; i < new_query->length; i++){
-            Entry e1 = create_entry(Array[i]);            
-            ListNode node = list_find(entrylist, (CompareFunc) compare_entry_string, e1);
+            Entry e1 = create_entry(Array[i], NULL);            
+            ListNode node = list_find(entrylist, e1);
             Entry entry;
             if(node != NULL){
                 entry = list_node_value(node);
                 list_insert(get_entry_payload(entry), new_query);
                 free(Array[i]);
             } else {
-                entry = create_entry(Array[i]);
+                entry = create_entry(Array[i], NULL);
                 list_insert(get_entry_payload(entry), new_query);
                 add_entry(entrylist, entry);
             }
@@ -163,12 +168,18 @@ const void destroy_query(Query q){
 
 int main(){
     int err = 0;
+<<<<<<< HEAD
     puts(" ");
     puts(" ");
     puts(" ");
     puts("Creating entrylist from queries...");
     EntryList entrylist = create_entry_list();
     EntryList result = create_entry_list();
+=======
+
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList result = create_entry_list((CompareFunc)compare_entries);
+>>>>>>> d19d6101e15e5f911fc14408a0764efd37a2c249
     
     puts("Inserting queries in hashtable and entrylist...");
     Map map = map_of_queries("../misc/queries.txt", entrylist);
@@ -177,8 +188,12 @@ int main(){
     puts("Deduplicating \"Document1\"...");
     List list = deduplicated_words("../misc/documents/Document1");
 
+<<<<<<< HEAD
     puts("Creating index...");
     Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry_string, 100);
+=======
+    Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
+>>>>>>> d19d6101e15e5f911fc14408a0764efd37a2c249
 
     puts("Building index...");
     err = build_entry_index(index_exact, entrylist);
