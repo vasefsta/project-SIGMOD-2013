@@ -57,8 +57,9 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList 
         String word2 = strdup(word);
         Entry entry = create_entry(word2, NULL);
         Entry res = map_find((Map)index->index, entry);
+        
         if(res != NULL){
-            list_insert(result, res);
+            add_entry(result, res);
         }
 
         destroy_entry(entry);
