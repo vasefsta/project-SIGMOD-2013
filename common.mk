@@ -33,6 +33,7 @@
 
 # Paths
 MY_PATH := $(dir $(lastword $(MAKEFILE_LIST)))
+MISC := $(MY_PATH)misc
 MODULES := $(MY_PATH)modules
 INCLUDE := $(MY_PATH)include
 PROGRAMS := $(MY_PATH)programs
@@ -46,7 +47,7 @@ PROGRAMS := $(MY_PATH)programs
 #
 # Το override επιτρέπει την προσθήκη επιπλέον παραμέτρων από τη γραμμή εντολών: make CFLAGS=...
 #
-override CFLAGS += -g -Wall -MMD -I$(INCLUDE)
+override CFLAGS += -g -Wall -MMD -I$(INCLUDE) -DEDIT
 
 # Linker options
 #   -lm        Link με τη math library
