@@ -73,12 +73,8 @@ List deduplicated_words(String filename){
 
     while ((a = fgetc(FP)) != EOF){
         if(a == ' ' || a == '\n'){
-<<<<<<< HEAD
-            if(!list_find(list, (CompareFunc) strcmp, buffer)){
-=======
             if(!list_find(list, buffer)){
                 puts(buffer);
->>>>>>> d19d6101e15e5f911fc14408a0764efd37a2c249
                 String value = strdup(buffer);
                 list_insert(list, value);
             } 
@@ -168,32 +164,18 @@ const void destroy_query(Query q){
 
 int main(){
     int err = 0;
-<<<<<<< HEAD
-    puts(" ");
-    puts(" ");
-    puts(" ");
-    puts("Creating entrylist from queries...");
-    EntryList entrylist = create_entry_list();
-    EntryList result = create_entry_list();
-=======
 
     EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
     EntryList result = create_entry_list((CompareFunc)compare_entries);
->>>>>>> d19d6101e15e5f911fc14408a0764efd37a2c249
     
     puts("Inserting queries in hashtable and entrylist...");
     Map map = map_of_queries("../misc/queries.txt", entrylist);
 
-
+        
     puts("Deduplicating \"Document1\"...");
     List list = deduplicated_words("../misc/documents/Document1");
 
-<<<<<<< HEAD
-    puts("Creating index...");
-    Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry_string, 100);
-=======
     Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
->>>>>>> d19d6101e15e5f911fc14408a0764efd37a2c249
 
     puts("Building index...");
     err = build_entry_index(index_exact, entrylist);
