@@ -64,7 +64,7 @@ ListNode list_find(List list, Pointer value) {
     assert(list);
 
     for (ListNode node = list_first(list); node != NULL; node = node->next) {
-        if (!list->compare(value, node->value))
+        if (list->compare && !list->compare(value, node->value))
             return node;
     }
 

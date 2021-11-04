@@ -6,8 +6,8 @@
 #include "ADTMap.h"
 #include "ADTBKTree.h"
 
-unsigned int hash_function(String word) {
-	return hash_string(word);
+unsigned int hash_function(Entry entry) {
+	return hash_string(get_entry_word(entry));
 }
 
 struct index {
@@ -38,9 +38,9 @@ ErrorCode build_entry_index(Index index, const EntryList entrylist) {
         entry = get_next(entrylist, entry)) {
 
             if (index->matchtype == MT_EXACT_MATCH)
-                errcode = map_insert((Map) index->index, entry); 
+                errcode = map_insert((Map)index->index, entry); 
             else if (index->matchtype == MT_HAMMING_DIST || index->matchtype == MT_EDIT_DIST)
-                errcode = bk_insert((BKTree) index, entry);
+                errcode = bk_insert((BKTree) index->index, entry);
 
             if (errcode == EC_FAIL)
                 return EC_FAIL;
@@ -50,12 +50,12 @@ ErrorCode build_entry_index(Index index, const EntryList entrylist) {
 }
 
 
-ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result) {
+ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result, CompareFunc compare_queries) {
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST)
-        bk_find((BKTree)index, result, word, threshold);
+        bk_find((BKTree)index->index, result, word, threshold);
     else {
         String word2 = strdup(word);
-        Entry entry = create_entry(word2, NULL);
+        Entry entry = create_entry(word2, compare_queries);
         Entry res = map_find((Map)index->index, entry);
         
         if(res != NULL){

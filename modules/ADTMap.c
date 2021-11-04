@@ -49,12 +49,10 @@ int map_capacity(Map map) {
 ErrorCode map_insert(Map map, Pointer value) {
     assert(map);
     assert(value);
-
     unsigned int position = map->hash_function(value);
     position %= map->size; 
 
     MapNode node = &map->hashtable[position];
-
     if(node->value == NULL){
         node->value = value;
     } else {
@@ -70,7 +68,6 @@ ErrorCode map_insert(Map map, Pointer value) {
     }
 
     map->capacity++;
-
     return EC_SUCCESS;
 }
 
