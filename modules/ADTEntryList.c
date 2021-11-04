@@ -3,6 +3,10 @@
 
 #include "ADTEntryList.h"
 
+struct entry{
+    String word;                //Holds keyword for queries who have the same keyword
+    List payload;               //List that holds queries that have the same keyword "word"
+};
 
 int compare_entries(Entry entry1, Entry entry2) {
     return(strcmp(entry1->word, entry2->word));
@@ -17,6 +21,15 @@ Entry create_entry(String word) {      // NA APOFASISOUME AN PREPEI NA EPISTREFE
 
     return entry;
 }
+
+String get_entry_word(Entry entry){
+    return entry->word;
+}
+
+List get_entry_payload(Entry entry){
+    return entry->payload;
+}
+
 
 ErrorCode destroy_entry(Entry entry) {
     free(entry->word);

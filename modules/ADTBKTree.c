@@ -18,7 +18,7 @@ struct bktree {
 
 
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
-    int dist = compare(bkparent->entry->word, new->entry->word);
+    int dist = compare(get_entry_word(bkparent->entry), get_entry_word(new->entry));
 
     if(!bkparent->children){
         bkparent->children = list_create();
@@ -31,7 +31,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
 
     for (node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
         child = list_node_value(node);
-        if(compare(child->entry->word, bkparent->entry->word) == dist)
+        if(compare(get_entry_word(child->entry), get_entry_word(bkparent->entry)) == dist)
             break;
     }
 
@@ -45,7 +45,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
 
 
 int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word, int threshold) {
-    int dist_value_parent = compare(bkparent->entry->word, word);
+    int dist_value_parent = compare(get_entry_word(bkparent->entry), word);
     int low_range = dist_value_parent - threshold;
 
     if (low_range < 0)
@@ -60,7 +60,7 @@ int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word,
 
     for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
         BKNode child = list_node_value(node);
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);
+        int dist_parent_child = compare(get_entry_word(child->entry), get_entry_word(bkparent->entry));
 
         if(dist_value_parent < 0){
             find(child, compare, entrylist, word, threshold);

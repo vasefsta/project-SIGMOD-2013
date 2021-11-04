@@ -24,7 +24,6 @@ int compare_words(String stra, String strb) {
 	return strcmp(stra,strb);
 }
 
-
 void test_create(void) {
 
 	// Δημιουργούμε μια κενή λίστα (χωρίς αυτόματο free)

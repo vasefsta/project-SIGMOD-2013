@@ -100,7 +100,7 @@ int hash_func(Query query){
 }
 
 int compare_entry_string(Entry e1, Entry e2){
-    return (strcmp(e1->word, e2->word));
+    return (strcmp(get_entry_word(e1), get_entry_word(e2)));
 }
 
 Map map_of_queries(String filename, EntryList entrylist){
@@ -127,24 +127,24 @@ Map map_of_queries(String filename, EntryList entrylist){
         String *Array = Seperate_sentence(new_query);
 
         for(int i = 0; i < new_query->length; i++){
-            struct entry e1;
-            e1.word = Array[i];
-            e1.payload = NULL;
-            
-            ListNode node = list_find(entrylist, (CompareFunc) compare_entry_string, &e1);
+            Entry e1 = create_entry(Array[i]);            
+            ListNode node = list_find(entrylist, (CompareFunc) compare_entry_string, e1);
             Entry entry;
             if(node != NULL){
                 entry = list_node_value(node);
-                list_insert(entry->payload, new_query);
+                list_insert(get_entry_payload(entry), new_query);
                 free(Array[i]);
             } else {
                 entry = create_entry(Array[i]);
-                list_insert(entry->payload, new_query);
+                list_insert(get_entry_payload(entry), new_query);
                 add_entry(entrylist, entry);
-                printf("Adding entry %s in list\n", entry->word);
+                printf("Adding entry %s in list\n", get_entry_word(entry));
             }
+            List e1_payload = get_entry_payload(e1);
+            list_destroy(e1_payload, NULL);
+            free(e1);
         }
-
+    
         free(Array);
     }
 

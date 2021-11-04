@@ -53,7 +53,6 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList 
         Entry entry = create_entry(word2);
         Entry res = map_find((Map)index->index, entry);
         if(res != NULL){
-            puts("AAAAAAAAaa");
             list_insert(result, res);
         }
 

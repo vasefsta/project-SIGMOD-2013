@@ -4,16 +4,15 @@
 #include "ADTLinkedList.h"
 #include "core.h"
 
-struct entry{
-    String word;                //Holds keyword for queries who have the same keyword
-    List payload;               //List that holds queries that have the same keyword "word"
-};
-
 typedef struct entry* Entry;
 
 typedef List EntryList;
 
 Entry create_entry(String word);
+
+String get_entry_word(Entry entry);
+
+List get_entry_payload(Entry entry);
 
 ErrorCode destroy_entry(Entry entry);
 
@@ -30,4 +29,3 @@ Entry get_next(EntryList entrylist, Entry current_entry);
 Entry find_entry(EntryList entrylist, Entry current_entry);
 
 ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value);
-

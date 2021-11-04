@@ -11,7 +11,7 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 
 
 const void destroy_entries(Entry entry){
-    list_destroy(entry->payload, NULL);
+    list_destroy(get_entry_payload(entry), NULL);
     free(entry);
 }
 
@@ -43,13 +43,13 @@ void test_insert_edit(){
     for (int i = 0; i < N; i++) {
         EntryList entrylist = create_entry_list();
         
-        bk_find(bktree, entrylist, entriesArray[i]->word, threshold);
+        bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
         
         TEST_ASSERT(get_number_entries(entrylist) == 1);
 
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        int res = strcmp(entry->word, entriesArray[i]->word);
+        int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
 
         TEST_ASSERT(res == 0);
 
@@ -62,14 +62,14 @@ void test_insert_edit(){
 
     EntryList entrylist = create_entry_list();
 
-    bk_find(bktree, entrylist, entry->word, threshold);
+    bk_find(bktree, entrylist, get_entry_word(entry), threshold);
 
     TEST_ASSERT(get_number_entries(entrylist) == N);
 
     for (int i = 0; i < N; i++) {
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        int res = strcmp(entry->word, entriesArray[i]->word);
+        int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
 
         TEST_ASSERT(res == 0);
     }
@@ -79,7 +79,7 @@ void test_insert_edit(){
 
     list_destroy(entrylist, NULL);
 
-    list_destroy(entry->payload, NULL);
+    list_destroy(get_entry_payload(entry), NULL);
 
     free(entry);
 
@@ -103,13 +103,13 @@ void test_insert_hamming(){
     for (int i = 0; i < N; i++) {
         EntryList entrylist = create_entry_list();
         
-        bk_find(bktree, entrylist, entriesArray[i]->word, threshold);
+        bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
 
         TEST_ASSERT(get_number_entries(entrylist) == 1);
 
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        int res = strcmp(entry->word, entriesArray[i]->word);
+        int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
 
         TEST_ASSERT(res == 0);
 
@@ -122,13 +122,13 @@ void test_insert_hamming(){
 
     EntryList entrylist = create_entry_list();
 
-    bk_find(bktree, entrylist, entry->word, threshold);
+    bk_find(bktree, entrylist, get_entry_word(entry), threshold);
 
     for (int i = 0; i < N; i++) {
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
         if (entry) {
-            int res = strcmp(entry->word, entriesArray[i]->word);
+            int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
             TEST_ASSERT(res == 0);
 
         }
@@ -141,7 +141,7 @@ void test_insert_hamming(){
 
     list_destroy(entrylist, NULL);
 
-    list_destroy(entry->payload, NULL);
+    list_destroy(get_entry_payload(entry), NULL);
 
     free(entry);
 }
