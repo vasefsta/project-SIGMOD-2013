@@ -8,7 +8,7 @@ typedef struct map* Map;
 typedef unsigned int (*HashFunc)(Pointer value);
 
 
-Map map_create( CompareFunc compare_function, int size);
+Map map_create(CompareFunc compare_function, int size);
 
 ErrorCode map_insert(Map map, Pointer value);
 

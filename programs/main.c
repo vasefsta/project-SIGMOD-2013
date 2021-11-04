@@ -99,7 +99,7 @@ int hash_func(Query query){
     return hash_string(query->words);
 }
 
-int compare_entry_string(Entry e1, Entry e2){
+int compare_entries(Entry e1, Entry e2){
     return (strcmp(get_entry_word(e1), get_entry_word(e2)));
 }
 
@@ -128,7 +128,7 @@ Map map_of_queries(String filename, EntryList entrylist){
 
         for(int i = 0; i < new_query->length; i++){
             Entry e1 = create_entry(Array[i]);            
-            ListNode node = list_find(entrylist, (CompareFunc) compare_entry_string, e1);
+            ListNode node = list_find(entrylist, (CompareFunc) compare_entries, e1);
             Entry entry;
             if(node != NULL){
                 entry = list_node_value(node);
@@ -173,7 +173,7 @@ int main(){
 
     List list = deduplicated_words("../misc/documents/Document1");
 
-    Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry_string, 100);
+    Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
 
     printf("Number of entries in result = %d\n", get_number_entries(entrylist));
 

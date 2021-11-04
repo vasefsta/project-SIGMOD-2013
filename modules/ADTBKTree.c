@@ -115,6 +115,7 @@ BKTree bk_create(MatchType type){
 
 
 ErrorCode bk_insert(BKTree bktree, Entry entry){
+    assert(bktree);
 
     BKNode new = malloc(sizeof(*new));
     new->entry = entry;
@@ -131,10 +132,13 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
 }
 
 Entry bk_node_value(BKNode node){
+    assert(node);
     return node->entry;
 }
 
 int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
+    assert(bktree);
+    
     if(bktree->root == NULL){
         return -1;
     }
@@ -145,6 +149,8 @@ int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
 
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
+    assert(bktree);
+    
     destroy(bktree->root, (DestroyFunc)destroy_value);
     free(bktree);
 }
