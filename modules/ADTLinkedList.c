@@ -12,16 +12,18 @@ struct listnode {
 
 struct list {
     ListNode dummyNode;
+    CompareFunc compare;
     int size;
 };
 
 
-List list_create(){
+List list_create(CompareFunc compare){
     List list = malloc(sizeof(*list));
     
     list->dummyNode = malloc(sizeof(*(list->dummyNode)));
     list->dummyNode->next = NULL;
     list->dummyNode->value = NULL;
+    list->compare = compare;
     list->size = 0;
 
     return list;
@@ -58,11 +60,11 @@ void list_insert(List list, Pointer value){
 }
 
 
-ListNode list_find(List list, CompareFunc compare, Pointer value) {
+ListNode list_find(List list, Pointer value) {
     assert(list);
 
     for (ListNode node = list_first(list); node != NULL; node = node->next) {
-        if (!compare(value, node->value))
+        if (!list->compare(value, node->value))
             return node;
     }
 
@@ -84,7 +86,7 @@ ListNode list_find_next(ListNode node) {
 
 void list_destroy(List list, DestroyFunc destroy) {         //Opos kai dipote NULL stin destroy
     assert(list);
-    
+
     ListNode node = list_first(list);
 
     while (node) {

@@ -1,9 +1,10 @@
-#include "ADTBKTree.h"
-#include "ADTLinkedList.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
+#include "ADTBKTree.h"
+#include "ADTLinkedList.h"
 
 
 struct bknode {
@@ -21,7 +22,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     int dist = compare(get_entry_word(bkparent->entry), get_entry_word(new->entry));
 
     if(!bkparent->children){
-        bkparent->children = list_create();
+        bkparent->children = list_create(NULL);
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     }
@@ -150,7 +151,7 @@ int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
     assert(bktree);
-    
+
     destroy(bktree->root, (DestroyFunc)destroy_value);
     free(bktree);
 }

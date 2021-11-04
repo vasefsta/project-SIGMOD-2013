@@ -66,14 +66,14 @@ List deduplicated_words(String filename){
     char a;
 
 
-    List list = list_create();
+    List list = list_create((CompareFunc) strcmp);
             
 
     strcpy(buffer, "");
 
     while ((a = fgetc(FP)) != EOF){
         if(a == ' ' || a == '\n'){
-            if(!list_find(list, (CompareFunc) strcmp, buffer)){
+            if(!list_find(list, buffer)){
                 puts(buffer);
                 String value = strdup(buffer);
                 list_insert(list, value);
@@ -127,15 +127,15 @@ Map map_of_queries(String filename, EntryList entrylist){
         String *Array = Seperate_sentence(new_query);
 
         for(int i = 0; i < new_query->length; i++){
-            Entry e1 = create_entry(Array[i]);            
-            ListNode node = list_find(entrylist, (CompareFunc) compare_entries, e1);
+            Entry e1 = create_entry(Array[i], NULL);            
+            ListNode node = list_find(entrylist, e1);
             Entry entry;
             if(node != NULL){
                 entry = list_node_value(node);
                 list_insert(get_entry_payload(entry), new_query);
                 free(Array[i]);
             } else {
-                entry = create_entry(Array[i]);
+                entry = create_entry(Array[i], NULL);
                 list_insert(get_entry_payload(entry), new_query);
                 add_entry(entrylist, entry);
                 printf("Adding entry %s in list\n", get_entry_word(entry));
@@ -166,8 +166,8 @@ const void destroy_query(Query q){
 int main(){
     int err = 0;
 
-    EntryList entrylist = create_entry_list();
-    EntryList result = create_entry_list();
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList result = create_entry_list((CompareFunc)compare_entries);
     
     Map map = map_of_queries("../misc/queries.txt", entrylist);
 

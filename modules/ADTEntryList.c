@@ -10,11 +10,11 @@ struct entry{
 };
 
 
-Entry create_entry(String word) {      // NA APOFASISOUME AN PREPEI NA EPISTREFETAI KAI TO ERROR
+Entry create_entry(String word, CompareFunc compare) {      // NA APOFASISOUME AN PREPEI NA EPISTREFETAI KAI TO ERROR
     Entry entry = malloc(sizeof(*entry));
 
     entry->word = word;
-    entry->payload = list_create();
+    entry->payload = list_create(compare);
 
     return entry;
 }
@@ -47,8 +47,8 @@ ErrorCode destroy_entry(Entry entry) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-EntryList create_entry_list() {
-    EntryList entrylist = list_create();
+EntryList create_entry_list(CompareFunc compare) {
+    EntryList entrylist = list_create(compare);
 
     return entrylist;
 }
@@ -74,28 +74,27 @@ Entry get_first(EntryList entrylist){
 }
 
 
-Entry get_next(EntryList entrylist, Entry current_entry, CompareFunc compare){
-    for (ListNode node = list_first(entrylist); 
-        node != NULL; 
-        node = list_find_next(node)) {
+Entry get_next(EntryList entrylist, Entry current_entry){
+    ListNode node = list_find(entrylist, current_entry);
+
+    if (!node) 
+        return NULL;
+    else {
+        node = list_find_next(node);
+
+        if (node) {
             Entry entry = list_node_value(node);
-            if (!compare(entry, current_entry)){
-                node = list_find_next(node);
-                
-                if(node == NULL)
-                    return NULL;
-                Entry entry = list_node_value(node);
-                return entry;
-            }
+            return entry;
+        } else 
+            return NULL;
     }
-    return NULL;
 }
 
 
-Entry find_entry(EntryList entrylist, Entry current_entry, CompareFunc compare) {
+Entry find_entry(EntryList entrylist, Entry current_entry) {
     assert(entrylist);
 
-    ListNode node = list_find(entrylist, (CompareFunc)compare, current_entry);
+    ListNode node = list_find(entrylist, current_entry);
 
     if (node) {
         Entry entry = list_node_value(node);

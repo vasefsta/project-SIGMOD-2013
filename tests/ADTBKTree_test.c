@@ -9,6 +9,13 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "carribean", "spray", "hookah", "chair", "sofa", "basket", "apple", "banana", "orange", "peach", "strawberry", "blue", "pink", "yellow", "brown", "black",
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
+char Hamming_Array[12][7] = {"flower","coffee","summer","autumn","winter","spring","diving","sotira","poetry",
+"forest","guitar","simple"};
+
+
+int compare_entries(Entry e1, Entry e2){
+    return (strcmp(get_entry_word(e1), get_entry_word(e2)));
+}
 
 const void destroy_entries(Entry entry){
     list_destroy(get_entry_payload(entry), NULL);
@@ -33,7 +40,7 @@ void test_insert_edit(){
     int N = 50;
     Entry entriesArray[N];
     for (int i = 0; i < N; i++) {
-        entriesArray[i] = create_entry(Array[i]);
+        entriesArray[i] = create_entry(Array[i], NULL);
 
         bk_insert(bktree, entriesArray[i]);
     }
@@ -41,7 +48,7 @@ void test_insert_edit(){
     int threshold = 0;
 
     for (int i = 0; i < N; i++) {
-        EntryList entrylist = create_entry_list();
+        EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
         
         bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
         
@@ -49,18 +56,16 @@ void test_insert_edit(){
 
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
-
-        TEST_ASSERT(res == 0);
+        TEST_ASSERT(entry != NULL);
 
         list_destroy(entrylist, NULL);
     }
 
 
-    Entry entry = create_entry("guitar");
+    Entry entry = create_entry("guitar", NULL);
     threshold = 20;
 
-    EntryList entrylist = create_entry_list();
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
 
     bk_find(bktree, entrylist, get_entry_word(entry), threshold);
 
@@ -69,9 +74,7 @@ void test_insert_edit(){
     for (int i = 0; i < N; i++) {
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
-
-        TEST_ASSERT(res == 0);
+        TEST_ASSERT(entry != NULL);
     }
 
 
@@ -93,7 +96,7 @@ void test_insert_hamming(){
     int N = 50;
     Entry entriesArray[N];
     for (int i = 0; i < N; i++) {
-        entriesArray[i] = create_entry(Array[i]);
+        entriesArray[i] = create_entry(Array[i], NULL);
 
         bk_insert(bktree, entriesArray[i]);
     }
@@ -101,7 +104,7 @@ void test_insert_hamming(){
     int threshold = 0;
 
     for (int i = 0; i < N; i++) {
-        EntryList entrylist = create_entry_list();
+        EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
         
         bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
 
@@ -109,30 +112,31 @@ void test_insert_hamming(){
 
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
-
-        TEST_ASSERT(res == 0);
+        TEST_ASSERT(entry != NULL);
 
         list_destroy(entrylist, NULL);
     }
 
 
-    Entry entry = create_entry("guitar");       // mas emfanise tis lexeis me mikos 6 pou exoun threshold =20 apo thn guitar
+    Entry entry = create_entry("guitar", NULL);       // mas emfanise tis lexeis me mikos 6 pou exoun threshold =20 apo thn guitar
     threshold = 20;
 
-    EntryList entrylist = create_entry_list();
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
 
     bk_find(bktree, entrylist, get_entry_word(entry), threshold);
 
-    for (int i = 0; i < N; i++) {
-        Entry entry = find_entry(entrylist, entriesArray[i]);
+    // DIORTHOMA
+    Entry entriesArrayHamming[N];
 
-        if (entry) {
-            int res = strcmp(get_entry_word(entry), get_entry_word(entriesArray[i]));
-            TEST_ASSERT(res == 0);
+    for (int i = 0; i < 12; i++) {
 
-        }
+        entriesArrayHamming[i] = create_entry(Hamming_Array[i], NULL);
 
+        Entry entry = find_entry(entrylist, entriesArrayHamming[i]);
+
+        TEST_ASSERT(entry != NULL);
+
+        destroy_entries(entriesArrayHamming[i]);
     }
 
     TEST_ASSERT(get_number_entries(entrylist) == 12);
