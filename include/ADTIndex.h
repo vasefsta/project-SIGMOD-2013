@@ -12,10 +12,11 @@
 
 typedef struct index* Index;
 
-Index create_index(MatchType matchtype, CompareFunc compare,  int size);
+Index create_index(MatchType matchtype, CompareFunc compare,  int size);            // Return pointer to an empty index with size and compare function
 
-ErrorCode build_entry_index(Index index, const EntryList entrylist);
+ErrorCode build_entry_index(Index index, const EntryList entrylist);                // Insert entrylist's entries in index
 
-ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result, CompareFunc compare_queries);
+ErrorCode lookup_entry_index(Index index, String word, int threshold,               // Insert entries with threshold in range in result
+EntryList result, CompareFunc compare_queries);
 
-ErrorCode destroy_entry_index(Index index);
+ErrorCode destroy_entry_index(Index index);                                         // Destroy index

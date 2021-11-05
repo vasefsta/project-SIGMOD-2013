@@ -10,30 +10,40 @@
 #include "ADTLinkedList.h"
 #include "core.h"
 
+
+/***************
+*    Entry     *
+***************/
+
 typedef struct entry* Entry;
+
+
+Entry create_entry(String word, CompareFunc compare);                           // Return a pointer to an entry with word and compare function
+
+String get_entry_word(Entry entry);                                             // Return String to entry word value
+
+List get_entry_payload(Entry entry);                                            // Return List of entry's payload
+
+ErrorCode destroy_entry(Entry entry);                                           // Destroy entry
+
+
+/***************
+*  Entrylist   *
+***************/
 
 typedef List EntryList;
 
-Entry create_entry(String word, CompareFunc compare);
 
-String get_entry_word(Entry entry);
+EntryList create_entry_list(CompareFunc compare);                               // Returns pointer to entrylist with compare function
 
-List get_entry_payload(Entry entry);
+unsigned int get_number_entries(EntryList entrylist);                           // Returns number of entries in entrylist
 
-ErrorCode destroy_entry(Entry entry);
+ErrorCode add_entry(EntryList entrylist, Entry new_entry);                      // Add new_entry in entrylist
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Entry get_first(EntryList entrylist);                                           // Get first entry from entrylist
 
-EntryList create_entry_list(CompareFunc compare);
+Entry get_next(EntryList entrylist, Entry current_entry);                       // Get entry next to current_entry from entrylist
 
-unsigned int get_number_entries(EntryList entrylist);
+Entry find_entry(EntryList entrylist, Entry current_entry);                     // Get entry from entrylist with word same as current_entry
 
-ErrorCode add_entry(EntryList entrylist, Entry new_entry);
-
-Entry get_first(EntryList entrylist);
-
-Entry get_next(EntryList entrylist, Entry current_entry);
-
-Entry find_entry(EntryList entrylist, Entry current_entry);
-
-ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value);
+ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value);   // Destroy entrylist and entries with destroy_value
