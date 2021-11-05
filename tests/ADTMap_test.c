@@ -25,14 +25,14 @@ unsigned int hash_function(String word) {
 	return hash_string(word);
 }
 
-int compare_words(String stra, String strb) {
-	return strcmp(stra,strb);
-}
+// int compare_words(String stra, String strb) {
+// 	return strcmp(stra,strb);
+// }
 
 void test_create(void) {
 
 	int size = 100;
-	Map map = map_create((CompareFunc)compare_words, size);
+	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
 	TEST_ASSERT(map != NULL);
@@ -43,7 +43,7 @@ void test_create(void) {
 
 void test_insert(void) {
 	int size = 100;
-	Map map = map_create( (CompareFunc)compare_words, size);
+	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
 	TEST_ASSERT(map != NULL);
@@ -75,10 +75,44 @@ void test_insert(void) {
 	map_destroy(map, (DestroyFunc) destroy_word);	
 }
 
+
+void test_find(void) {
+	int size = 100;
+	Map map = map_create((CompareFunc)strcmp, size);
+	map_set_hash_function(map, (HashFunc)hash_function);
+
+	TEST_ASSERT(map != NULL);
+
+	int N = 50;
+	String strArray[N];
+	
+	// ελεγχουμε αν υπάρχουν στο map τα στοιχεία που εισάγαμε
+	for (int i = 0; i < N; i++) {
+		strArray[i] = strdup(Array[i]);
+		map_insert(map, strArray[i]);
+	}
+
+	for (int i = 0; i < N; i++) {
+		String checkstr = map_find(map, strArray[i]);
+
+		TEST_ASSERT(checkstr != NULL);
+		TEST_ASSERT(!strcmp(checkstr, strArray[i]));
+	}
+
+	char tempstr[5] = "Goku"; 
+
+    String checkstr = map_find(map, tempstr);
+
+	TEST_ASSERT(checkstr == NULL);
+
+	map_destroy(map, (DestroyFunc) destroy_word);	
+}
+
 TEST_LIST = {
 
 	{ "map_create", test_create },
 	{ "map_insert", test_insert },
+	{ "map_find", test_find },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 
