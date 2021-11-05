@@ -11,6 +11,8 @@
         "utility": "c",
         "variant": "c",
         "common_types.h": "c",
-        "adtmap.h": "c"
+        "adtmap.h": "c",
+        "acutest.h": "c",
+        "string.h": "c"
     }
 }

@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTMap.c     
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>

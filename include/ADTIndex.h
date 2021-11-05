@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTIndex.h     
+*/
+
 #pragma once
 
 #include "common_types.h"

@@ -1,3 +1,9 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTEntryList.c     
+*/
+
+
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

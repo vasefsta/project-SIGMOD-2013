@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : main.c     
+*/
+
 #include "common_types.h"
 #include "core.h"
 #include "ADTLinkedList.h"

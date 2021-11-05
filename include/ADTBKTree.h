@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTBKTree.h     
+*/
+
 #pragma once
 
 #include "core.h"

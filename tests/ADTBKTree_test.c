@@ -1,3 +1,9 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTBKTree_test.c     
+*/
+
+
 #include "acutest.h"
 #include "ADTBKTree.h"
 #include "ADTEntryList.h"

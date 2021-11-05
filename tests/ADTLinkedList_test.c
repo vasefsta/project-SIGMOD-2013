@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTLinkedList_test.c     
+*/
+
 #include <stdlib.h>
 #include <string.h>
 

@@ -1,3 +1,9 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTLinkedList.h     
+*/
+
+
 #pragma once
 
 #include "common_types.h"

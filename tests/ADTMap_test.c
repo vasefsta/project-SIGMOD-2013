@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTMap_test.c     
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include "acutest.h"			// Απλή βιβλιοθήκη για unit testing

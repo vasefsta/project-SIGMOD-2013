@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : common_types.h     
+*/
+
 #pragma once
 
 typedef char* String;

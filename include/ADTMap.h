@@ -1,3 +1,8 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTMap.h     
+*/
+
 #include "common_types.h"
 #include "core.h"
 

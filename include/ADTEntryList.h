@@ -1,3 +1,9 @@
+/*
+ *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  File   : ADTEntryList.h     
+*/
+
+
 #pragma once
 
 #include "common_types.h"
