@@ -31,14 +31,12 @@ int compare_words(String stra, String strb) {
 
 void test_create(void) {
 
-	// Δημιουργούμε μια κενή λίστα (χωρίς αυτόματο free)
 	int size = 100;
 	Map map = map_create((CompareFunc)compare_words, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
-	// Ελέγχουμε ότι δεν απέτυχε η malloc στην λίστα, και ότι
-	// αρχικοποιείται με μέγεθος 0 (δηλαδή χωρίς κόμβους)
 	TEST_ASSERT(map != NULL);
+	TEST_ASSERT(map_capacity(map) == 0);
 	
 	map_destroy(map, NULL);
 }
@@ -53,6 +51,7 @@ void test_insert(void) {
 	int N = 50;
 	String strArray[N];
 	
+	// ελεγχουμε αν υπάρχουν στο map τα στοιχεία που εισάγαμε
 	for (int i = 0; i < N; i++) {
 		strArray[i] = strdup(Array[i]);
 		map_insert(map, strArray[i]);
