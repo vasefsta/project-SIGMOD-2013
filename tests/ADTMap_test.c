@@ -58,7 +58,19 @@ void test_insert(void) {
 		TEST_ASSERT(map_find(map, strArray[i]) != NULL);
 	}
 
-	TEST_ASSERT(map_capacity(map) == 50);
+	TEST_ASSERT(map_capacity(map) == N);
+
+	String newstr = strdup("Athens");
+
+	map_insert(map, newstr);
+
+	TEST_ASSERT(map_find(map, newstr) != NULL);
+	TEST_ASSERT(map_capacity(map) == N + 1);
+
+    char tempstr[5] = "Goku"; 
+
+    TEST_ASSERT((map_find(map, tempstr) == NULL));
+    TEST_ASSERT(map_capacity(map) == N + 1);
 
 	map_destroy(map, (DestroyFunc) destroy_word);	
 }

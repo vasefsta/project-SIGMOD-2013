@@ -24,9 +24,11 @@ void test_create(){
     List list = list_create(NULL);
 
     TEST_ASSERT(list != NULL);
+    TEST_ASSERT(list_size(list) == 0);
 
     list_destroy(list, NULL);
 }
+
 
 void test_insert(){ 
     List list = list_create((CompareFunc) strcmp);
@@ -37,12 +39,27 @@ void test_insert(){
 
 	for (int i = 0; i < N; i++) {
 		list_insert(list, Array[i]);
-        TEST_ASSERT((list_find(list, Array[i]) != NULL));
+        TEST_ASSERT(list_find(list, Array[i]) != NULL);
 	}
 
-    list_destroy(list, NULL);
+    TEST_ASSERT(list_size(list) == N);
 
+    char newstr[7] = "Athens";
+
+    list_insert(list, newstr);
+
+    TEST_ASSERT((list_find(list, newstr) != NULL));
+    TEST_ASSERT(list_size(list) == N + 1);
+
+    char tempstr[5] = "Goku"; 
+
+    TEST_ASSERT((list_find(list, tempstr) == NULL));
+    TEST_ASSERT(list_size(list) == N + 1);
+
+    list_destroy(list, NULL);
 }
+
+
 
 
 
