@@ -93,13 +93,9 @@ int main(){
     puts("Looking for words in index...");   
     for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
         String word = list_node_value(node);
-        lookup_entry_index(index_hamming, word, 4, result, (CompareFunc) compare_queries);
+        lookup_entry_index(index_hamming, word, 0, result, (CompareFunc) compare_queries);
     }
     puts("");
-
-    for(Entry entry = get_first(result); entry != NULL; entry = get_next(result, entry)){
-        puts(get_entry_word(entry));
-    }
 
     List complete_list = find_complete_queries(result);
 
@@ -145,7 +141,7 @@ int main(){
     List list = deduplicated_words("../misc/documents/Document1");
     puts("");
 
-    Index index_edit = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 100);
+    Index index_edit = create_index(MT_EDIT_DIST, NULL, 100);
 
     puts("Building index...");
     build_entry_index(index_edit, entrylist);
@@ -154,13 +150,9 @@ int main(){
     puts("Looking for words in index...");   
     for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
         String word = list_node_value(node);
-        lookup_entry_index(index_edit, word, 2, result, (CompareFunc) compare_queries);
+        lookup_entry_index(index_edit, word, 4, result, NULL);
     }
     puts("");
-
-    for(Entry entry = get_first(result); entry != NULL; entry = get_next(result, entry)){
-        puts(get_entry_word(entry));
-    }
 
     List complete_list = find_complete_queries(result);
 

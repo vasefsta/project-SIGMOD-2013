@@ -32,7 +32,6 @@ List unique_queries(EntryList entrylist) {
 
     for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){
         List list = get_entry_payload(entry);
-
         for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){
             Query query = list_node_value(listnode);
             if(list_find(list_of_queries, query) == NULL){

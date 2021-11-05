@@ -52,8 +52,10 @@ int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word,
     if (low_range < 0)
         low_range = 0;
 
-    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) )
-        add_entry(entrylist, bkparent->entry);
+    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ){
+        if(find_entry(entrylist, bkparent->entry) == NULL)
+            add_entry(entrylist, bkparent->entry);
+    }
 
     if(bkparent->children == NULL){
         return -1;
@@ -195,26 +197,46 @@ int edit_distance(Pointer value1, Pointer value2) {
     int len1 = strlen(word1);
     int len2 = strlen(word2);
 
-    int array[len1 + 1][len2 + 1];  
-    
-    for(int i = 0; i < len1 + 1; i++){
-        array[i][0] = i;
-    } 
-    for(int i = 0; i < len2 + 1; i++){
-        array[0][i] = i;
-    } 
-    int value;
+    int matrix[len1 + 1][len2 + 1];
+    int i;
+    for (i = 0; i <= len1; i++) {
+        matrix[i][0] = i;
+    }
+    for (i = 0; i <= len2; i++) {
+        matrix[0][i] = i;
+    }
+    for (i = 1; i <= len1; i++) {
+        int j;
+        char c1;
 
-    for(int i = 1; i < len1 + 1; i++){
-        for(int j = 1; j < len2 + 1; j++){
-            if(word1[i] == word2[j])
-                value = find_min(array[i-1][j], array[i][j-1], array[i-1][j-1]);
-            else{
-                value = find_min(array[i-1][j], array[i][j-1], array[i-1][j-1]) + 1;
+        c1 = word1[i-1];
+        for (j = 1; j <= len2; j++) {
+            char c2;
+
+            c2 = word2[j-1];
+            if (c1 == c2) {
+                matrix[i][j] = matrix[i-1][j-1];
             }
-            array[i][j] = value;
+            else {
+                int delete;
+                int insert;
+                int substitute;
+                int minimum;
+
+                delete = matrix[i-1][j] + 1;
+                insert = matrix[i][j-1] + 1;
+                substitute = matrix[i-1][j-1] + 1;
+                minimum = delete;
+                if (insert < minimum) {
+                    minimum = insert;
+                }
+                if (substitute < minimum) {
+                    minimum = substitute;
+                }
+                matrix[i][j] = minimum;
+            }
         }
     }
 
-    return array[len1][len2];
+    return matrix[len1][len2];
 }

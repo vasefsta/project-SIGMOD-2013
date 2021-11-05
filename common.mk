@@ -47,7 +47,7 @@ PROGRAMS := $(MY_PATH)programs
 #
 # Το override επιτρέπει την προσθήκη επιπλέον παραμέτρων από τη γραμμή εντολών: make CFLAGS=...
 #
-override CFLAGS += -g -Wall -MMD -I$(INCLUDE) -DEDIT
+override CFLAGS += -g -Wall -MMD -I$(INCLUDE) -DEXACT
 
 # Linker options
 #   -lm        Link με τη math library
