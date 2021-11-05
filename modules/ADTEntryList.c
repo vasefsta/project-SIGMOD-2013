@@ -16,11 +16,11 @@ struct entry{
 };
 
 
-Entry create_entry(String word, CompareFunc compare) {      // NA APOFASISOUME AN PREPEI NA EPISTREFETAI KAI TO ERROR
-    Entry entry = malloc(sizeof(*entry));
+Entry create_entry(String word, CompareFunc compare) {      
+    Entry entry = malloc(sizeof(*entry));                   // Create new entry
 
     entry->word = word;
-    entry->payload = list_create(compare);
+    entry->payload = list_create(compare);                  // Create empty list for payload
 
     return entry;
 }
@@ -41,11 +41,11 @@ List get_entry_payload(Entry entry){
 ErrorCode destroy_entry(Entry entry) {
     assert(entry);
 
-    free(entry->word);
+    free(entry->word);                              
     list_destroy(entry->payload, NULL);
     free(entry);
 
-    return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i list_destroy leitourgei swsta
+    return EC_SUCCESS;
 }
 
 
@@ -67,7 +67,7 @@ unsigned int get_number_entries(EntryList entrylist) {
 
 ErrorCode add_entry(EntryList entrylist, Entry new_entry){
     list_insert(entrylist, new_entry);
-    return EC_SUCCESS;      // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i list_insert leitourgei swsta
+    return EC_SUCCESS;      
 }
 
 
@@ -81,9 +81,10 @@ Entry get_first(EntryList entrylist){
 
 
 Entry get_next(EntryList entrylist, Entry current_entry){
+
     ListNode node = list_find(entrylist, current_entry);
 
-    if (!node) 
+    if (!node)                                      // If no node was found
         return NULL;
     else {
         node = list_find_next(node);
@@ -112,7 +113,7 @@ Entry find_entry(EntryList entrylist, Entry current_entry) {
 
 ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value) {
     assert(entrylist);
-    list_destroy(entrylist, (DestroyFunc)destroy_value);//Evala null dame je edulepsen anti destroy entry
-    return EC_SUCCESS; // na to elexw xana me to ti tha epistrefei epd den xeroume sigoura an i destroy_entry_list leitourgei swsta
+    list_destroy(entrylist, (DestroyFunc)destroy_value);
+    return EC_SUCCESS;
 }
 

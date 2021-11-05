@@ -19,7 +19,7 @@ int compare_queries(Query q1, Query q2){
     return strcmp(q1->words, q2->words);
 }
 
-int times_in_list(EntryList entrylist, Query query) {
+int times_in_list(EntryList entrylist, Query query) {                                           // Returns how many times the query is in entrylist
 
     int count = 0; 
 
@@ -31,35 +31,33 @@ int times_in_list(EntryList entrylist, Query query) {
 }
 
 
-List unique_queries(EntryList entrylist) {
+List unique_queries(EntryList entrylist) {                                                                // Return a list of all queries in entrylist (queries are not duplicated)
 
     List list_of_queries = list_create( (CompareFunc) compare_queries);
 
-    for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){
+    for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){           //For every entry in entrylist
         List list = get_entry_payload(entry);
-        for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){
+        for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){ // For every query in payload
             Query query = list_node_value(listnode);
             if(list_find(list_of_queries, query) == NULL){
                 list_insert(list_of_queries, query);
             }
         }
     }
-
     return list_of_queries;
-
 }
 
 
 List find_complete_queries(EntryList entrylist){
 
-    List complete_list = list_create((CompareFunc) compare_queries);
+    List complete_list = list_create((CompareFunc) compare_queries);        
 
-    List unique = unique_queries(entrylist);
+    List unique = unique_queries(entrylist);        
 
-    for(ListNode listnode = list_first(unique); listnode != NULL; listnode = list_find_next(listnode)){
+    for(ListNode listnode = list_first(unique); listnode != NULL; listnode = list_find_next(listnode)){     // For every query
         Query query = list_node_value(listnode);
-        int times = times_in_list(entrylist, query);
-        if(query->length == times)
+        int times = times_in_list(entrylist, query);            
+        if(query->length == times)                      // If is as times as its length then it's full
             list_insert(complete_list, query);
     }
 
@@ -70,14 +68,14 @@ List find_complete_queries(EntryList entrylist){
 }
 
 
-Query convert_to_query(String string){
-    Query query = malloc(sizeof(*query));
+Query convert_to_query(String string){ 
+    Query query = malloc(sizeof(*query));               // Create query
     query->words = strdup(string);
     int count = 0;
 
     String token = strtok(string, " \t\n");
 
-    while (token != NULL ){
+    while (token != NULL ){                             // Count number of words
         count++;
         token = strtok(NULL, "  \t\n");   
     }
@@ -89,8 +87,8 @@ Query convert_to_query(String string){
 }
 
 String *Seperate_sentence(Query query){
-    String *Array = malloc(sizeof(String)*query->length);
-    String dummy = strdup(query->words);
+    String *Array = malloc(sizeof(String)*query->length);           // Create array
+    String dummy = strdup(query->words);                            // Create a dummy string
 
     int i  = 0;
 
@@ -99,24 +97,22 @@ String *Seperate_sentence(Query query){
     Array[i] = strdup(token);
 
 
-    while( (token = strtok(NULL, " \t\n")) != NULL){
+    while( (token = strtok(NULL, " \t\n")) != NULL){                // For every word in sentence
         i++;
-        Array[i] = strdup(token);
+        Array[i] = strdup(token);                                   // Copy to Array[i]
     }
 
     free(dummy);
     return Array;
 }
 
-List deduplicated_words(String filename){
-    FILE *FP = fopen(filename,"r");
+List deduplicated_words(String filename){                          
+    FILE *FP = fopen(filename,"r");                                 //Open filename
 
     if(!FP){
         puts("Is null");
         return NULL;
     }
-    
-
 
     char buffer[MAX_WORD_LENGTH+1];
     char letter[2];
@@ -124,21 +120,21 @@ List deduplicated_words(String filename){
     char a;
 
 
-    List list = list_create((CompareFunc) strcmp);
+    List list = list_create((CompareFunc) strcmp);                  // Create list
             
 
     strcpy(buffer, "");
 
-    while ((a = fgetc(FP)) != EOF){
-        if(a == ' ' || a == '\n'){
-            if(!list_find(list, buffer)){
+    while ((a = fgetc(FP)) != EOF){                                 // Read char by charfile
+        if(a == ' ' || a == '\n'){                                  // If word is over
+            if(!list_find(list, buffer)){                           // and not in list
                 String value = strdup(buffer);
-                list_insert(list, value);
+                list_insert(list, value);                           // Insert in list
             } 
             strcpy(buffer, "");
         } else {
             letter[0] = a;
-            strcat(buffer, letter);
+            strcat(buffer, letter);                                 // Append char to String.
         }
     }
 
@@ -160,7 +156,7 @@ int compare_entries(Entry e1, Entry e2){
 Map map_of_queries(String filename, EntryList entrylist){
     
 
-    FILE *FP = fopen(filename, "r");
+    FILE *FP = fopen(filename, "r");                            // Open filename
     if(FP == NULL)
         return NULL;
 
@@ -170,30 +166,31 @@ Map map_of_queries(String filename, EntryList entrylist){
     size_t bytes;
 
 
-    Map map = map_create( (CompareFunc) compare_queries, 120);
+    Map map = map_create( (CompareFunc) compare_queries, 120);      // Create map for queries
     map_set_hash_function(map, (HashFunc) hash_func);
+
     int i = 0;
-    while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){
-        i++;
+    while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){        // Read file line by line
+        i++;                                                        
         buffer[strlen(buffer)-1] = '\0';
-        Query new_query = convert_to_query(buffer);
-        map_insert(map, new_query);
+        Query new_query = convert_to_query(buffer);                 // Create new query
+        map_insert(map, new_query);                                 // Insert query in map
 
-        String *Array = Seperate_sentence(new_query);
+        String *Array = Seperate_sentence(new_query);               // Get every word of query's sentence
 
-        for(int i = 0; i < new_query->length; i++){
-            Entry e1 = create_entry(Array[i], (CompareFunc) compare_queries);            
+        for(int i = 0; i < new_query->length; i++){                 // For every word
+            Entry e1 = create_entry(Array[i], (CompareFunc) compare_queries);   // Create a new entry          
             Entry entry = find_entry(entrylist, e1);
-            if(entry != NULL){
-                list_insert(get_entry_payload(entry), new_query);
+            if(entry != NULL){                                      // If entry with keyword was found
+                list_insert(get_entry_payload(entry), new_query);   // Inserty query in entry's payload
                 free(Array[i]);
             } else {
-                entry = create_entry(Array[i], (CompareFunc) compare_queries);
-                list_insert(get_entry_payload(entry), new_query);
-                add_entry(entrylist, entry);
+                entry = create_entry(Array[i], (CompareFunc) compare_queries);  // Create new entry
+                list_insert(get_entry_payload(entry), new_query);               // Add query in entry's payload
+                add_entry(entrylist, entry);                                    // Add entry in entrylist
             }
             List e1_payload = get_entry_payload(e1);
-            list_destroy(e1_payload, NULL);
+            list_destroy(e1_payload, NULL);                                     // Free dummy Pointers
             free(e1);
         }
     

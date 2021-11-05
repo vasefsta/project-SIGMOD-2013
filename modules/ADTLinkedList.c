@@ -23,9 +23,9 @@ struct list {
 
 
 List list_create(CompareFunc compare){
-    List list = malloc(sizeof(*list));
+    List list = malloc(sizeof(*list));                              // Allocate memory for list
     
-    list->dummyNode = malloc(sizeof(*(list->dummyNode)));
+    list->dummyNode = malloc(sizeof(*(list->dummyNode)));           // Initialize values
     list->dummyNode->next = NULL;
     list->dummyNode->value = NULL;
     list->compare = compare;
@@ -52,15 +52,15 @@ void list_insert(List list, Pointer value){
 
     ListNode node = list->dummyNode;
     
-    while (node->next){
+    while (node->next){                                 // Find last node in list
         node = node->next;
     }
 
-    ListNode new = malloc(sizeof(*new));
+    ListNode new = malloc(sizeof(*new));                // Create new ListNode
     new->value = value;
     new->next = NULL;
     
-    node->next = new;
+    node->next = new;                                   // Append in list
     list->size++;
 }
 
@@ -68,7 +68,7 @@ void list_insert(List list, Pointer value){
 ListNode list_find(List list, Pointer value) {
     assert(list);
 
-    for (ListNode node = list_first(list); node != NULL; node = node->next) {
+    for (ListNode node = list_first(list); node != NULL; node = node->next) {               //Traverse through list
         if (list->compare && list->compare(value, node->value) == 0)
             return node;
     }
@@ -89,12 +89,12 @@ ListNode list_find_next(ListNode node) {
 }
 
 
-void list_destroy(List list, DestroyFunc destroy) {         //Opos kai dipote NULL stin destroy
+void list_destroy(List list, DestroyFunc destroy) {
     assert(list);
 
     ListNode node = list_first(list);
 
-    while (node) {
+    while (node) {                          // Traverse through list
 
         ListNode next = node->next;
 

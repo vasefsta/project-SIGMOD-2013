@@ -17,8 +17,8 @@ struct mapnode {
 
 struct map {
     MapNode hashtable;
-    unsigned int size;
-    unsigned int capacity;
+    unsigned int size;                                  // Size of map
+    unsigned int capacity;                              // Numver of elements
     CompareFunc compare_function;
     HashFunc hash_function;
 };
@@ -27,13 +27,13 @@ struct map {
 Map map_create( CompareFunc compare_function, int size) {
     size *= 1.2;
 
-    Map map = malloc(sizeof(*map));
+    Map map = malloc(sizeof(*map));                     // Allocate map
     map->size = size;
     map->capacity = 0;
     map->compare_function = compare_function;
-    map->hashtable = malloc(sizeof(struct mapnode)*size);
+    map->hashtable = malloc(sizeof(struct mapnode)*size);   // Initialize map
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {                        // Initialize every position of map
         map->hashtable[i].value = NULL;
         map->hashtable[i].next = NULL;
     }
@@ -54,22 +54,22 @@ int map_capacity(Map map) {
 ErrorCode map_insert(Map map, Pointer value) {
     assert(map);
     assert(value);
-    unsigned int position = map->hash_function(value);
-    position %= map->size; 
+    unsigned int position = map->hash_function(value);          // Get position from hash function
+    position %= map->size;                                      // Modulo position with size to be in range
 
     MapNode node = &map->hashtable[position];
-    if(node->value == NULL){
+    if(node->value == NULL){                                    // If node is null
         node->value = value;
     } else {
-        while (node->next){
+        while (node->next){                                     // find end of bucket's list
             node = node->next;
         }
 
-        MapNode new = malloc(sizeof(*new));
+        MapNode new = malloc(sizeof(*new));                     // Create new map node
         new->value = value;
         new->next = NULL;
 
-        node->next = new; 
+        node->next = new;                                       // Append in end of list
     }
 
     map->capacity++;
@@ -80,15 +80,15 @@ int map_destroy(Map map, DestroyFunc destroy){
     assert(map);
 
     for(int i = 0; i < map->size; i++){
-        MapNode node =  map->hashtable[i].next;
+        MapNode node =  map->hashtable[i].next;                 // Get next element in bucket
 
-        if(destroy && map->hashtable[i].value){
+        if(destroy && map->hashtable[i].value){                 // Destroy first element if exists
             destroy(map->hashtable[i].value);
         }
 
-        while (node){
+        while (node){                                           // Traverse through bucket list
             MapNode next = node->next;
-            
+
             if (destroy){
                 destroy(node->value);
             }
@@ -107,14 +107,14 @@ Pointer map_find(Map map, Pointer value){
     assert(map);
     assert(value);
     
-    unsigned int position = map->hash_function(value);
-    position %= map->size;
+    unsigned int position = map->hash_function(value);              // Get position from hash function 
+    position %= map->size;                                          // Get position in range
 
-    MapNode node = &map->hashtable[position];
+    MapNode node = &map->hashtable[position];                       // Get first element in position
 
-    while (node){
+    while (node){                                                   // Traverse through list
         if(node->value){
-            if(!(map->compare_function(value, node->value))){
+            if(!(map->compare_function(value, node->value))){       // If node->value is same as value
                 return node->value;
             }
         }
