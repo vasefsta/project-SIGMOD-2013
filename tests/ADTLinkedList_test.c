@@ -60,13 +60,44 @@ void test_insert(){
 }
 
 
+void test_find(void) {
+    List list = list_create((CompareFunc)strcmp);
 
+	TEST_ASSERT(list != NULL);
+
+	int N = 50;
+	
+	// ελεγχουμε αν υπάρχουν στο map τα στοιχεία που εισάγαμε
+	for (int i = 0; i < N; i++) {
+		list_insert(list, Array[i]);
+	}
+
+	for (int i = 0; i < N; i++) {
+		ListNode node = list_find(list, Array[i]);
+        
+        TEST_ASSERT(node != NULL);
+
+        String checkstr = list_node_value(node);
+
+		TEST_ASSERT(checkstr != NULL);
+		TEST_ASSERT(!strcmp(checkstr, Array[i]));
+	}
+
+	char tempstr[5] = "Goku"; 
+
+    ListNode node = list_find(list, tempstr);
+
+    TEST_ASSERT(node == NULL);
+
+    list_destroy(list, NULL);
+}
 
 
 TEST_LIST = {
 
 	{ "linkedlist_create", test_create },
     { "linkedlist_insert", test_insert },
+    { "linkedlist_find", test_find },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 
