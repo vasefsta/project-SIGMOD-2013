@@ -61,12 +61,9 @@ ErrorCode map_insert(Map map, Pointer value) {
     if(node->value == NULL) {                                    // If node is null
         node->value = value;
     } else {
-        while(map->compare_function(node->value, value) && node->next) {                                     // find end of bucket's list
+        while(node->next) {                                     // find end of bucket's list
             node = node->next;
         }
-
-        if (!(map->compare_function(node->value, value)))
-            return EC_SUCCESS;
 
         MapNode new = malloc(sizeof(*new));                     // Create new map node
         new->value = value;
