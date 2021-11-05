@@ -31,6 +31,27 @@ int times_in_list(EntryList entrylist, Query query) {                           
 }
 
 
+int count_queries(String filename){
+    FILE *FP = fopen(filename, "r");
+
+    if(FP == NULL)
+        return -1;
+
+    ssize_t bytes;
+    String buffer = NULL;
+    size_t buffsize = MAX_QUERY_LENGTH;
+    int count = 0;
+    
+    while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){        // Read file line by line
+        count++;
+    }
+
+    free(buffer);
+    fclose(FP);
+    return count;
+}
+
+
 List unique_queries(EntryList entrylist) {                                                                // Return a list of all queries in entrylist (queries are not duplicated)
 
     List list_of_queries = list_create( (CompareFunc) compare_queries);
@@ -165,8 +186,10 @@ Map map_of_queries(String filename, EntryList entrylist){
 
     size_t bytes;
 
+    int num_of_queries = count_queries(filename);
+    num_of_queries *= 1.2;
 
-    Map map = map_create( (CompareFunc) compare_queries, 120);      // Create map for queries
+    Map map = map_create( (CompareFunc) compare_queries, num_of_queries);      // Create map for queries
     map_set_hash_function(map, (HashFunc) hash_func);
 
     int i = 0;
