@@ -29,6 +29,57 @@
     ```    
     At first, this function will calculate the distance (d) betweeen the new node and the current node (parent node). After that if current node has no children, new node will be his newborn child. If parent has children, we proceed at finding a child with distance (d') equal to (d). If such child is found we recursively call insert with child as parent. If no child is found we insert new node with it's siblings.
 
+- ```ruby
+    int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word, int threshold)
+    ```
+    At first this function will calculate the distance (d) betweeen the new node and the current node (parent node). Next it will calculate the lower bound (convert negative number to zero). If new node is within bounds bkparent will be added in entrylist. After that we calculate the distance of every child (if they exist) 
+    and call find recurisively to check new node with all children
+
+- ```ruby
+    void destroy(BKNode bknode, DestroyFunc destroy_value)
+    ```
+    This function will recursively free bknode and its value with DestroyFunc
+    and traverse through the children's list to do the same for them.
+
+- ```ruby
+    BKTree bk_create(MatchType type)
+    ```
+    This function creates a new bk tree.
+
+- ```ruby
+    ErrorCode bk_insert(BKTree bktree, Entry entry)
+    ```
+    This function will create a new node for the entry.
+    After that it will check if a root is created. If not, the new node will become the root of th tree. Else we call insert to insert the new node in tree.
+
+- ```ruby
+    Entry bk_node_value(BKNode node)
+    ```
+    Returns the value of node.
+
+- ```ruby
+    int bk_find(BKTree bktree, EntryList entrylist, String word, int n)
+    ```
+    This function checks if a tree exists. If not returns negative message else calls find to check the nodes of the tree.
+
+- ```ruby
+    void bk_destroy(BKTree bktree, DestroyFunc destroy_value)
+    ```
+    This function calls destroy to free very node of tree and after that it frees the bktree
+
+- ```ruby
+    int hamming_distance(Pointer value1, Pointer value2){
+    ```
+    This function calculates the hamming distance between value1 and value2
+
+- ```ruby
+    int edit_distance(Pointer value1, Pointer value2) {
+    ```
+    This function calculates the edit distance between value1 and value2
+
+    .
+
+
 
 ### Notes: 
 - With list_test both ADTLinkedList and ADTEntryList are being checked.
