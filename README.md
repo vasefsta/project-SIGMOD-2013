@@ -8,7 +8,7 @@
 
 
  
-General Information:
+### General Information:
 
 - We decided to organize the code in five directories. 
   - programs : Containing the main function of program.
