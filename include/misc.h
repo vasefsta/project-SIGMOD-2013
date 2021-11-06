@@ -11,6 +11,8 @@
 
 int compare_queries(Query q1, Query q2);                             // strcmp the words of q1 and q2
 
+String path_of_doc(String namedoc);                                  // create the path of the given document
+
 int hash_func(Query query);                                          // Hash string of query
 
 int compare_entries(Entry e1, Entry e2);                             // strcmp the words of e1 and e2

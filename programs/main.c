@@ -17,7 +17,7 @@
 
 #if defined(EXACT)
 
-int main(){
+int main(int argc, char* argv[]){
 
     puts("");
     
@@ -28,9 +28,10 @@ int main(){
     Map map = map_of_queries("../misc/queries.txt", entrylist);
     puts("");
 
-
-    puts("Deduplicating \"Document1\"...");
-    List list = deduplicated_words("../misc/documents/Document1");
+    String namedoc = argv[1];
+    printf("Deduplicating \"%s\"...", namedoc);
+    String path = path_of_doc(namedoc);
+    List list = deduplicated_words(path);
     puts("");
 
     Index index_exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
@@ -51,7 +52,7 @@ int main(){
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is a complete query for Document1...\n\n",query->words);
+        printf("%s is a complete query for %s...\n\n",query->words, namedoc);
     }
 
     list_destroy(complete_list, NULL);
@@ -68,12 +69,14 @@ int main(){
 
     map_destroy(map,(DestroyFunc) destroy_query);
 
+    free(path);
+
     return 0;
 }
 
 #elif defined(HAMMING)
 
-int main(){
+int main(int argc, char* argv[]) {
 
     puts("");
     
@@ -85,8 +88,10 @@ int main(){
     puts("");
 
 
-    puts("Deduplicating \"Document1\"...");
-    List list = deduplicated_words("../misc/documents/Document1");
+    String namedoc = argv[1];
+    printf("Deduplicating \"%s\"...", namedoc);
+    String path = path_of_doc(namedoc);
+    List list = deduplicated_words(path);
     puts("");
 
     Index index_hamming = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entries, 100);
@@ -107,7 +112,7 @@ int main(){
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is a complete query for Document1...\n\n",query->words);
+        printf("%s is a complete query for %s...\n\n",query->words, namedoc);
     }
 
     list_destroy(complete_list, NULL);
@@ -124,13 +129,15 @@ int main(){
 
     map_destroy(map,(DestroyFunc) destroy_query);
 
+    free(path);
+
     return 0;
 
 }
 
 #elif defined(EDIT)
 
-int main(){
+int main(int argc, char* argv[]){
     
     puts("");
     
@@ -141,9 +148,10 @@ int main(){
     Map map = map_of_queries("../misc/queries.txt", entrylist);
     puts("");
 
-
-    puts("Deduplicating \"Document1\"...");
-    List list = deduplicated_words("../misc/documents/Document1");
+    String namedoc = argv[1];
+    printf("Deduplicating \"%s\"...", namedoc);
+    String path = path_of_doc(namedoc);
+    List list = deduplicated_words(path);
     puts("");
 
     Index index_edit = create_index(MT_EDIT_DIST, NULL, 100);
@@ -164,7 +172,7 @@ int main(){
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is a complete query for Document1...\n\n",query->words);
+        printf("%s is a complete query for %s...\n\n",query->words, namedoc);
     }
 
     list_destroy(complete_list, NULL);
@@ -181,6 +189,7 @@ int main(){
 
     map_destroy(map,(DestroyFunc) destroy_query);
 
+    free(path);
     return 0;
 
 }

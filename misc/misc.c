@@ -19,6 +19,17 @@ int compare_queries(Query q1, Query q2){
     return strcmp(q1->words, q2->words);
 }
 
+
+String path_of_doc(String namedoc) {
+    String path = malloc(sizeof(*path)*(strlen(namedoc) + 19));
+
+    strcpy(path, "../misc/documents/");
+    strcat(path, namedoc);
+
+    return path;
+}
+
+
 int times_in_list(EntryList entrylist, Query query) {                                           // Returns how many times the query is in entrylist
 
     int count = 0; 
