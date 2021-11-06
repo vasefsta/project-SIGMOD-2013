@@ -16,6 +16,19 @@
     tests and main functions are all executed with valgrind to show leak errors. (A test will pass only if valgrind has no errors or memory leaks).
 - With the command **"make clean"** all files that "make" || "make run" || "make valgrind" produced are removed.
 
+#### Example
+
+```
+    cd PROJECT-SIGMOD-2013
+    make run
+    make clean
+```
+
+```
+    cd PROJECT-SIGMOD-2013
+    make valgrind
+    make clean
+```
 
 ### Info to better understand our philosophy
 
