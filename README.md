@@ -18,6 +18,12 @@
   - misc &nbsp; &nbsp; &nbsp; &nbsp; : Containing all "sub functions" needed by program.
     
 
+### ADTBKTREE
+
+- bktree holds a bknode (the root of tree) and one compare function that will be either Hamming_distance or Edit_distance.
+
+- bknode holds an entry (node) and a list of bknodes (children)
+
 
 
 
