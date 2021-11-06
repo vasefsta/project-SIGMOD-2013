@@ -17,6 +17,12 @@
 - With the command **"make clean"** all files that "make" || "make run" || "make valgrind" produced are removed.
 
 
+### Info to better understand our philosophy
+
+- Every query read from **"queries.txt"** is stored in a hashtable (ADTMap).
+- After a query is inserted in hashtable is also inserted in the payload of the corresponding entry.
+- The payload of every entry is a list of Pointers pointing at the queries.
+
  
 ### General Information:
 
@@ -266,7 +272,11 @@
     This function hashes the value, finds the position and checks if the value matches exactly a mapnode. If a mapnode is found then it's returned. If not then NULL is returned.
 
 
+### References
 
 
+- Makefile is a modified version of "https://github.com/chatziko-k08/lecture-code" makefile.
+- hash_string is the hash_string "https://github.com/chatziko-k08/lecture-code/blob/master/modules/UsingHashTable/ADTMap.c" starting at line 268.
+- edit_distance function is the function "distance" used at "https://www.lemoda.net/c/levenshtein/" 
 
 
