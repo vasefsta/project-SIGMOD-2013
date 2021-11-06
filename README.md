@@ -20,11 +20,13 @@
 
 ### ADTBKTREE
 
-- bktree holds a bknode (the root of tree) and one compare function that will be either Hamming_distance or Edit_distance.
+- struct bktree holds a bknode (the root of tree) and one compare function that will be either Hamming_distance or Edit_distance.
 
-- bknode holds an entry (node) and a list of bknodes (children)
+- struct bknode holds an entry (node) and a list of bknodes (children)
 
-
+- insert(BKNode bkparent, BKNode new, CompareFunc compare)
+ At first, this function will calculate the distance (d) betweeen the new node and the current node (parent node). After that if current node has no children, new node will be his newborn child. If parent has children,
+ we proceed at finding a child with distance (d') equal to (d). If such child is found we recursively call insert with child as parent. If no child is found we insert new node with it's siblings.
 
 
 ### Notes: 
