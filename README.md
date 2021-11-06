@@ -13,7 +13,7 @@
 General Information:
 
 - We decided to organize the code in five directories. 
-  - include  : Containing all header files needed by source code.
+  - include &nbsp; &nbsp; : Containing all header files needed by source code.
   - misc &nbsp; &nbsp; &nbsp; &nbsp; : Containing all "sub functions" needed by program in misc.c.
   - modules &nbsp; : Containing all functions needed by modules to work properly.
   - programs : Containing the main function of program.
