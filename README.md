@@ -22,8 +22,8 @@ General Information:
 
 
 Notes: 
-- With list_test both ADTLinkedList and ADTEntryList are being checked .
+- With list_test both ADTLinkedList and ADTEntryList are being checked.
 
-- η lookup_entry_word θα ελέγχει μια μια τις λέξεις κάθε φορα όχι ολόκληρο το document.
+- lookup_entry_word can check only one word at a time so we call this function for every word in a Document.
 
 
