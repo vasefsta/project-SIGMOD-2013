@@ -55,8 +55,6 @@ int main(){
     }
 
     list_destroy(complete_list, NULL);
-
-//###################################################################
     
     list_destroy(result, (DestroyFunc) NULL);
 
@@ -111,8 +109,6 @@ int main(){
     }
 
     list_destroy(complete_list, NULL);
-
-//###################################################################
     
     list_destroy(result, (DestroyFunc) NULL);
 
@@ -169,7 +165,6 @@ int main(){
 
     list_destroy(complete_list, NULL);
 
-//###################################################################
     
     list_destroy(result, (DestroyFunc) NULL);
 

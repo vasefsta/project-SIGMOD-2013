@@ -35,8 +35,8 @@ void test_create(void) {
 	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
-	TEST_ASSERT(map != NULL);
-	TEST_ASSERT(map_capacity(map) == 0);
+	TEST_ASSERT(map != NULL);									// Test if map is created
+	TEST_ASSERT(map_capacity(map) == 0);						// Test if map capacity is 0
 	
 	map_destroy(map, NULL);
 }
@@ -46,7 +46,7 @@ void test_insert(void) {
 	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
-	TEST_ASSERT(map != NULL);
+	TEST_ASSERT(map != NULL);									// Test if map is created
 
 	int N = 50;
 	String strArray[N];
@@ -55,22 +55,22 @@ void test_insert(void) {
 	for (int i = 0; i < N; i++) {
 		strArray[i] = strdup(Array[i]);
 		map_insert(map, strArray[i]);
-		TEST_ASSERT(map_find(map, strArray[i]) != NULL);
+		TEST_ASSERT(map_find(map, strArray[i]) != NULL);		// Test if string is inserted in Map
 	}
 
-	TEST_ASSERT(map_capacity(map) == N);
+	TEST_ASSERT(map_capacity(map) == N);						// Test map capacity
 
 	String newstr = strdup("Athens");
 
 	map_insert(map, newstr);
 
-	TEST_ASSERT(map_find(map, newstr) != NULL);
-	TEST_ASSERT(map_capacity(map) == N + 1);
+	TEST_ASSERT(map_find(map, newstr) != NULL);					// Test if new string was inserted
+	TEST_ASSERT(map_capacity(map) == N + 1);					// Test map capacity
 
     char tempstr[5] = "Goku"; 
 
-    TEST_ASSERT((map_find(map, tempstr) == NULL));
-    TEST_ASSERT(map_capacity(map) == N + 1);
+    TEST_ASSERT((map_find(map, tempstr) == NULL));				// Test if tempstr is not in map
+    TEST_ASSERT(map_capacity(map) == N + 1);					// Test if map capacity remained same
 
 	map_destroy(map, (DestroyFunc) destroy_word);	
 }

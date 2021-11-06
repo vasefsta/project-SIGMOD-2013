@@ -7,7 +7,6 @@
  |Nikos Eftychiou|1800221|
 
 
- *  Authors: Vasiliki Efstathiou Nikos Eftychiou
  
  #### Authors: Vasiliki EFstathiou -> sdi1800229, Nikos Eftychiou -> sdi1800221
 

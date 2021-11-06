@@ -23,8 +23,8 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 void test_create(){
     List list = list_create(NULL);
 
-    TEST_ASSERT(list != NULL);
-    TEST_ASSERT(list_size(list) == 0);
+    TEST_ASSERT(list != NULL);                          // Test if list is created
+    TEST_ASSERT(list_size(list) == 0);                  // Test if list has 0 size
 
     list_destroy(list, NULL);
 }
@@ -33,28 +33,28 @@ void test_create(){
 void test_insert(){ 
     List list = list_create((CompareFunc) strcmp);
 
-    TEST_ASSERT(list != NULL);
+    TEST_ASSERT(list != NULL);                          // Test if list is created
 
     int N = 50;
 
 	for (int i = 0; i < N; i++) {
 		list_insert(list, Array[i]);
-        TEST_ASSERT(list_find(list, Array[i]) != NULL);
+        TEST_ASSERT(list_find(list, Array[i]) != NULL); // Test if Word is inserted in list
 	}
 
-    TEST_ASSERT(list_size(list) == N);
+    TEST_ASSERT(list_size(list) == N);                  // Test list size
 
     char newstr[7] = "Athens";
 
     list_insert(list, newstr);
 
-    TEST_ASSERT((list_find(list, newstr) != NULL));
-    TEST_ASSERT(list_size(list) == N + 1);
+    TEST_ASSERT((list_find(list, newstr) != NULL));     // Test if new node is in list
+    TEST_ASSERT(list_size(list) == N + 1);              // Test if list size is increased by one
 
     char tempstr[5] = "Goku"; 
 
-    TEST_ASSERT((list_find(list, tempstr) == NULL));
-    TEST_ASSERT(list_size(list) == N + 1);
+    TEST_ASSERT((list_find(list, tempstr) == NULL));    // Test if tempstr is not in list
+    TEST_ASSERT(list_size(list) == N + 1);              // Test if size remained the same
 
     list_destroy(list, NULL);
 }
