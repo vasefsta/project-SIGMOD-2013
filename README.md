@@ -211,6 +211,45 @@
     Destroys list and it's nodes and with function destroy it destroyes node's value. 
 
 
+### ADTMap
+
+- struct map holds a MapNode to a hashtable, the size of hashtable, the number of elements in hashtable(capacity) a compare_function to compare MapNodes and a hashfunction to hash the values.
+
+- struct mapnode holds a pointer to a value and a pointer to the next mapnode (If there are more than one mapnodes in the same bucket)
+
+- ```ruby
+    Map map_create( CompareFunc compare_function, int size)
+    ```    
+    This function creates a new map with size equal to 1.2 of the given size
+
+- ```ruby
+    void map_set_hash_function(Map map, HashFunc hash_function)
+    ```    
+    This function sets the hash_function of map
+
+- ```ruby
+    int map_capacity(Map map)
+    ```    
+    This function returns the number of mapnodes in map.
+
+- ```ruby
+    ErrorCode map_insert(Map map, Pointer value)
+    ```    
+    This function hashes the value, creates a new mapnode and inserts it in map. If the position from hash_function is empty new mapnode is inserted or else it's inserted at the end of the list of the bucket
+
+- ```ruby
+    int map_destroy(Map map, DestroyFunc destroy)
+    ```    
+    This function destroys every mapnode in map and the list in every bucket(if exists) and then frees map.
+
+- ```ruby
+    Pointer map_find(Map map, Pointer value){
+    ```    
+    This function hashes the value, finds the position and checks if the value matches exactly a mapnode. If a mapnode is found then it's returned. If not then NULL is returned.
+
+
+
+
 ### Notes: 
 - With list_test both ADTLinkedList and ADTEntryList are being checked.
 - lookup_entry_word can check only one word at a time so we call this function for every word in a Document.
