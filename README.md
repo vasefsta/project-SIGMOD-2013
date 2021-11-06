@@ -17,7 +17,7 @@ General Information:
   - misc     : Containing all "sub functions" needed by program in misc.c.
   - modules  : Containing all functions needed by modules to work properly.
   - programs : Containing the main function of program.
-  - tests &nbsp;    : Containing the test functions to prove that every module works flawless.
+  - tests &nbsp;      : Containing the test functions to prove that every module works flawless.
     
 
 
