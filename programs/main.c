@@ -56,8 +56,6 @@ int main(int argc, char* argv[]){
     }
 
     list_destroy(complete_list, NULL);
-
-//###################################################################
     
     list_destroy(result, (DestroyFunc) NULL);
 
@@ -116,8 +114,6 @@ int main(int argc, char* argv[]) {
     }
 
     list_destroy(complete_list, NULL);
-
-//###################################################################
     
     list_destroy(result, (DestroyFunc) NULL);
 
@@ -177,7 +173,6 @@ int main(int argc, char* argv[]){
 
     list_destroy(complete_list, NULL);
 
-//###################################################################
     
     list_destroy(result, (DestroyFunc) NULL);
 

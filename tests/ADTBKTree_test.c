@@ -32,16 +32,16 @@ const void destroy_entries(Entry entry){
 void test_create(){
     BKTree bktree = bk_create(MT_EDIT_DIST);
 
-    TEST_ASSERT(bktree != NULL);
+    TEST_ASSERT(bktree != NULL);                    // Test if bktree is created
 
     bk_destroy(bktree, NULL);
 }
 
 
 void test_insert_edit(){
-    BKTree bktree = bk_create(MT_EDIT_DIST);
+    BKTree bktree = bk_create(MT_EDIT_DIST);    
 
-    TEST_ASSERT(bktree != NULL);
+    TEST_ASSERT(bktree != NULL);                    // Test if bktree is created
 
     int N = 50;
     Entry entriesArray[N];
@@ -58,11 +58,11 @@ void test_insert_edit(){
         
         bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
         
-        TEST_ASSERT(get_number_entries(entrylist) == 1);
+        TEST_ASSERT(get_number_entries(entrylist) == 1);                // Test if entry was inserted in entrylist
 
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        TEST_ASSERT(entry != NULL);
+        TEST_ASSERT(entry != NULL);                                     // Test if this was the right entry
 
         list_destroy(entrylist, NULL);
     }
@@ -75,12 +75,12 @@ void test_insert_edit(){
 
     bk_find(bktree, entrylist, get_entry_word(entry), threshold);
 
-    TEST_ASSERT(get_number_entries(entrylist) == N);
+    TEST_ASSERT(get_number_entries(entrylist) == N);                    // Test if all entries were inserted in entrylist
 
     for (int i = 0; i < N; i++) {
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        TEST_ASSERT(entry != NULL);
+        TEST_ASSERT(entry != NULL);                                     // Test if they are the right entries
     }
 
 
@@ -97,7 +97,7 @@ void test_insert_edit(){
 void test_insert_hamming(){
     BKTree bktree = bk_create(MT_HAMMING_DIST);
 
-    TEST_ASSERT(bktree != NULL);
+    TEST_ASSERT(bktree != NULL);                                        // Test if bktree is created
 
     int N = 50;
     Entry entriesArray[N];
@@ -114,11 +114,11 @@ void test_insert_hamming(){
         
         bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
 
-        TEST_ASSERT(get_number_entries(entrylist) == 1);
+        TEST_ASSERT(get_number_entries(entrylist) == 1);                // Test if entry was inserted in entrylist
 
         Entry entry = find_entry(entrylist, entriesArray[i]);
 
-        TEST_ASSERT(entry != NULL);
+        TEST_ASSERT(entry != NULL);                                     // Test if it was the right entry
 
         list_destroy(entrylist, NULL);
     }
@@ -140,12 +140,12 @@ void test_insert_hamming(){
 
         Entry entry = find_entry(entrylist, entriesArrayHamming[i]);
 
-        TEST_ASSERT(entry != NULL);
+        TEST_ASSERT(entry != NULL);                                 //  Test if entry was found in entrylist
 
         destroy_entries(entriesArrayHamming[i]);
     }
 
-    TEST_ASSERT(get_number_entries(entrylist) == 12);
+    TEST_ASSERT(get_number_entries(entrylist) == 12);               // Test if entries were exactly 12 (Calculated from array before)
 
     bk_destroy(bktree, (DestroyFunc) destroy_entries);
 
