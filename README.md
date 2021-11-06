@@ -7,6 +7,16 @@
  |Nikos Eftychiou|1800221|
 
 
+### Compile And Execution
+
+- With the command **"make"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled.
+- With the command **"make run"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled and
+    tests and main function are all executed.
+- With the command **"make valgrind"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled
+    tests and main functions are all executed with valgrind to show leak errors. (A test will pass only if valgrind has no errors or memory leaks).
+- With the command **"make clean"** all files that "make" || "make run" || "make valgrind" produced are removed.
+
+
  
 ### General Information:
 
@@ -253,5 +263,7 @@
 ### Notes: 
 - With list_test both ADTLinkedList and ADTEntryList are being checked.
 - lookup_entry_word can check only one word at a time so we call this function for every word in a Document.
+- To generate queries.txt compile misc/Script.c and use the commant "./a.out > queries.txt"
+- To generate Documents compile misc/Script_Documents.c and run it.
 
 
