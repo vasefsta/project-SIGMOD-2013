@@ -78,6 +78,65 @@
     This function calculates the edit distance between value1 and value2
 
     .
+### ADTEntryList
+
+- struct entry holds a string(word) and a list of the queries that own this word(payload)
+
+- ```ruby
+    Entry create_entry(String word, CompareFunc compare) 
+    ```    
+    Creates a new entry with empty list and word(word)
+
+- ```ruby
+    String get_entry_word(Entry entry)
+    ```    
+    Returns the word of the entry
+
+- ```ruby
+    List get_entry_payload(Entry entry)
+    ```    
+    Returns the payload of the entry
+
+- ```ruby
+    ErrorCode destroy_entry(Entry entry)
+    ```    
+    Destroys entry, it's word and it's payload list.
+
+- ```ruby
+    EntryList create_entry_list(CompareFunc compare)
+    ```    
+    Creates a new entrylist
+
+- ```ruby
+    unsigned int get_number_entries(EntryList entrylist)
+    ```
+    Returns the number of entries in entrylist
+
+- ```ruby
+    ErrorCode add_entry(EntryList entrylist, Entry new_entry)
+    ```    
+    Appends new_entry in entrylist
+
+- ```ruby
+    Entry get_first(EntryList entrylist)
+    ```    
+    Returns first entry from entrylist
+
+- ```ruby
+    Entry get_next(EntryList entrylist, Entry current_entry)
+    ```    
+    Returns the next entry of current_entry from entrylist
+
+- ```ruby
+    Entry find_entry(EntryList entrylist, Entry current_entry)
+    ```    
+    Returns an entry with same word as current_entry
+
+- ```ruby
+    ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value)
+    ```    
+    Destroys entrylist.
+
 
 
 
