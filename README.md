@@ -13,11 +13,11 @@
 General Information:
 
 - We decided to organize the code in five directories. 
-  - include: Containing all header files needed by source code.
-  - misc: Containing all "sub functions" needed by program in misc.c.
-  - modules : Containing all functions needed by modules to work properly.
+  - include  : Containing all header files needed by source code.
+  - misc     : Containing all "sub functions" needed by program in misc.c.
+  - modules  : Containing all functions needed by modules to work properly.
   - programs : Containing the main function of program.
-  - tests : Containing the test functions to prove that every module works flawless.
+  - tests    : Containing the test functions to prove that every module works flawless.
     
 
 
