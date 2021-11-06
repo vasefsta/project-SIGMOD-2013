@@ -138,6 +138,77 @@
     Destroys entrylist.
 
 
+### ADTIndex
+
+- struct index holds a pointer to an index(Map or BKTree) and the MatchType of it(exact, hamming, edit).
+
+- ```ruby
+    Index create_index(MatchType matchtype, CompareFunc compare, int size)
+    ```    
+    This function creates an empty index.
+
+ - ```ruby
+    ErrorCode build_entry_index(Index index, const EntryList entrylist)
+    ```    
+    This function with the help of map_insert or bk_insert, inserts every entry from entrylist to index.
+
+- ```ruby
+    ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result, CompareFunc compare_queries)
+    ```    
+    This function with the help of map_find or bk_find inserts in result all entries that match the word.
+
+
+- ```ruby
+    ErrorCode destroy_entry_index(Index index)
+    ```    
+    This function with the help of bk_destroy and map_destroy destroys the index.
+
+
+### ADTLinkedList
+
+- struct list holds a dummy ListNode (for the list) a compare function to compare the values in listnodes and the size that holds the number of items in list.
+
+- struct listnode holds a pointer to the value of node and a pointer to the next listnode.
+
+- ```ruby
+    List list_create(CompareFunc compare)
+    ```    
+    This function creates an empty list with compare_function compare
+
+- ```ruby
+    int list_size(List list)
+    ```    
+    Returns the number of elements in list
+
+- ```ruby
+    ListNode list_first(List list)
+    ```    
+    Returns the first ListNode from list (next of dummy)
+
+- ```ruby
+    void list_insert(List list, Pointer value){
+    ```    
+    Creates a new ListNode and appends it at the end of list
+
+- ```ruby
+    ListNode list_find(List list, Pointer value)
+    ```    
+    Searches through list and returns a ListNode with value value. If no such ListNode exists, it returns NULL.
+
+- ```ruby
+    Pointer list_node_value(ListNode node)
+    ```    
+    Returns the value of node.
+
+- ```ruby
+    ListNode list_find_next(ListNode node)
+    ```    
+    Returns the next node of node.
+
+- ```ruby
+    void list_destroy(List list, DestroyFunc destroy)
+    ```    
+    Destroys list and it's nodes and with function destroy it destroyes node's value. 
 
 
 ### Notes: 
