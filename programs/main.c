@@ -18,6 +18,10 @@
 #if defined(EXACT)
 
 int main(int argc, char* argv[]){
+    String namedoc = argv[1];
+    String strthreshold = argv[2];
+
+    int threshold = atoi(strthreshold);
 
     puts("");
     
@@ -28,7 +32,6 @@ int main(int argc, char* argv[]){
     Map map = map_of_queries("../misc/queries.txt", entrylist);
     puts("");
 
-    String namedoc = argv[1];
     printf("Deduplicating \"%s\"...", namedoc);
     String path = path_of_doc(namedoc);
     List list = deduplicated_words(path);
@@ -43,7 +46,7 @@ int main(int argc, char* argv[]){
     puts("Looking for words in index...");   
     for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
         String word = list_node_value(node);
-        lookup_entry_index(index_exact, word, 0, result, (CompareFunc) compare_queries);
+        lookup_entry_index(index_exact, word, threshold, result, (CompareFunc) compare_queries);
     }
     puts("");
 
@@ -75,6 +78,10 @@ int main(int argc, char* argv[]){
 #elif defined(HAMMING)
 
 int main(int argc, char* argv[]) {
+    String namedoc = argv[1];
+    String strthreshold = argv[2];
+
+    int threshold = atoi(strthreshold);
 
     puts("");
     
@@ -86,7 +93,6 @@ int main(int argc, char* argv[]) {
     puts("");
 
 
-    String namedoc = argv[1];
     printf("Deduplicating \"%s\"...", namedoc);
     String path = path_of_doc(namedoc);
     List list = deduplicated_words(path);
@@ -101,7 +107,7 @@ int main(int argc, char* argv[]) {
     puts("Looking for words in index...");   
     for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
         String word = list_node_value(node);
-        lookup_entry_index(index_hamming, word, 0, result, (CompareFunc) compare_queries);
+        lookup_entry_index(index_hamming, word, threshold, result, (CompareFunc) compare_queries);
     }
     puts("");
 
@@ -134,6 +140,10 @@ int main(int argc, char* argv[]) {
 #elif defined(EDIT)
 
 int main(int argc, char* argv[]){
+    String namedoc = argv[1];
+    String strthreshold = argv[2];
+
+    int threshold = atoi(strthreshold);
     
     puts("");
     
@@ -144,7 +154,6 @@ int main(int argc, char* argv[]){
     Map map = map_of_queries("../misc/queries.txt", entrylist);
     puts("");
 
-    String namedoc = argv[1];
     printf("Deduplicating \"%s\"...", namedoc);
     String path = path_of_doc(namedoc);
     List list = deduplicated_words(path);
@@ -159,7 +168,7 @@ int main(int argc, char* argv[]){
     puts("Looking for words in index...");   
     for(ListNode node = list_first(list); node != NULL; node = list_find_next(node)){
         String word = list_node_value(node);
-        lookup_entry_index(index_edit, word, 4, result, NULL);
+        lookup_entry_index(index_edit, word, threshold, result, NULL);
     }
     puts("");
 
