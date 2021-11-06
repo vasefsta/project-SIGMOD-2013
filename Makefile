@@ -15,7 +15,7 @@ all: programs tests
 
 # Η παρακάτω γραμμή δημιουργεί ένα target programs-<foo> για οποιοδήποτε <foo>. Η μεταβλητή $* περιέχει το "foo"
 programs-%:
-	$(MAKE) -C programs/
+	$(MAKE) -C programs/ 
 
 programs: $(addprefix programs-%, programs/$*)		# depend στο programs-<foo> για κάθε στοιχείο του PROGRAMS
 
@@ -27,8 +27,8 @@ tests:
 # Εκτέλεση: όλα, προγράμματα, tests
 run: run-programs run-tests
 
-run-programs:
-	$(MAKE) -C programs/$* run
+run-programs: 
+	$(MAKE) -C programs/$* run 
 
 run-tests: $(addprefix run-programs-, $(PROGRAMS))
 	$(MAKE) -C tests run
