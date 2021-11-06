@@ -35,7 +35,7 @@
     At first this function will calculate the distance (d) betweeen the new node and the current node (parent node). Next it will calculate the lower bound (convert negative number to zero). If new node is within bounds bkparent will be added in entrylist. After that we calculate the distance of every child (if they exist) 
     and call find recurisively to check new node with all children
 
-# - ```ruby
+- ```ruby
     void destroy(BKNode bknode, DestroyFunc destroy_value)
     ```
     This function will recursively free bknode and its value with DestroyFunc
