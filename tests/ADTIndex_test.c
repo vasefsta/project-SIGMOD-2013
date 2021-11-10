@@ -14,10 +14,17 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
 
+const void destroy_entries(Entry entry){
+    list_destroy(get_entry_payload(entry), NULL);
+    free(entry);
+}
+
 void test_create(void) {
     Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 0);
 
     TEST_ASSERT(index != NULL);
+
+    destroy_entry_index(index);
 }
 
 
@@ -37,11 +44,31 @@ void test_build(void) {
 
 
 
-    build_entry_index(index, entrylist);
+    ErrorCode errcode = build_entry_index(index, entrylist);
 
     TEST_ASSERT(size_index(index) == N);
+    TEST_ASSERT(errcode == EC_SUCCESS);
 
-    
+    for (int i = 0; i < N; i++) {
+        EntryList result = create_entry_list((CompareFunc)compare_entries);
+        
+        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_queries);
+
+        Entry entry = create_entry(strdup(Array[i]), NULL);
+
+        Entry existentry = find_entry(result, entry);
+
+        TEST_ASSERT(existentry != NULL);
+
+        destroy_entry(entry);
+        destroy_entry_list(result, NULL);
+
+    }
+
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
+
+    destroy_entry_index(index);
+
 
 }
 
