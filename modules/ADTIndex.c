@@ -18,6 +18,7 @@ unsigned int hash_function(Entry entry) {
 struct index {
     Pointer index;
     MatchType matchtype;
+    int size;
 };
 
 
@@ -32,6 +33,7 @@ Index create_index(MatchType matchtype, CompareFunc compare, int size) {
         index->index = bk_create(matchtype);                                // Create bk tree for index
     
     index->matchtype = matchtype;
+    index->size = 0;
 
     return index;
 }
@@ -49,7 +51,11 @@ ErrorCode build_entry_index(Index index, const EntryList entrylist) {
 
             if (errcode == EC_FAIL)
                 return EC_FAIL;
+            
+            index->size++;
     }
+
+    
 
     return EC_SUCCESS;
 }
@@ -72,6 +78,10 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList 
     }
 
     return EC_SUCCESS;
+}
+
+int size_index(Index index) {
+    return index->size;
 }
 
 ErrorCode destroy_entry_index(Index index) {
