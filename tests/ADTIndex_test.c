@@ -28,8 +28,9 @@ void test_create(void) {
 }
 
 
-void test_build(void) {
-    Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 0);
+void test_build_exact(void) {
+    // EXACT
+    Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 20);
 
     TEST_ASSERT(index != NULL);
 
@@ -73,10 +74,100 @@ void test_build(void) {
 }
 
 
+void test_build_edit(void) {
+    Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 20);
+
+    TEST_ASSERT(index != NULL);
+
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+
+    int N = 20;
+
+    for (int i = 0; i < N; i++) {
+        Entry entry = create_entry(Array[i], NULL);
+        add_entry(entrylist, entry);
+    }
+
+
+
+    ErrorCode errcode = build_entry_index(index, entrylist);
+
+    TEST_ASSERT(size_index(index) == N);
+    TEST_ASSERT(errcode == EC_SUCCESS);
+
+    for (int i = 0; i < N; i++) {
+        EntryList result = create_entry_list((CompareFunc)compare_entries);
+        
+        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_queries);
+
+        Entry entry = create_entry(strdup(Array[i]), NULL);
+
+        Entry existentry = find_entry(result, entry);
+
+        TEST_ASSERT(existentry != NULL);
+
+        destroy_entry(entry);
+        destroy_entry_list(result, NULL);
+
+    }
+
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
+
+    destroy_entry_index(index);
+
+}
+
+
+void test_build_hamming(void) {
+        Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entries, 20);
+
+    TEST_ASSERT(index != NULL);
+
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+
+    int N = 20;
+
+    for (int i = 0; i < N; i++) {
+        Entry entry = create_entry(Array[i], NULL);
+        add_entry(entrylist, entry);
+    }
+
+
+
+    ErrorCode errcode = build_entry_index(index, entrylist);
+
+    TEST_ASSERT(size_index(index) == N);
+    TEST_ASSERT(errcode == EC_SUCCESS);
+
+    for (int i = 0; i < N; i++) {
+        EntryList result = create_entry_list((CompareFunc)compare_entries);
+        
+        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_queries);
+
+        Entry entry = create_entry(strdup(Array[i]), NULL);
+
+        Entry existentry = find_entry(result, entry);
+
+        TEST_ASSERT(existentry != NULL);
+
+        destroy_entry(entry);
+        destroy_entry_list(result, NULL);
+
+    }
+
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
+
+    destroy_entry_index(index);
+}
+
+
+
 TEST_LIST = {
 
 	{ "index_create", test_create },
-    { "index_build", test_build },
+    { "index_build_exact", test_build_exact },
+    { "index_build_exact", test_build_edit },
+    { "index_build_exact", test_build_hamming },
     // { "bktree_insert_hamming", test_insert_hamming },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL

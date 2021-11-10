@@ -54,10 +54,12 @@ int map_capacity(Map map) {
 ErrorCode map_insert(Map map, Pointer value) {
     assert(map);
     assert(value);
+
     unsigned int position = map->hash_function(value);          // Get position from hash function
     position %= map->size;                                      // Modulo position with size to be in range
 
     MapNode node = &map->hashtable[position];
+
     if(node->value == NULL) {                                    // If node is null
         node->value = value;
     } else {
@@ -73,6 +75,7 @@ ErrorCode map_insert(Map map, Pointer value) {
     }
 
     map->capacity++;
+
     return EC_SUCCESS;
 }
 

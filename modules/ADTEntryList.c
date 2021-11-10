@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "ADTEntryList.h"
 
@@ -81,7 +82,6 @@ Entry get_first(EntryList entrylist){
 
 
 Entry get_next(EntryList entrylist, Entry current_entry){
-
     ListNode node = list_find(entrylist, current_entry);
 
     if (!node)                                      // If no node was found
