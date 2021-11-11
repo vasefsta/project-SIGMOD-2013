@@ -16,6 +16,7 @@
 - With the command **"make valgrind"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled
     tests and main functions are all executed with valgrind to show leak errors. (A test will pass only if valgrind has no errors or memory leaks).
 - With the command **"make clean"** all files that "make" || "make run" || "make valgrind" produced are removed.
+- In programs/Makefile at line 3, you can pass the name of Documents to be read and the threshold.
 
 #### Example
 

@@ -59,9 +59,19 @@ void test_build_exact(void) {
 
         Entry existentry = find_entry(result, entry);
 
+            
+
         TEST_ASSERT(existentry != NULL);
 
         destroy_entry(entry);
+
+        if(i+1 < N) {
+            entry = create_entry(strdup(Array[i+1]), NULL);
+            existentry = find_entry(result, entry);
+            TEST_ASSERT(existentry == NULL);
+            destroy_entry(entry);
+        } 
+        
         destroy_entry_list(result, NULL);
 
     }
@@ -107,6 +117,15 @@ void test_build_edit(void) {
         TEST_ASSERT(existentry != NULL);
 
         destroy_entry(entry);
+
+        if(i+1 < N) {
+            entry = create_entry(strdup(Array[i+1]), NULL);
+            existentry = find_entry(result, entry);
+            TEST_ASSERT(existentry == NULL);
+            destroy_entry(entry);
+        } 
+
+
         destroy_entry_list(result, NULL);
 
     }
@@ -151,6 +170,14 @@ void test_build_hamming(void) {
         TEST_ASSERT(existentry != NULL);
 
         destroy_entry(entry);
+
+        if(i+1 < N) {
+            entry = create_entry(strdup(Array[i+1]), NULL);
+            existentry = find_entry(result, entry);
+            TEST_ASSERT(existentry == NULL);
+            destroy_entry(entry);
+        } 
+
         destroy_entry_list(result, NULL);
 
     }
