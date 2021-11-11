@@ -65,7 +65,7 @@ void test_build_exact(void) {
 
         destroy_entry(entry);
 
-        if(i+1 < N) {
+        if(i+1 < N) {                                                       // Test for lookup entry
             entry = create_entry(strdup(Array[i+1]), NULL);
             existentry = find_entry(result, entry);
             TEST_ASSERT(existentry == NULL);
@@ -118,7 +118,7 @@ void test_build_edit(void) {
 
         destroy_entry(entry);
 
-        if(i+1 < N) {
+        if(i+1 < N) {                                               // Test for lookup entry
             entry = create_entry(strdup(Array[i+1]), NULL);
             existentry = find_entry(result, entry);
             TEST_ASSERT(existentry == NULL);
@@ -151,8 +151,6 @@ void test_build_hamming(void) {
         add_entry(entrylist, entry);
     }
 
-
-
     ErrorCode errcode = build_entry_index(index, entrylist);
 
     TEST_ASSERT(size_index(index) == N);
@@ -171,7 +169,7 @@ void test_build_hamming(void) {
 
         destroy_entry(entry);
 
-        if(i+1 < N) {
+        if(i+1 < N) {                                                   // Test for lookup entry
             entry = create_entry(strdup(Array[i+1]), NULL);
             existentry = find_entry(result, entry);
             TEST_ASSERT(existentry == NULL);
