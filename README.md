@@ -7,6 +7,7 @@
  |Nikos Eftychiou|1800221|
 
 
+
 ### Compile And Execution
 
 - With the command **"make"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled.
@@ -29,6 +30,13 @@
     make valgrind
     make clean
 ```
+
+#### IMPORTANT
+
+- To compile the program so index is EXACT_MATCH go to commmon.mk and set the last option to "-DEXACT"
+- To compile the program so index is EXACT_MATCH go to commmon.mk and set the last option to "-DHAMMING"
+- To compile the program so index is EXACT_MATCH go to commmon.mk and set the last option to "-DEDIT"
+
 
 ### Info to better understand our philosophy
 
