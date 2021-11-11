@@ -33,9 +33,9 @@
 
 #### IMPORTANT
 
-- To compile the program so index is EXACT_MATCH go to commmon.mk and set the last option to "-DEXACT"
-- To compile the program so index is EXACT_MATCH go to commmon.mk and set the last option to "-DHAMMING"
-- To compile the program so index is EXACT_MATCH go to commmon.mk and set the last option to "-DEDIT"
+- To compile the program so index is created with EXACT_MATCH go to commmon.mk and set the last option to "-DEXACT"
+- To compile the program so index is created with Hamming_Distance go to commmon.mk and set the last option to "-DHAMMING"
+- To compile the program so index is created with Edit_Distance go to commmon.mk and set the last option to "-DEDIT"
 
 
 ### Info to better understand our philosophy
