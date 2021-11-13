@@ -28,7 +28,7 @@ void test_create(void) {
 }
 
 
-void test_build_exact(void) {
+void test_build_lookup_exact(void) {
     // EXACT
     Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 20);
 
@@ -82,7 +82,7 @@ void test_build_exact(void) {
 }
 
 
-void test_build_edit(void) {
+void test_build_lookup_edit(void) {
     Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 20);
 
     TEST_ASSERT(index != NULL);
@@ -144,7 +144,7 @@ void test_build_edit(void) {
 }
 
 
-void test_build_hamming(void) {
+void test_build_lookup_hamming(void) {
         Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entries, 20);
 
     TEST_ASSERT(index != NULL);
@@ -187,7 +187,7 @@ void test_build_hamming(void) {
 
     }
 
-     EntryList result = create_entry_list((CompareFunc)compare_entries);
+    EntryList result = create_entry_list((CompareFunc)compare_entries);
         
     lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_queries);
 
@@ -206,9 +206,9 @@ void test_build_hamming(void) {
 TEST_LIST = {
 
 	{ "index_create", test_create },
-    { "index_build_exact", test_build_exact },
-    { "index_build_exact", test_build_edit },
-    { "index_build_exact", test_build_hamming },
+    { "index_build_lookup_exact", test_build_lookup_exact },
+    { "index_build_lookup_exact", test_build_lookup_edit },
+    { "index_build_lookup_exact", test_build_lookup_hamming },
     // { "bktree_insert_hamming", test_insert_hamming },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
