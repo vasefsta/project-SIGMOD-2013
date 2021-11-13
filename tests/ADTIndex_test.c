@@ -59,8 +59,6 @@ void test_build_exact(void) {
 
         Entry existentry = find_entry(result, entry);
 
-            
-
         TEST_ASSERT(existentry != NULL);
 
         destroy_entry(entry);
@@ -130,6 +128,15 @@ void test_build_edit(void) {
 
     }
 
+   
+    EntryList result = create_entry_list((CompareFunc)compare_entries);
+        
+    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_queries);
+
+    TEST_ASSERT(get_number_entries(result) == 7);
+
+    destroy_entry_list(result, NULL);
+
     destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
 
     destroy_entry_index(index);
@@ -179,6 +186,15 @@ void test_build_hamming(void) {
         destroy_entry_list(result, NULL);
 
     }
+
+     EntryList result = create_entry_list((CompareFunc)compare_entries);
+        
+    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_queries);
+
+    TEST_ASSERT(get_number_entries(result) == 3);
+
+    destroy_entry_list(result, NULL);
+
 
     destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
 
