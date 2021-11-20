@@ -169,10 +169,6 @@ Entry bk_node_value(BKNode node){
 int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
     assert(bktree);
     
-    // if(bktree->root->entry == NULL && bktree->root->children == NULL){
-    //     return -1;
-    // }
-
     if (bktree->type == MT_EDIT_DIST) {
         if (*bktree->root == NULL)
             return -1;
