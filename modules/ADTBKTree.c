@@ -18,8 +18,9 @@ struct bknode {
 };
 
 struct bktree {
-    BKNode root;
+    BKNode* root;
     CompareFunc compare;    //hamming or edit
+    MatchType type;
 };
 
 
@@ -50,6 +51,8 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
 }
 
 
+
+
 int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word, int threshold) {         // Find entries with threshold and word
     int dist_value_parent = compare(get_entry_word(bkparent->entry), word);                               // Calculate distance between word and bkparent's entry word
     int low_range = dist_value_parent - threshold;                                                        // Calculate ( d - n)
@@ -70,13 +73,10 @@ int find(BKNode bkparent, CompareFunc compare, EntryList entrylist, String word,
         BKNode child = list_node_value(node);
         int dist_parent_child = compare(get_entry_word(child->entry), get_entry_word(bkparent->entry));   // Calculate d for parent and child
 
-        if(dist_value_parent < 0){                                                                        // (For hamming) if bkparent and value have != length
-            find(child, compare, entrylist, word, threshold);                                             // Call recursive for child to find child with same legth if exists
-        }
-        else if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range)){    // If distance of child and parent is in range ([d-n], [d+n])
+        if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
             find(child, compare, entrylist, word, threshold);                                             // Call recursice for child
-        }
     }
+
     return 0;
 }
 
@@ -106,17 +106,26 @@ void destroy(BKNode bknode, DestroyFunc destroy_value){                         
 
 BKTree bk_create(MatchType type){
     BKTree new_tree = malloc(sizeof(*new_tree));                                // Create new bktree
-
-    if (type == MT_EDIT_DIST)                           
+    
+    if (type == MT_EDIT_DIST) {
         new_tree->compare = edit_distance;
-    else if (type == MT_HAMMING_DIST)
+        new_tree->root = malloc(sizeof(*new_tree->root));
+
+        *(new_tree->root) = NULL;
+    }                         
+    else if (type == MT_HAMMING_DIST) {
         new_tree->compare = hamming_distance;
+        new_tree->root = malloc(sizeof(*new_tree->root) * 28);
+
+        for (int i = 0; i < 28; i++) 
+            new_tree->root[i] = NULL;
+    }
     else{
         free(new_tree);
         return NULL;
     }
 
-    new_tree->root = NULL;
+    new_tree->type = type;
     
     return new_tree;
 }   
@@ -129,15 +138,28 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
     new->entry = entry;
     new->children = NULL;
 
-    if(bktree->root == NULL){                                   // If no root is found
-        bktree->root = new;
-        return EC_SUCCESS;
+    if (bktree->type == MT_EDIT_DIST) {
+        if (*(bktree->root) == NULL) {
+            *(bktree->root) = new;
+            return EC_SUCCESS;
+        }
+        else 
+            return insert(*bktree->root, new, bktree->compare);
+    }
+    else if (bktree->type == MT_HAMMING_DIST) {
+        int pos = strlen(get_entry_word(entry)) - 4;
+
+        if ((bktree->root[pos]) == NULL) {
+            bktree->root[pos] = new;
+            return EC_SUCCESS;
+        }
+        else
+            return insert(bktree->root[pos], new, bktree->compare);
     }
 
-    int res = insert(bktree->root, new, bktree->compare);       // Call insert to insert new bknode in tree
-
-    return res;
+    return EC_FAIL;
 }
+
 
 Entry bk_node_value(BKNode node){
     assert(node);
@@ -147,11 +169,26 @@ Entry bk_node_value(BKNode node){
 int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
     assert(bktree);
     
-    if(bktree->root == NULL){
-        return -1;
+    // if(bktree->root->entry == NULL && bktree->root->children == NULL){
+    //     return -1;
+    // }
+
+    if (bktree->type == MT_EDIT_DIST) {
+        if (*bktree->root == NULL)
+            return -1;
+        else 
+            return find(*bktree->root, bktree->compare, entrylist, word, n);     // Return result of find
+    }
+    else if (bktree->type == MT_HAMMING_DIST) {
+        int pos = strlen(word) - 4;
+
+        if (bktree->root[pos] == NULL)
+            return -1;
+        else 
+            return find(bktree->root[pos], bktree->compare, entrylist, word, n);     // Return result of find
     }
 
-    return find(bktree->root, bktree->compare, entrylist, word, n);     // Return result of find
+    return -1;
 }
 
 
@@ -159,7 +196,14 @@ int bk_find(BKTree bktree, EntryList entrylist, String word, int n) {
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
     assert(bktree);
 
-    destroy(bktree->root, (DestroyFunc)destroy_value);                  // Call destroy to destroy bknodes of bktree
+    if (bktree->type == MT_EDIT_DIST)
+        destroy(*bktree->root, (DestroyFunc)destroy_value);                  // Call destroy to destroy bknodes of bktree
+    else if (bktree->type == MT_HAMMING_DIST) {
+        for (int i = 0; i < 28; i++) 
+        destroy(bktree->root[i], (DestroyFunc)destroy_value);                  // Call destroy to destroy bknodes of bktree
+    }
+    
+    free(bktree->root);
     free(bktree);
 }
 
