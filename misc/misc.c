@@ -247,6 +247,7 @@ Map map_of_queries(String filename, EntryList entrylist){
         i++;                                                        
         buffer[strlen(buffer)-1] = '\0';
         Query new_query = convert_to_query(buffer);                 // Create new query
+        new_query->queryID = i-1;
         map_insert(map, new_query);                                 // Insert query in map
 
         String *Array = Seperate_sentence(new_query);               // Get every word of query's sentence

@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is a complete query for %s...\n\n",query->words, namedoc);
+        printf("%s with id %d is a complete query for %s...\n\n",query->words, query->queryID, namedoc);
     }
 
     list_destroy(complete_list, NULL);
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is a complete query for %s...\n\n",query->words, namedoc);
+        printf("%s with id %d is a complete query for %s...\n\n",query->words, query->queryID, namedoc);
     }
 
     list_destroy(complete_list, NULL);
@@ -177,7 +177,7 @@ int main(int argc, char* argv[]){
 
     for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node)){
         Query query = list_node_value(node);
-        printf("%s is a complete query for %s...\n\n",query->words, namedoc);
+        printf("%s with id %d is a complete query for %s...\n\n",query->words, query->queryID, namedoc);
     }
 
     list_destroy(complete_list, NULL);
