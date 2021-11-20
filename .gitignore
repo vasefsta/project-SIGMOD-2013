@@ -13,7 +13,6 @@
 !*.h
 !*.mk
 !Makefile
-!.gitignore
 !README.md
 !.vscode/*.json
 !Document1

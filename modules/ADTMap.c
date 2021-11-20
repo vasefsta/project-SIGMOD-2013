@@ -126,6 +126,27 @@ Pointer map_find(Map map, Pointer value){
     return NULL;
 }
 
+void map_print(Map map){
+
+    for(int i = 0; i < map->size; i++){
+
+        MapNode node = &map->hashtable[i];
+
+        while (node != NULL){
+            if(node->value){
+                String name = node->value;
+                printf("%s ", name);
+            }
+            node = node->next;
+        }
+
+    }
+
+    printf("\n");
+
+
+}
+
 
 unsigned int hash_string(String value) {     	// djb2 hash function, απλή, γρήγορη, και σε γενικές γραμμές αποδοτική
     unsigned int hash = 5381;

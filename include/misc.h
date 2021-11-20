@@ -27,4 +27,6 @@ String *Seperate_sentence(Query query);                              // Return A
 
 List deduplicated_words(String filename);                            // Read a file with filename and create a list with each word (no duplicate words are inserted)
 
+Map deduplicated_words_map(String filename);                         // Read a file with filename and create a list with each word (no duplicate words are inserted)
+
 Map map_of_queries(String filename, EntryList entrylist);            // Return Pointer to a map of queries read from filename and fill entrylist with entries with unique words for queries

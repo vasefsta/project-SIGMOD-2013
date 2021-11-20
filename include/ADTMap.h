@@ -25,4 +25,6 @@ Pointer map_find(Map map, Pointer value);                 // Find element in map
 
 void map_set_hash_function(Map map, HashFunc hash);       // Set hash as hashfunction of map
 
+void map_print(Map map);                                  // Print elements in map;
+
 unsigned int hash_string(String value);                   // Hashfunction for strings
