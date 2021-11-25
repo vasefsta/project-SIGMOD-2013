@@ -1,4 +1,4 @@
-![example branch part1](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg)
+![example part1](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg)
 # project-SIGMOD-2013
 
  |Authors|sdi*******|
