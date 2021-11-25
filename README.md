@@ -1,4 +1,4 @@
-![example branch parameter](https://github.com/github/docs/actions/workflows/c.yml/badge.svg?branch=part1)
+![example branch parameter](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg?branch=part1)
 # project-SIGMOD-2013
 
  |Authors|sdi*******|
