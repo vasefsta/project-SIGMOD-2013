@@ -1,4 +1,4 @@
-![example work flow ](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg)
+![example](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg)
 # project-SIGMOD-2013
 
  |Authors|sdi*******|
