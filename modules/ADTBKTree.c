@@ -51,8 +51,6 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
 }
 
 
-
-
 int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryList entrylist, String word, int threshold) {         // Find entries with threshold and word
     int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
     int low_range = dist_value_parent - threshold;                                                        // Calculate ( d - n)
