@@ -24,7 +24,7 @@ Entry bk_node_value(BKNode node);                                       // If no
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy);                    // Destroy bktree (and nodes with destroy)
 
-int bk_find(BKTree bktree, EntryList entrylist, String word, int n);    // Find entries from bktree with threshold n from word and insert them in entrylist. 
+int bk_find(BKTree bktree, EntryList entrylist, CompareFunc compare_query, String word, int n);    // Find entries from bktree with threshold n from word and insert them in entrylist. 
 
 int hamming_distance(Pointer value1, Pointer value2);                   // Returns the hamming distance of value1 and value2
 

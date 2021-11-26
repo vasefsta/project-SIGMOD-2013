@@ -12,7 +12,7 @@
 #include "ADTBKTree.h"
 
 unsigned int hash_function(Entry entry) {
-	return hash_string(get_entry_word(entry));
+	return hash_string(entry->word);
 }
 
 struct index {
@@ -61,20 +61,18 @@ ErrorCode build_entry_index(Index index, const EntryList entrylist) {
 }
 
 
-ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result, CompareFunc compare_queries) {
+ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result, CompareFunc compare_query) {
 
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST)
-        bk_find((BKTree)index->index, result, word, threshold);
+        bk_find((BKTree)index->index, result, compare_query, word, threshold);
     else {
-        String word2 = strdup(word);
-        Entry entry = create_entry(word2, compare_queries);             // Create new dummy entry
-        Entry res = map_find((Map)index->index, entry);                 // Check if it exists in index      // Exact match
+        struct entry entry;
+        entry.word = word;
+        Entry res = map_find((Map)index->index, &entry);                 // Check if it exists in index      // Exact match
         
         if(res != NULL){                                                // If not
             add_entry(result, res);                                     // add in in entrylist
         }
-
-        destroy_entry(entry);
     }
 
     return EC_SUCCESS;
@@ -84,11 +82,11 @@ int size_index(Index index) {
     return index->size;
 }
 
-ErrorCode destroy_entry_index(Index index) {
+ErrorCode destroy_entry_index(Index index, DestroyFunc destroy) {
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST) 
-        bk_destroy((BKTree)index->index, NULL);
+        bk_destroy((BKTree)index->index, destroy);
     else 
-        map_destroy((Map)index->index, NULL);
+        map_destroy((Map)index->index, destroy);
 
     free(index);
 

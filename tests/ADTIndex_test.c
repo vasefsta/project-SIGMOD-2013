@@ -14,27 +14,45 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
 
-const void destroy_entries(Entry entry){
-    list_destroy(get_entry_payload(entry), NULL);
+int compare_query(QueryID* q1, QueryID* q2) {
+    return *q1 - *q2;
+}
+
+
+int compare_entry(Entry e1, Entry e2){
+    return (strcmp(e1->word, e2->word));
+}
+
+
+const void destroy_entry_payload(Entry entry){
+    list_destroy(entry->payload, NULL);
     free(entry);
 }
 
+
+const void destroy_entry(Entry entry) {
+    free(entry->word);                              
+    list_destroy(entry->payload, NULL);
+    free(entry);
+}
+
+
 void test_create(void) {
-    Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 0);
+    Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entry, 0);
 
     TEST_ASSERT(index != NULL);
 
-    destroy_entry_index(index);
+    destroy_entry_index(index, NULL);
 }
 
 
 void test_build_lookup_exact(void) {
     // EXACT
-    Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 20);
+    Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry, 20);
 
     TEST_ASSERT(index != NULL);
 
-    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
     int N = 20;
 
@@ -51,9 +69,9 @@ void test_build_lookup_exact(void) {
     TEST_ASSERT(errcode == EC_SUCCESS);
 
     for (int i = 0; i < N; i++) {
-        EntryList result = create_entry_list((CompareFunc)compare_entries);
+        EntryList result = create_entry_list((CompareFunc)compare_entry);
         
-        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_queries);
+        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
 
         Entry entry = create_entry(strdup(Array[i]), NULL);
 
@@ -74,20 +92,20 @@ void test_build_lookup_exact(void) {
 
     }
 
-    destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
 
-    destroy_entry_index(index);
+    destroy_entry_index(index, NULL);
 
 
 }
 
 
 void test_build_lookup_edit(void) {
-    Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entries, 20);
+    Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entry, 20);
 
     TEST_ASSERT(index != NULL);
 
-    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
     int N = 20;
 
@@ -104,9 +122,9 @@ void test_build_lookup_edit(void) {
     TEST_ASSERT(errcode == EC_SUCCESS);
 
     for (int i = 0; i < N; i++) {
-        EntryList result = create_entry_list((CompareFunc)compare_entries);
+        EntryList result = create_entry_list((CompareFunc)compare_entry);
         
-        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_queries);
+        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
 
         Entry entry = create_entry(strdup(Array[i]), NULL);
 
@@ -129,27 +147,27 @@ void test_build_lookup_edit(void) {
     }
 
    
-    EntryList result = create_entry_list((CompareFunc)compare_entries);
+    EntryList result = create_entry_list((CompareFunc)compare_entry);
         
-    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_queries);
+    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_query);
 
     TEST_ASSERT(get_number_entries(result) == 7);
 
     destroy_entry_list(result, NULL);
 
-    destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
 
-    destroy_entry_index(index);
+    destroy_entry_index(index, NULL);
 
 }
 
 
 void test_build_lookup_hamming(void) {
-        Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entries, 20);
+        Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entry, 20);
 
     TEST_ASSERT(index != NULL);
 
-    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
     int N = 20;
 
@@ -164,9 +182,9 @@ void test_build_lookup_hamming(void) {
     TEST_ASSERT(errcode == EC_SUCCESS);
 
     for (int i = 0; i < N; i++) {
-        EntryList result = create_entry_list((CompareFunc)compare_entries);
+        EntryList result = create_entry_list((CompareFunc)compare_entry);
         
-        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_queries);
+        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
 
         Entry entry = create_entry(strdup(Array[i]), NULL);
 
@@ -187,18 +205,18 @@ void test_build_lookup_hamming(void) {
 
     }
 
-    EntryList result = create_entry_list((CompareFunc)compare_entries);
+    EntryList result = create_entry_list((CompareFunc)compare_entry);
         
-    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_queries);
+    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_query);
 
     TEST_ASSERT(get_number_entries(result) == 3);
 
     destroy_entry_list(result, NULL);
 
 
-    destroy_entry_list(entrylist, (DestroyFunc)destroy_entries);
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
 
-    destroy_entry_index(index);
+    destroy_entry_index(index, NULL);
 }
 
 

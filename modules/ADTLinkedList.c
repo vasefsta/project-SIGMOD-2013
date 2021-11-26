@@ -98,7 +98,7 @@ void list_destroy(List list, DestroyFunc destroy) {
 
         ListNode next = node->next;
 
-        if(destroy)
+        if(destroy && node->value)
             destroy(node->value);
             
         free(node);

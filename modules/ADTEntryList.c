@@ -11,11 +11,6 @@
 
 #include "ADTEntryList.h"
 
-struct entry{
-    String word;                //Holds keyword for queries who have the same keyword
-    List payload;               //List that holds queries that have the same keyword "word"
-};
-
 
 Entry create_entry(String word, CompareFunc compare) {      
     Entry entry = malloc(sizeof(*entry));                   // Create new entry
@@ -27,28 +22,16 @@ Entry create_entry(String word, CompareFunc compare) {
 }
 
 
-String get_entry_word(Entry entry){
-    assert(entry);
-    return entry->word;
-}
 
+// ErrorCode destroy_entry(Entry entry) {
+//     assert(entry);
 
-List get_entry_payload(Entry entry){
-    assert(entry);
-    return entry->payload;
-}
+//     free(entry->word);                              
+//     list_destroy(entry->payload, NULL);
+//     free(entry);
 
-
-ErrorCode destroy_entry(Entry entry) {
-    assert(entry);
-
-    free(entry->word);                              
-    list_destroy(entry->payload, NULL);
-    free(entry);
-
-    return EC_SUCCESS;
-}
-
+//     return EC_SUCCESS;
+// }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

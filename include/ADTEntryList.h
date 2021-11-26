@@ -15,16 +15,15 @@
 *    Entry     *
 ***************/
 
+struct entry{
+    String word;                //Holds keyword for queries who have the same keyword
+    List payload;               //List that holds queries that have the same keyword "word"
+};
+
 typedef struct entry* Entry;
 
 
 Entry create_entry(String word, CompareFunc compare);                           // Return a pointer to an entry with word and compare function
-
-String get_entry_word(Entry entry);                                             // Return String to entry word value
-
-List get_entry_payload(Entry entry);                                            // Return List of entry's payload
-
-ErrorCode destroy_entry(Entry entry);                                           // Destroy entry
 
 
 /***************

@@ -15,9 +15,9 @@
 #include <string.h>
 #include <stdio.h>
 
-int compare_queries(Query q1, Query q2){
-    return strcmp(q1->words, q2->words);
-}
+// int compare_query(QueryID* q1, QueryID* q2){
+//     return *q1 - *q2;
+// }
 
 
 String path_of_doc(String namedoc) {
@@ -35,7 +35,7 @@ int times_in_list(EntryList entrylist, Query query) {                           
     int count = 0; 
 
     for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){
-        if(list_find(get_entry_payload(entry), query) != NULL)
+        if(list_find(entry->payload, query) != NULL)
             count++;
     }
     return count;
@@ -63,12 +63,12 @@ int count_queries(String filename){
 }
 
 
-List unique_queries(EntryList entrylist) {                                                                // Return a list of all queries in entrylist (queries are not duplicated)
+List unique_queries(EntryList entrylist, CompareFunc compare_query) {                                                                // Return a list of all queries in entrylist (queries are not duplicated)
 
-    List list_of_queries = list_create( (CompareFunc) compare_queries);
+    List list_of_queries = list_create( (CompareFunc) compare_query);
 
     for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){           //For every entry in entrylist
-        List list = get_entry_payload(entry);
+        List list = entry->payload;
         for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){ // For every query in payload
             Query query = list_node_value(listnode);
             if(list_find(list_of_queries, query) == NULL){
@@ -80,11 +80,11 @@ List unique_queries(EntryList entrylist) {                                      
 }
 
 
-List find_complete_queries(EntryList entrylist){
+List find_complete_queries(EntryList entrylist, CompareFunc compare_query){
 
-    List complete_list = list_create((CompareFunc) compare_queries);        
+    List complete_list = list_create((CompareFunc) compare_query);        
 
-    List unique = unique_queries(entrylist);        
+    List unique = unique_queries(entrylist, compare_query);        
 
     for(ListNode listnode = list_first(unique); listnode != NULL; listnode = list_find_next(listnode)){     // For every query
         Query query = list_node_value(listnode);
@@ -220,11 +220,8 @@ int hash_func(Query query){
     return hash_string(query->words);
 }
 
-int compare_entries(Entry e1, Entry e2){
-    return (strcmp(get_entry_word(e1), get_entry_word(e2)));
-}
 
-Map map_of_queries(String filename, EntryList entrylist){
+Map map_of_queries(String filename, EntryList entrylist, CompareFunc compare_query){
     
 
     FILE *FP = fopen(filename, "r");                            // Open filename
@@ -239,7 +236,7 @@ Map map_of_queries(String filename, EntryList entrylist){
     int num_of_queries = count_queries(filename);
     num_of_queries *= 1.2;
 
-    Map map = map_create( (CompareFunc) compare_queries, num_of_queries);      // Create map for queries
+    Map map = map_create( (CompareFunc) compare_query, num_of_queries);      // Create map for queries
     map_set_hash_function(map, (HashFunc) hash_func);
 
     int i = 0;
@@ -253,17 +250,17 @@ Map map_of_queries(String filename, EntryList entrylist){
         String *Array = Seperate_sentence(new_query);               // Get every word of query's sentence
 
         for(int i = 0; i < new_query->length; i++){                 // For every word
-            Entry e1 = create_entry(Array[i], (CompareFunc) compare_queries);   // Create a new entry          
+            Entry e1 = create_entry(Array[i], (CompareFunc) compare_query);   // Create a new entry          
             Entry entry = find_entry(entrylist, e1);
             if(entry != NULL){                                      // If entry with keyword was found
-                list_insert(get_entry_payload(entry), new_query);   // Inserty query in entry's payload
+                list_insert(entry->payload, new_query);   // Inserty query in entry's payload
                 free(Array[i]);
             } else {
-                entry = create_entry(Array[i], (CompareFunc) compare_queries);  // Create new entry
-                list_insert(get_entry_payload(entry), new_query);               // Add query in entry's payload
+                entry = create_entry(Array[i], (CompareFunc) compare_query);  // Create new entry
+                list_insert(entry->payload, new_query);               // Add query in entry's payload
                 add_entry(entrylist, entry);                                    // Add entry in entrylist
             }
-            List e1_payload = get_entry_payload(e1);
+            List e1_payload = e1->payload;
             list_destroy(e1_payload, NULL);                                     // Free dummy Pointers
             free(e1);
         }
@@ -280,7 +277,7 @@ Map map_of_queries(String filename, EntryList entrylist){
 
 }
 
-const void destroy_query(Query q){
-    free(q->words);
-    free(q);
-}
+// const void destroy_query(Query q){
+//     free(q->words);
+//     free(q);
+// }

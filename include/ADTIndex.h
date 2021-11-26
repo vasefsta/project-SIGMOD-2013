@@ -23,4 +23,4 @@ int size_index(Index index);
 
 Pointer find_index(Index index, Entry entry);
 
-ErrorCode destroy_entry_index(Index index);                                         // Destroy index
+ErrorCode destroy_entry_index(Index index, DestroyFunc destroy);                                         // Destroy index

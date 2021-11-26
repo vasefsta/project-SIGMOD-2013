@@ -19,12 +19,18 @@ char Hamming_Array[12][7] = {"flower","coffee","summer","autumn","winter","sprin
 "forest","guitar","simple"};
 
 
-int compare_entries(Entry e1, Entry e2){
-    return (strcmp(get_entry_word(e1), get_entry_word(e2)));
+int compare_entry(Entry e1, Entry e2){
+    return (strcmp(e1->word, e2->word));
 }
 
-const void destroy_entries(Entry entry){
-    list_destroy(get_entry_payload(entry), NULL);
+
+int compare_query(QueryID* q1, QueryID* q2) {
+    return *q1 - *q2;
+}
+
+
+const void destroy_entry(Entry entry){
+    list_destroy(entry->payload, NULL);
     free(entry);
 }
 
@@ -54,9 +60,9 @@ void test_insert_edit(){
     int threshold = 0;
 
     for (int i = 0; i < N; i++) {
-        EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+        EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
         
-        bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
+        bk_find(bktree, entrylist, (CompareFunc)compare_query, entriesArray[i]->word, threshold);
         
         TEST_ASSERT(get_number_entries(entrylist) == 1);                // Test if entry was inserted in entrylist
 
@@ -71,9 +77,9 @@ void test_insert_edit(){
     Entry entry = create_entry("guitar", NULL);
     threshold = 20;
 
-    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
-    bk_find(bktree, entrylist, get_entry_word(entry), threshold);
+    bk_find(bktree, entrylist, (CompareFunc) compare_query, entry->word, threshold);
 
     TEST_ASSERT(get_number_entries(entrylist) == N);                    // Test if all entries were inserted in entrylist
 
@@ -84,11 +90,11 @@ void test_insert_edit(){
     }
 
 
-    bk_destroy(bktree, (DestroyFunc) destroy_entries);
+    bk_destroy(bktree, (DestroyFunc) destroy_entry);
 
     list_destroy(entrylist, NULL);
 
-    list_destroy(get_entry_payload(entry), NULL);
+    list_destroy(entry->payload, NULL);
 
     free(entry);
 
@@ -110,9 +116,9 @@ void test_insert_hamming(){
     int threshold = 0;
 
     for (int i = 0; i < N; i++) {
-        EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+        EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
         
-        bk_find(bktree, entrylist, get_entry_word(entriesArray[i]), threshold);
+        bk_find(bktree, entrylist, (CompareFunc) compare_query, entriesArray[i]->word, threshold);
 
         TEST_ASSERT(get_number_entries(entrylist) == 1);                // Test if entry was inserted in entrylist
 
@@ -127,9 +133,9 @@ void test_insert_hamming(){
     Entry entry = create_entry("guitar", NULL);       // mas emfanise tis lexeis me mikos 6 pou exoun threshold =20 apo thn guitar
     threshold = 20;
 
-    EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
-    bk_find(bktree, entrylist, get_entry_word(entry), threshold);
+    bk_find(bktree, entrylist, (CompareFunc) compare_query, entry->word, threshold);
 
     // DIORTHOMA
     Entry entriesArrayHamming[N];
@@ -142,16 +148,16 @@ void test_insert_hamming(){
 
         TEST_ASSERT(entry != NULL);                                 //  Test if entry was found in entrylist
 
-        destroy_entries(entriesArrayHamming[i]);
+        destroy_entry(entriesArrayHamming[i]);
     }
 
     TEST_ASSERT(get_number_entries(entrylist) == 12);               // Test if entries were exactly 12 (Calculated from array before)
 
-    bk_destroy(bktree, (DestroyFunc) destroy_entries);
+    bk_destroy(bktree, (DestroyFunc) destroy_entry);
 
     list_destroy(entrylist, NULL);
 
-    list_destroy(get_entry_payload(entry), NULL);
+    list_destroy(entry->payload, NULL);
 
     free(entry);
 }

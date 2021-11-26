@@ -9,9 +9,26 @@
 #include "ADTLinkedList.h"
 
 
+int compare_query(QueryID* q1, QueryID* q2){
+    return *q1 - *q2;
+}
+
+
+int compare_entry(Entry e1, Entry e2){
+    return strcmp(e1->word, e2->word);
+}
+
+
+const void destroy_entry(Entry entry) {
+    free(entry->word);                              
+    list_destroy(entry->payload, NULL);
+    free(entry);
+}
+
+
 void test_find_complete_queries(){
 
-  EntryList entrylist = create_entry_list((CompareFunc) compare_entries);
+  EntryList entrylist = create_entry_list((CompareFunc) compare_entry);
 
   struct query q1 = {
     "this test looks good",
@@ -30,53 +47,53 @@ void test_find_complete_queries(){
 
 
   String word = strdup("this");
-  Entry e1 = create_entry(word, (CompareFunc) compare_queries);
-  List list = get_entry_payload(e1);
+  Entry e1 = create_entry(word, (CompareFunc) compare_query);
+  List list = e1->payload;
   list_insert(list, &q1);
   list_insert(list, &q2);
   add_entry(entrylist,e1);
 
   word = strdup("test");
-  Entry e2 = create_entry(word, (CompareFunc) compare_queries);
-  list = get_entry_payload(e2);
+  Entry e2 = create_entry(word, (CompareFunc) compare_query);
+  list = e2->payload;
   list_insert(list, &q1);
   add_entry(entrylist,e2);
 
 
   word = strdup("looks");
-  Entry e3 = create_entry(word, (CompareFunc) compare_queries); 
-  list = get_entry_payload(e3);
+  Entry e3 = create_entry(word, (CompareFunc) compare_query); 
+  list = e3->payload;
   list_insert(list, &q1);
   list_insert(list, &q3);
   add_entry(entrylist,e3);
 
   
   word = strdup("good");
-  Entry e4 = create_entry(word, (CompareFunc) compare_queries); 
-  list = get_entry_payload(e4);
+  Entry e4 = create_entry(word, (CompareFunc) compare_query); 
+  list = e4->payload;
   list_insert(list, &q1);
   list_insert(list, &q3);
   add_entry(entrylist,e4);
   
 
   word = strdup("marvel");
-  Entry e5 = create_entry(word, (CompareFunc) compare_queries); 
-  list = get_entry_payload(e5);
+  Entry e5 = create_entry(word, (CompareFunc) compare_query); 
+  list = e5->payload;
   list_insert(list, &q3);
   add_entry(entrylist,e5);
   
 
 
   word = strdup("right");
-  Entry e6 = create_entry(word, (CompareFunc) compare_queries); 
-  list = get_entry_payload(e6);
+  Entry e6 = create_entry(word, (CompareFunc) compare_query); 
+  list = e6->payload;
   list_insert(list, &q3);
   add_entry(entrylist,e6);
   
 
   word = strdup("does");
-  Entry e7 = create_entry(word, (CompareFunc) compare_queries);
-  list = get_entry_payload(e7);
+  Entry e7 = create_entry(word, (CompareFunc) compare_query);
+  list = e7->payload;
   list_insert(list, &q2);
   add_entry(entrylist,e7);
 
