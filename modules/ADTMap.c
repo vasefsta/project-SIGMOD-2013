@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "ADTMap.h"
+#include "ADTEntryList.h"
 
 struct mapnode {
     Pointer value;
@@ -62,16 +63,13 @@ ErrorCode map_insert(Map map, Pointer value) {
 
     if(node->value == NULL) {                                    // If node is null
         node->value = value;
-    } else {
-        while(node->next) {                                     // find end of bucket's list
-            node = node->next;
-        }
-
+    } else {       
         MapNode new = malloc(sizeof(*new));                     // Create new map node
         new->value = value;
-        new->next = NULL;
+        new->next = node->next;
 
-        node->next = new;                                       // Append in end of list
+        node->next = new;
+
     }
 
     map->capacity++;

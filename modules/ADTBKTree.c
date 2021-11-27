@@ -24,6 +24,16 @@ struct bktree {
 };
 
 
+void destroy_bk_node(BKNode node){
+    free(node->entry->word);
+    list_destroy(node->entry->payload, NULL);
+    free(node->entry);
+    if(node->children)
+        list_destroy(node->children, NULL);
+    free(node);
+}
+
+
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           // Insert new in bktree.
     int dist = compare(bkparent->entry->word, new->entry->word);          // Get dist between new and bkparent
 
@@ -46,7 +56,16 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     } else {
-        return insert(child, new, compare);                                                   // Call recursive for child and new
+        if(strcmp(child->entry->word, new->entry->word) == 0){                                // If entry with same words exists append the ID of new in the existing entry.
+            Query query = list_node_value(list_first(new->entry->payload));
+            list_insert(child->entry->payload, query);
+            destroy_bk_node(new);
+            return EC_SUCCESS;
+        } else {
+            return insert(child, new, compare);                                                   // Call recursive for child and new
+        }
+
+
     }
 }
 

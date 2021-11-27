@@ -82,6 +82,10 @@ int size_index(Index index) {
     return index->size;
 }
 
+Pointer index_index(Index index){
+    return index->index;
+}
+
 ErrorCode destroy_entry_index(Index index, DestroyFunc destroy) {
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST) 
         bk_destroy((BKTree)index->index, destroy);

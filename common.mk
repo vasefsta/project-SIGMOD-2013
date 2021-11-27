@@ -37,6 +37,7 @@ MISC := $(MY_PATH)misc
 MODULES := $(MY_PATH)modules
 INCLUDE := $(MY_PATH)include
 PROGRAMS := $(MY_PATH)programs
+CORE := $(MY_PATH)core
 
 # Compiler options
 #   -g         Δημιουργεί εκτελέσιμο κατάλληλο για debugging
