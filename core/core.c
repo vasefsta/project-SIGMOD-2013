@@ -8,6 +8,14 @@
 #include "ADTBKTree.h"
 #include "core.h"
 
+struct document {
+	DocID doc_id;
+	unsigned int num_res;
+	QueryID* query_ids;
+};
+
+typedef struct document* Document;
+
 Index Index_Exact;
 Index Index_Edit;
 Index Index_Hamming;
@@ -15,36 +23,36 @@ Index Index_Hamming;
 Map Map_Queries;
 
 
-int compare_entries(Entry e1, Entry e2){
+int compare_entries(Entry e1, Entry e2) {
     return strcmp(e1->word, e2->word);
 }
 
-int hash_entries(Entry entry){
+int hash_entries(Entry entry) {
     return hash_string(entry->word);
 }
 
-int hash_queries(Query query){
+int hash_queries(Query query) {
     return query->queryID;
 }
 
-Map get_map_queries(){
+Map get_map_queries() {
     return Map_Queries;
 }
 
-Index get_index_exact(){
+Index get_index_exact() {
     return Index_Exact;
 }
 
-Index get_index_edit(){
+Index get_index_edit() {
     return Index_Edit;
 }
 
-Index get_index_hamming(){
+Index get_index_hamming() {
     return Index_Hamming;
 }
 
 
-void destroy_entry(Entry entry){
+void destroy_entry(Entry entry) {
     list_destroy(entry->payload, NULL);
     free(entry->word);
     free(entry);
@@ -56,16 +64,16 @@ void destroy_entry_full(Entry entry) {
     free(entry);
 }
 
-void destroy_query(Query query){
+void destroy_query(Query query) {
     free(query->words);
     free(query);
 }
 
-int compare_ids(int *a, int *b){
+int compare_ids(int *a, int *b) {
     return *a-*b;
 }
 
-int compare_queries(Query q1, Query q2){
+int compare_queries(Query q1, Query q2) {
     return q1->queryID - q2->queryID;
 }
 
@@ -100,7 +108,7 @@ ErrorCode InitializeIndex() {
     return EC_SUCCESS;
 }
 
-ErrorCode DestroyIndex(){
+ErrorCode DestroyIndex() {
 
     destroy_entry_index(Index_Exact,(DestroyFunc) destroy_entry);
     destroy_entry_index(Index_Edit,(DestroyFunc) destroy_entry);
@@ -111,18 +119,18 @@ ErrorCode DestroyIndex(){
 }
 
 
-int Insert_Query(Query query){
+int Insert_Query(Query query) {
     
     String *Array = Seperate_sentence(query);
 
-    for(int i = 0; i < query->length; i++){
+    for(int i = 0; i < query->length; i++) {
 
         Entry entry = create_entry(Array[i], (CompareFunc) compare_queries);
         list_insert(entry->payload, query);
 
         if (query->match_type == MT_EXACT_MATCH) {
             Entry node = map_find(index_index(Index_Exact), entry);
-            if(!node){
+            if(!node) {
                 map_insert(index_index(Index_Exact), entry);
             } else {
                 destroy_entry(entry);
@@ -146,13 +154,13 @@ int Insert_Query(Query query){
 }
 
 
-ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist){
+ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
 
     int count = 0;
     String string = strdup(query_str);
     String token = strtok(string, " \t\n");
 
-    while (token != NULL ){                             // Count number of words
+    while (token != NULL ) {                             // Count number of words
         count++;
         token = strtok(NULL, "  \t\n");   
     }
@@ -174,14 +182,30 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
     return EC_SUCCESS;
 }
 
-ErrorCode EndQuery(QueryID query_id){
+ErrorCode EndQuery(QueryID query_id) {
     return EC_SUCCESS;
 }
 
-ErrorCode MatchDocument (DocID doc_id, const char * doc_str){
+ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
+    Document document = malloc(sizeof(*document));
+
+    document->doc_id = doc_id;
+    document->num_res = 0;
+    document->query_ids = NULL;
+
+    Map map_words = deduplicated_words_map(doc_str);
+    EntryList result = create_entry_list(compare_entries);
+    int max_thres = 3;
+
+    for (MapNode node = map_first(map_words); node != NULL; node = map_next(map_words, node)) {
+        String dword = map_node_value(node);
+
+        lookup_entry_index(Index_Exact, dword, ) 
+    }
+
     return EC_SUCCESS;
 }
 
-ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids){
+ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
     return EC_SUCCESS;
 }

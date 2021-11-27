@@ -176,31 +176,27 @@ List deduplicated_words(String filename){
 
 }
 
-Map deduplicated_words_map(String filename){                          
-    
-    FILE *FP = fopen(filename,"r");                                 //Open filename
-
-    if(!FP){
-        puts("Is null");
-        return NULL;
-    }
+List deduplicated_words_map(String doc_str){                          
 
     char buffer[MAX_WORD_LENGTH+1];
     char letter[2];
     letter[1] = '\0';
-    char a;
-
 
     Map map = map_create((CompareFunc)strcmp, MAX_DOC_LENGTH);           
     map_set_hash_function(map,(HashFunc)hash_string);
 
+    List list_words = list_create(strcmp);
+
     strcpy(buffer, "");
 
-    while ((a = fgetc(FP)) != EOF){                                 // Read char by charfile
+    int doc_size = strlen(doc_str);
+    for (int i = 0; i < doc_size; i++){                                 // Read char by charfile
+        char a = doc_str[i];
         if(a == ' ' || a == '\n'){                                  // If word is over
             if(!map_find(map, buffer)){                           // and not in list
                 String value = strdup(buffer);
                 map_insert(map, value);
+                list_insert(list_words, value);
             } 
             strcpy(buffer, "");
         } else {
@@ -209,8 +205,6 @@ Map deduplicated_words_map(String filename){
         }
     }
 
-    fclose(FP);
-    
     return map;
 
 }

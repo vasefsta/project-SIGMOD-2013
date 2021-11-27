@@ -19,7 +19,7 @@ int list_size(List list);                                       // Return number
 
 ListNode list_first(List list);                                 // Return first ListNode from list
 
-Pointer list_insert(List list, Pointer value);                // Insert value in list.
+void list_insert(List list, Pointer value);                // Insert value in list.
 
 void list_destroy(List list, DestroyFunc destoy);               // Destroy list with destroy function.
 

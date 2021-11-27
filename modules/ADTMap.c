@@ -52,6 +52,11 @@ int map_capacity(Map map) {
     return map->capacity;
 }
 
+Pointer map_node_value(MapNode node) {
+    assert(node);
+    return node->value;
+}
+
 ErrorCode map_insert(Map map, Pointer value) {
     assert(map);
     assert(value);

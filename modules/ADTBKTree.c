@@ -75,14 +75,12 @@ int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryL
     if (low_range < 0)
         low_range = 0;
 
-    if ((dist_value_parent <= threshold) && (dist_value_parent >= 0)){                                   // if d <= n and d > 0
-        Entry entry = create_entry(bkparent->entry->word, compare_query);
-        Entry exist = add_entry(entrylist, entry);                                                        // Insert bkparent's entry in entrylist
-
-        if (exist) {
-            list_destroy(entry->payload, NULL);
-            free(entry);
-            entry = exist;
+    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ){                                   // if d <= n and d > 0
+        Entry entry = find_entry(entrylist, bkparent->entry); 
+        
+        if(entry == NULL) {
+            entry = create_entry(bkparent->entry->word, compare_query);
+            add_entry(entrylist, entry);                                                        // Insert bkparent's entry in entrylist
         }
 
         List bkpayload = bkparent->entry->payload;

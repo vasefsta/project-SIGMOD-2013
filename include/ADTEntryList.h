@@ -37,7 +37,7 @@ EntryList create_entry_list(CompareFunc compare);                               
 
 unsigned int get_number_entries(EntryList entrylist);                           // Returns number of entries in entrylist
 
-Entry add_entry(EntryList entrylist, Entry new_entry);                      // Add new_entry in entrylist
+ErrorCode add_entry(EntryList entrylist, Entry new_entry);                      // Add new_entry in entrylist
 
 Entry get_first(EntryList entrylist);                                           // Get first entry from entrylist
 
