@@ -64,8 +64,6 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
         } else {
             return insert(child, new, compare);                                                   // Call recursive for child and new
         }
-
-
     }
 }
 
@@ -77,12 +75,14 @@ int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryL
     if (low_range < 0)
         low_range = 0;
 
-    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ){                                   // if d <= n and d > 0
-        Entry entry = find_entry(entrylist, bkparent->entry); 
-        
-        if(entry == NULL) {
-            entry = create_entry(bkparent->entry->word, compare_query);
-            add_entry(entrylist, entry);                                                        // Insert bkparent's entry in entrylist
+    if ((dist_value_parent <= threshold) && (dist_value_parent >= 0)){                                   // if d <= n and d > 0
+        Entry entry = create_entry(bkparent->entry->word, compare_query);
+        Entry exist = add_entry(entrylist, entry);                                                        // Insert bkparent's entry in entrylist
+
+        if (exist) {
+            list_destroy(entry->payload, NULL);
+            free(entry);
+            entry = exist;
         }
 
         List bkpayload = bkparent->entry->payload;
@@ -96,9 +96,8 @@ int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryL
         }
     }
 
-    if(bkparent->children == NULL){                                                                       // If parent has no children
+    if (bkparent->children == NULL)                                                                      // If parent has no children
         return -1;
-    }
 
     for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
         BKNode child = list_node_value(node);
@@ -135,7 +134,7 @@ void destroy(BKNode bknode, DestroyFunc destroy_value){                         
 
 
 
-BKTree bk_create(MatchType type){
+BKTree bk_create(MatchType type) {
     BKTree new_tree = malloc(sizeof(*new_tree));                                // Create new bktree
     
     if (type == MT_EDIT_DIST) {

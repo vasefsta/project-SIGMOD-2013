@@ -49,9 +49,8 @@ unsigned int get_number_entries(EntryList entrylist) {
 }
 
 
-ErrorCode add_entry(EntryList entrylist, Entry new_entry){
-    list_insert(entrylist, new_entry);
-    return EC_SUCCESS;      
+Entry add_entry(EntryList entrylist, Entry new_entry){
+    return list_insert(entrylist, new_entry);
 }
 
 

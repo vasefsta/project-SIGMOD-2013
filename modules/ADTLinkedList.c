@@ -9,6 +9,7 @@
 #include <assert.h>
 
 #include "ADTLinkedList.h"
+#include "core.h"
 
 struct listnode {
     Pointer value;          //General list
@@ -47,8 +48,13 @@ ListNode list_first(List list) {
 }
 
 
-void list_insert(List list, Pointer value){
+Pointer list_insert(List list, Pointer value){
     assert(list);
+
+    ListNode exist = list_find(list, value);
+
+    if (exist)
+        return list_node_value(exist);
 
     ListNode node = list->dummyNode;
     
@@ -62,6 +68,8 @@ void list_insert(List list, Pointer value){
     
     node->next = new;                                   // Append in list
     list->size++;
+
+    return NULL;
 }
 
 
