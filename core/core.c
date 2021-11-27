@@ -202,31 +202,42 @@ ErrorCode EndQuery(QueryID query_id) {
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    // Document document = malloc(sizeof(*document));
+    Document document = malloc(sizeof(*document));
 
-    // document->doc_id = doc_id;
-    // document->num_res = 0;
-    // document->query_ids = NULL;
+    document->doc_id = doc_id;
+    document->num_res = 0;
+    document->query_ids = NULL;
 
-    // List list_words = deduplicated_words_map(doc_str);
-    // EntryList result = create_entry_list(compare_entries);
-    // int max_thres = 3;
+    List list_words = deduplicated_words_map(doc_str);
+    EntryList result = create_entry_list((CompareFunc)compare_entries);
+    int max_thres = 3;
 
-    // for (ListNode node = list_first(list_words); node != NULL; node = list_next(list_words, node)) {
-    //     String doc_word = list_node_value(node);
+    for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
+        String doc_word = list_node_value(node);
 
-    //     lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-    //     lookup_entry_index(Index_Edit, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-    //     lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
-    // }
+        lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Edit, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
+    }
 
-    // QueryID* complete_queries = find_complete_queries(result);
 
-    // document->num_res = list_size(complete_queries);
-    // document->query_ids = complete_queries;
+    List complete_queries = find_complete_queries(result);
 
-    // list_insert(doc_list, document);
+    document->num_res = list_size(complete_queries);
 
+    QueryID *complete_ids = malloc(sizeof(QueryID)*list_size(complete_queries));
+
+    int i = 0;
+    for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
+        int *ID = list_node_value(node);
+        complete_ids[i] = *ID;
+        i++;
+    }
+
+    document->num_res = list_size(complete_queries);
+    document->query_ids = complete_ids;
+
+    list_insert(doc_list, document);
 
 
     return EC_SUCCESS;

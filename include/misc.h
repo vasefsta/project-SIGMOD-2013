@@ -14,7 +14,7 @@ String path_of_doc(String namedoc);                                  // create t
 
 int hash_func(Query query);                                          // Hash string of query
 
-QueryID *find_complete_queries(EntryList entrylist);                 // Return List of queries that fully match from entrylist
+List find_complete_queries(EntryList entrylist);                 // Return List of queries that fully match from entrylist
 
 Query convert_to_query(String string);                               // Return Pointer to query with string as word 
 
@@ -22,6 +22,6 @@ String *Seperate_sentence(Query query);                              // Return A
 
 List deduplicated_words(String filename);                            // Read a file with filename and create a list with each word (no duplicate words are inserted)
 
-Map deduplicated_words_map(String filename);                         // Read a file with filename and create a list with each word (no duplicate words are inserted)
+List deduplicated_words_map(String doc_string);                         // Read a file with filename and create a list with each word (no duplicate words are inserted)
 
 Map map_of_queries(String filename, EntryList entrylist);            // Return Pointer to a map of queries read from filename and fill entrylist with entries with unique words for queries

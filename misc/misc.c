@@ -80,7 +80,7 @@ List unique_queries(EntryList entrylist, CompareFunc compare_query) {           
 }
 
 
-QueryID *find_complete_queries(EntryList entrylist, CompareFunc compare_query){
+List find_complete_queries(EntryList entrylist, CompareFunc compare_query){
 
     List complete_list = list_create((CompareFunc) compare_query);        
 
@@ -95,17 +95,7 @@ QueryID *find_complete_queries(EntryList entrylist, CompareFunc compare_query){
 
     list_destroy(unique, NULL);
 
-    QueryID *complete_ids = malloc(sizeof(QueryID)*list_size(complete_list));
-    int i = 0;
-    for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node) ){
-        int *ID = list_node_value(node);
-        complete_ids[i] = *ID;
-        i++;
-    }
-
-    list_destroy(complete_list, NULL);
-
-    return complete_ids;
+    return complete_list;
 
 }
 
@@ -214,7 +204,8 @@ List deduplicated_words_map(String doc_str){
             strcat(buffer, letter);                                 // Append char to String.
         }
     }
-
+    
+    map_destroy(map, NULL);
     return list_words;
 
 }
