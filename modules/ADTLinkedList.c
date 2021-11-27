@@ -50,17 +50,19 @@ ListNode list_first(List list) {
 void list_insert(List list, Pointer value){
     assert(list);
 
-    ListNode node = list->dummyNode;
-    
-    while (node->next) {                                 // Find last node in list
-        node = node->next;
-    }
+    ListNode node = list->dummyNode->next;
 
     ListNode new = malloc(sizeof(*new));                // Create new ListNode
     new->value = value;
-    new->next = NULL;
+
+    if(node == NULL){
+        list->dummyNode->next = new;
+        new->next = NULL;
+    } else {
+        new->next = node;
+        list->dummyNode->next = new;                                   // Append in list
+    }
     
-    node->next = new;                                   // Append in list
     list->size++;
 }
 

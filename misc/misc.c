@@ -63,7 +63,7 @@ int count_queries(String filename){
 }
 
 
-List unique_queries(EntryList entrylist, CompareFunc compare_query) {                                                                // Return a list of all queries in entrylist (queries are not duplicated)
+List unique_queries(EntryList entrylist, CompareFunc compare_query) {                  // Return a list of all queries in entrylist (queries are not duplicated)
 
     List list_of_queries = list_create( (CompareFunc) compare_query);
 
@@ -80,22 +80,32 @@ List unique_queries(EntryList entrylist, CompareFunc compare_query) {           
 }
 
 
-List find_complete_queries(EntryList entrylist, CompareFunc compare_query){
+QueryID *find_complete_queries(EntryList entrylist, CompareFunc compare_query){
 
     List complete_list = list_create((CompareFunc) compare_query);        
 
-    List unique = unique_queries(entrylist, compare_query);        
+    List unique = unique_queries(entrylist, compare_query);             //Mpori na veltistopiithii
 
     for(ListNode listnode = list_first(unique); listnode != NULL; listnode = list_find_next(listnode)){     // For every query
         Query query = list_node_value(listnode);
         int times = times_in_list(entrylist, query);            
         if(query->length == times)                      // If is as times as its length then it's full
-            list_insert(complete_list, query);
+            list_insert(complete_list, &query->queryID);
     }
 
     list_destroy(unique, NULL);
 
-    return complete_list;
+    QueryID *complete_ids = malloc(sizeof(QueryID)*list_size(complete_list));
+    int i = 0;
+    for(ListNode node = list_first(complete_list); node != NULL; node = list_find_next(node) ){
+        int *ID = list_node_value(node);
+        complete_ids[i] = *ID;
+        i++;
+    }
+
+    list_destroy(complete_list, NULL);
+
+    return complete_ids;
 
 }
 
