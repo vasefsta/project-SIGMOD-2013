@@ -22,9 +22,15 @@ Index Index_Hamming;
 
 Map Map_Queries;
 
+List doc_list;
+
 
 int compare_entries(Entry e1, Entry e2) {
     return strcmp(e1->word, e2->word);
+}
+
+int compare_doc(Document doc1, Document doc2) {
+    return doc1->doc_id - doc2->doc_id;
 }
 
 int hash_entries(Entry entry) {
@@ -104,6 +110,9 @@ ErrorCode InitializeIndex() {
     if(Index_Hamming == NULL)
         return EC_NO_AVAIL_RES;
 
+    doc_list = list_create((CompareFunc)compare_doc);
+    if (doc_list == NULL)
+        return EC_NO_AVAIL_RES;
 
     return EC_SUCCESS;
 }
@@ -113,6 +122,7 @@ ErrorCode DestroyIndex() {
     destroy_entry_index(Index_Exact,(DestroyFunc) destroy_entry);
     destroy_entry_index(Index_Edit,(DestroyFunc) destroy_entry);
     destroy_entry_index(Index_Hamming,(DestroyFunc) destroy_entry);
+    // list_destroy(doc_list, )
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
 
     return EC_SUCCESS;
@@ -200,10 +210,19 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     // for (ListNode node = list_first(list_words); node != NULL; node = list_next(list_words, node)) {
     //     String doc_word = list_node_value(node);
 
-    //     ErrorCode errcode = lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-
-    //     if (errcode == )
+    //     lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+    //     lookup_entry_index(Index_Edit, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+    //     lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
     // }
+
+    // QueryID* complete_queries = find_complete_queries(result);
+
+    // document->num_res = list_size(complete_queries);
+    // document->query_ids = complete_queries;
+
+    // list_insert(doc_list, document);
+
+
 
     return EC_SUCCESS;
 }
