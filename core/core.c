@@ -83,6 +83,11 @@ int compare_queries(Query q1, Query q2) {
     return q1->queryID - q2->queryID;
 }
 
+void destroy_document(Document doc){
+    free(doc->query_ids);
+    free(doc);
+}
+
 
 ErrorCode InitializeIndex() {
 
@@ -122,7 +127,7 @@ ErrorCode DestroyIndex() {
     destroy_entry_index(Index_Exact,(DestroyFunc) destroy_entry);
     destroy_entry_index(Index_Edit,(DestroyFunc) destroy_entry);
     destroy_entry_index(Index_Hamming,(DestroyFunc) destroy_entry);
-    // list_destroy(doc_list, )
+    list_destroy(doc_list, (DestroyFunc) destroy_document);
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
 
     return EC_SUCCESS;
