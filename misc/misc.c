@@ -185,7 +185,7 @@ List deduplicated_words_map(String doc_str){
     Map map = map_create((CompareFunc)strcmp, MAX_DOC_LENGTH);           
     map_set_hash_function(map,(HashFunc)hash_string);
 
-    List list_words = list_create(strcmp);
+    List list_words = list_create((CompareFunc)strcmp);
 
     strcpy(buffer, "");
 
@@ -205,7 +205,7 @@ List deduplicated_words_map(String doc_str){
         }
     }
 
-    return map;
+    return list_words;
 
 }
 

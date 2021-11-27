@@ -187,21 +187,23 @@ ErrorCode EndQuery(QueryID query_id) {
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    Document document = malloc(sizeof(*document));
+    // Document document = malloc(sizeof(*document));
 
-    document->doc_id = doc_id;
-    document->num_res = 0;
-    document->query_ids = NULL;
+    // document->doc_id = doc_id;
+    // document->num_res = 0;
+    // document->query_ids = NULL;
 
-    Map map_words = deduplicated_words_map(doc_str);
-    EntryList result = create_entry_list(compare_entries);
-    int max_thres = 3;
+    // List list_words = deduplicated_words_map(doc_str);
+    // EntryList result = create_entry_list(compare_entries);
+    // int max_thres = 3;
 
-    for (MapNode node = map_first(map_words); node != NULL; node = map_next(map_words, node)) {
-        String dword = map_node_value(node);
+    // for (ListNode node = list_first(list_words); node != NULL; node = list_next(list_words, node)) {
+    //     String doc_word = list_node_value(node);
 
-        lookup_entry_index(Index_Exact, dword, ) 
-    }
+    //     ErrorCode errcode = lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+
+    //     if (errcode == )
+    // }
 
     return EC_SUCCESS;
 }
