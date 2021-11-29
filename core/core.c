@@ -216,10 +216,18 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
 
-        lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+        //lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Edit, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
+        //lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
     }
+
+
+    Entry entry = get_first(result);
+    ListNode node = list_first(entry->payload);
+
+    Query q = list_node_value(node);
+    printf("%d %s\n", q->queryID, q->words);
+
 
     List complete_queries = find_complete_queries(result, (CompareFunc) compare_queries);
 

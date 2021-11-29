@@ -90,7 +90,7 @@ int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryL
             Query query = list_node_value(node);
 
             if (dist_value_parent <= query->match_dist) 
-                list_insert(entrypayload, &query->queryID);
+                list_insert(entrypayload, query);
         }
     }
 
