@@ -10,6 +10,7 @@
 
 core_test_OBJS = core_test.o $(MODULES)/ADTIndex.o $(MODULES)/ADTMap.o $(MODULES)/ADTBKTree.o $(MODULES)/ADTLinkedList.o $(MODULES)/ADTEntryList.o $(MISC)/misc.o $(CORE)/core.o
 
+# test_OBJS = test.o $(MODULES)/ADTIndex.o $(MODULES)/ADTMap.o $(MODULES)/ADTBKTree.o $(MODULES)/ADTLinkedList.o $(MODULES)/ADTEntryList.o $(MISC)/misc.o $(CORE)/core.o
 
 # Ο βασικός κορμός του Makefile
 include ../common.mk

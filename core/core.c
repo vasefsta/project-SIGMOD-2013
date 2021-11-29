@@ -80,8 +80,10 @@ void destroy_query(Query query) {
     free(query);
 }
 
-int compare_ids(int *a, int *b) {
-    return *a-*b;
+int compare_ids(const void *a, const void *b) {
+    const int *A = a;
+    const int *B = b;
+    return *A-*B;
 }
 
 int compare_queries(Query q1, Query q2) {
@@ -256,5 +258,25 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
+    Document document = list_remove_first(doc_list);
+
+    if (!document)
+        return EC_NO_AVAIL_RES;
+
+    *p_doc_id = document->doc_id;
+    *p_num_res = document->num_res;
+
+    if ((*p_num_res) != 0) {
+        *p_query_ids = malloc(sizeof(QueryID) * (*p_num_res));
+        
+        for (int i = 0; i < (*p_num_res); i++) 
+            *p_query_ids[i] = document->query_ids[i];
+    }
+
+    qsort(p_query_ids, *p_num_res, sizeof(QueryID), compare_ids);
+
+    free(document->query_ids);
+    free(document);
+
     return EC_SUCCESS;
 }

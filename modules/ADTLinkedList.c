@@ -66,6 +66,22 @@ void list_insert(List list, Pointer value){
     list->size++;
 }
 
+Pointer list_remove_first(List list) {
+    assert(list);
+
+    ListNode dummynode = list->dummyNode;
+    ListNode first_node = dummynode->next;
+
+    if (!first_node)
+        return NULL;
+
+    Pointer value = first_node->value;
+
+    dummynode->next = first_node->next;
+    free(first_node); 
+
+    return value;
+}
 
 ListNode list_find(List list, Pointer value) {
     assert(list);
