@@ -39,11 +39,36 @@ void test_StartQuery() {
 
 }
 
+void test_MatchDocument(){
+
+     TEST_ASSERT(InitializeIndex() == EC_SUCCESS); 
+    TEST_ASSERT(StartQuery(1, "This query looks good", 0, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(2, "This query looks good", 0, 0) == EC_SUCCESS);
+
+
+    TEST_ASSERT(StartQuery(1, "This query looks good", 1, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(2, "This query looks good", 1, 0) == EC_SUCCESS);
+
+    TEST_ASSERT(StartQuery(1, "This query looks good", 2, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(2, "This query looks good", 2, 0) == EC_SUCCESS);
+
+
+    TEST_ASSERT(MatchDocument(1, "This were lovely query good looks"));
+
+
+
+    TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
+
+
+
+}
+
 
 TEST_LIST = {
 
 	{ "CreateIndex", test_CreateIndex },
     { "StartQuery", test_StartQuery },
+    { "MatchDocument", test_MatchDocument},
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 };

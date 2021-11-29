@@ -208,7 +208,8 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     document->num_res = 0;
     document->query_ids = NULL;
 
-    List list_words = deduplicated_words_map(doc_str);
+    String doc_str1 = strdup(doc_str);
+    List list_words = deduplicated_words_map(doc_str1);
     EntryList result = create_entry_list((CompareFunc)compare_entries);
     int max_thres = 3;
 
