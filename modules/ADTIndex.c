@@ -66,12 +66,18 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList 
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST)
         bk_find((BKTree)index->index, result, compare_query, word, threshold);
     else {
-        struct entry entry;
-        entry.word = word;
-        Entry res = map_find((Map)index->index, &entry);                 // Check if it exists in index      // Exact match
+        Entry entry = create_entry(word, compare_query);
+        Entry res = map_find((Map)index->index, entry);                 // Check if it exists in index      // Exact match
         
         if(res != NULL){                                                // If not
-            add_entry(result, res);                                     // add in in entrylist
+            for (ListNode node = list_first(res->payload); node != NULL; node = list_find_next(node)) {
+                Query query = list_node_value(node);
+                list_insert(entry->payload, query);
+            }   
+            add_entry(result, entry);                                     // add in entrylist
+        } else {
+            list_destroy(entry->payload, NULL);
+            free(entry);
         }
     }
 

@@ -57,6 +57,11 @@ Index get_index_hamming() {
     return Index_Hamming;
 }
 
+void destroy_entry_only(Entry entry){
+    list_destroy(entry->payload, NULL);
+    free(entry);
+}
+
 
 void destroy_entry(Entry entry) {
     list_destroy(entry->payload, NULL);
@@ -210,24 +215,17 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 
     String doc_str1 = strdup(doc_str);
     List list_words = deduplicated_words_map(doc_str1);
+
     EntryList result = create_entry_list((CompareFunc)compare_entries);
     int max_thres = 3;
 
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
 
-        //lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Edit, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-        //lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
+        lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
     }
-
-
-    Entry entry = get_first(result);
-    ListNode node = list_first(entry->payload);
-
-    Query q = list_node_value(node);
-    printf("%d %s\n", q->queryID, q->words);
-
 
     List complete_queries = find_complete_queries(result, (CompareFunc) compare_queries);
 
@@ -246,6 +244,12 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     document->query_ids = complete_ids;
 
     list_insert(doc_list, document);
+
+
+    destroy_entry_list(result, (DestroyFunc) destroy_entry_only);
+    list_destroy(list_words, free);
+    list_destroy(complete_queries, NULL);
+    free(doc_str1);
 
 
     return EC_SUCCESS;

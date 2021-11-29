@@ -71,7 +71,6 @@ List unique_queries(EntryList entrylist, CompareFunc compare_query) {           
         List list = entry->payload;
         for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){ // For every query in payload
             Query query = list_node_value(listnode);
-            printf("AAAAAAAA = %p\n" , list_find(list_of_queries, query));
             if(list_find(list_of_queries, query) == NULL){
                 list_insert(list_of_queries, query);
             }

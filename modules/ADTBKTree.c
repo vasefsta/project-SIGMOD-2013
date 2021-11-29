@@ -99,7 +99,7 @@ int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryL
 
     for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
         BKNode child = list_node_value(node);
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);   // Calculate d for parent and child
+        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                       // Calculate d for parent and child
 
         if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
             find(child, compare, compare_query, entrylist, word, threshold);                                             // Call recursice for child
