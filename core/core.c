@@ -221,8 +221,7 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
         lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
     }
 
-
-    List complete_queries = find_complete_queries(result);
+    List complete_queries = find_complete_queries(result, (CompareFunc) compare_queries);
 
     document->num_res = list_size(complete_queries);
 

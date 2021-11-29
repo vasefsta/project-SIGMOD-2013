@@ -41,19 +41,20 @@ void test_StartQuery() {
 
 void test_MatchDocument(){
 
-     TEST_ASSERT(InitializeIndex() == EC_SUCCESS); 
+    TEST_ASSERT(InitializeIndex() == EC_SUCCESS); 
+    
     TEST_ASSERT(StartQuery(1, "This query looks good", 0, 0) == EC_SUCCESS);
     TEST_ASSERT(StartQuery(2, "This query looks good", 0, 0) == EC_SUCCESS);
 
 
-    TEST_ASSERT(StartQuery(1, "This query looks good", 1, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(2, "This query looks good", 1, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(3, "This query looks good", 1, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(4, "This query looks good", 1, 0) == EC_SUCCESS);
 
-    TEST_ASSERT(StartQuery(1, "This query looks good", 2, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(2, "This query looks good", 2, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(5, "This query looks good", 2, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(6, "This query looks good", 2, 0) == EC_SUCCESS);
 
 
-    TEST_ASSERT(MatchDocument(1, "This were lovely query good looks"));
+    TEST_ASSERT(MatchDocument(1, "This were lovely query good looks") == EC_SUCCESS);
 
 
 

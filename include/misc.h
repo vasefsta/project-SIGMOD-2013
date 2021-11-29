@@ -14,7 +14,7 @@ String path_of_doc(String namedoc);                                  // create t
 
 int hash_func(Query query);                                          // Hash string of query
 
-List find_complete_queries(EntryList entrylist);                 // Return List of queries that fully match from entrylist
+List find_complete_queries(EntryList entrylist, CompareFunc compare_query);                 // Return List of queries that fully match from entrylist
 
 Query convert_to_query(String string);                               // Return Pointer to query with string as word 
 
