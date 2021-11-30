@@ -81,9 +81,7 @@ void destroy_query(Query query) {
 }
 
 int compare_ids(const void *a, const void *b) {
-    const int *A = a;
-    const int *B = b;
-    return *A-*B;
+    return ( *(int*)a - *(int*)b );
 }
 
 int compare_queries(Query q1, Query q2) {
@@ -130,12 +128,22 @@ ErrorCode InitializeIndex() {
 }
 
 ErrorCode DestroyIndex() {
-
+    puts("1111");
     destroy_entry_index(Index_Exact,(DestroyFunc) destroy_entry);
+    puts("222");
+
     destroy_entry_index(Index_Edit,(DestroyFunc) destroy_entry);
+    puts("3333");
+
+
     destroy_entry_index(Index_Hamming,(DestroyFunc) destroy_entry);
+    puts("4444");
+
     list_destroy(doc_list, (DestroyFunc) destroy_document);
+    puts("5555");
+
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
+    puts("6666");
 
     return EC_SUCCESS;
 }
@@ -146,7 +154,6 @@ int Insert_Query(Query query) {
     String *Array = Seperate_sentence(query);
 
     for(int i = 0; i < query->length; i++) {
-
         Entry entry = create_entry(Array[i], (CompareFunc) compare_queries);
         list_insert(entry->payload, query);
 
@@ -218,39 +225,62 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     String doc_str1 = strdup(doc_str);
     List list_words = deduplicated_words_map(doc_str1);
 
-    EntryList result = create_entry_list((CompareFunc)compare_entries);
+    EntryList result1 = create_entry_list((CompareFunc)compare_entries);
+    EntryList result2 = create_entry_list((CompareFunc)compare_entries);
+    EntryList result3 = create_entry_list((CompareFunc)compare_entries);
+
     int max_thres = 3;
 
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
-
-        lookup_entry_index(Index_Exact, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Edit, doc_word, max_thres, result, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Hamming, doc_word, max_thres, result, (CompareFunc)compare_queries);   
+        lookup_entry_index(Index_Exact, doc_word, max_thres, result1, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Hamming, doc_word, max_thres, result2, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Edit, doc_word, max_thres, result3, (CompareFunc)compare_queries);   
     }
 
-    List complete_queries = find_complete_queries(result, (CompareFunc) compare_queries);
+    List complete_queries1 = find_complete_queries(result1, (CompareFunc) compare_queries);
+    List complete_queries2 = find_complete_queries(result2, (CompareFunc) compare_queries);
+    List complete_queries3 = find_complete_queries(result3, (CompareFunc) compare_queries);
 
-    document->num_res = list_size(complete_queries);
 
-    QueryID *complete_ids = malloc(sizeof(QueryID)*list_size(complete_queries));
+    document->num_res = list_size(complete_queries1) + list_size(complete_queries2) + list_size(complete_queries3);
+
+    QueryID *complete_ids = malloc(sizeof(QueryID)*document->num_res);
 
     int i = 0;
-    for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
+
+    for(ListNode node = list_first(complete_queries1); node != NULL; node = list_find_next(node) ){
         int *ID = list_node_value(node);
         complete_ids[i] = *ID;
         i++;
     }
 
-    document->num_res = list_size(complete_queries);
+    for(ListNode node = list_first(complete_queries2); node != NULL; node = list_find_next(node) ){
+        int *ID = list_node_value(node);
+        complete_ids[i] = *ID;
+        i++;
+    }
+
+    for(ListNode node = list_first(complete_queries3); node != NULL; node = list_find_next(node) ){
+        int *ID = list_node_value(node);
+        complete_ids[i] = *ID;
+        i++;
+    }
+
     document->query_ids = complete_ids;
 
     list_insert(doc_list, document);
 
 
-    destroy_entry_list(result, (DestroyFunc) destroy_entry_only);
+    destroy_entry_list(result1, (DestroyFunc) destroy_entry_only);
+    destroy_entry_list(result2, (DestroyFunc) destroy_entry_only);
+    destroy_entry_list(result3, (DestroyFunc) destroy_entry_only);
+
     list_destroy(list_words, free);
-    list_destroy(complete_queries, NULL);
+    list_destroy(complete_queries1, NULL);
+    list_destroy(complete_queries2, NULL);
+    list_destroy(complete_queries3, NULL);
+
     free(doc_str1);
 
 
@@ -265,18 +295,20 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
 
     *p_doc_id = document->doc_id;
     *p_num_res = document->num_res;
+    QueryID* tmp = malloc(sizeof(QueryID) * document->num_res);
 
     if ((*p_num_res) != 0) {
-        *p_query_ids = malloc(sizeof(QueryID) * (*p_num_res));
-        
-        for (int i = 0; i < (*p_num_res); i++) 
-            *p_query_ids[i] = document->query_ids[i];
+
+        for (int i = 0; i < (*p_num_res); i++){
+            tmp[i] = document->query_ids[i];            
+        }
     }
 
-    qsort(p_query_ids, *p_num_res, sizeof(QueryID), compare_ids);
+    qsort(tmp, *p_num_res, sizeof(QueryID), (compare_ids));
 
     free(document->query_ids);
     free(document);
 
+    *p_query_ids = tmp;
     return EC_SUCCESS;
 }

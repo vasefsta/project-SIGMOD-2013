@@ -64,7 +64,7 @@ ifneq (,$(findstring coverage,$(MAKECMDGOALS)))
 endif
 
 # compiler
-CC = gcc
+CC = gcc  -fno-stack-protector 
 
 # Λίστα με όλα τα εκτελέσιμα  για τα οποία υπάρχει μια μεταβλητή <foo>_OBJS
 WITH_OBJS := $(subst _OBJS,,$(filter %_OBJS,$(.VARIABLES)))
@@ -136,7 +136,7 @@ run: $(RUN_TARGETS)
 
 # Για κάθε εκτελέσιμο <prog> φτιάχνουμε ένα target valgrind-<prog> που το εκτελεί μέσω valgrind με παραμέτρους <prog>_ARGS
 valgrind-%: %
-	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./$* $($*_ARGS)
+	valgrind -s --error-exitcode=1 --track-origins=yes --leak-check=full --show-leak-kinds=all ./$* $($*_ARGS)
 
 valgrind: $(VAL_TARGETS)
 

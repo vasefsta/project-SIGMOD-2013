@@ -33,7 +33,6 @@ String path_of_doc(String namedoc) {
 int times_in_list(EntryList entrylist, Query query) {                                           // Returns how many times the query is in entrylist
 
     int count = 0; 
-
     for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){
         if(list_find(entry->payload, query) != NULL)
             count++;
@@ -65,7 +64,7 @@ int count_queries(String filename){
 
 List unique_queries(EntryList entrylist, CompareFunc compare_query) {                  // Return a list of all queries in entrylist (queries are not duplicated)
 
-    List list_of_queries = list_create( (CompareFunc) compare_query);
+    List list_of_queries = list_create((CompareFunc) compare_query);
 
     for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){           //For every entry in entrylist
         List list = entry->payload;
@@ -115,7 +114,6 @@ Query convert_to_query(String string){
     query->length = count;
 
     return query;
-    //Free string na ginete meta tin sinartisi
 }
 
 String *Seperate_sentence(Query query){
@@ -178,33 +176,34 @@ List deduplicated_words(String filename){
 
 List deduplicated_words_map(String doc_str){                          
 
-    char buffer[MAX_WORD_LENGTH+1];
-    char letter[2];
-    letter[1] = '\0';
-
     Map map = map_create((CompareFunc)strcmp, MAX_DOC_LENGTH);           
     map_set_hash_function(map,(HashFunc)hash_string);
 
     List list_words = list_create((CompareFunc)strcmp);
 
-    strcpy(buffer, "");
+    String dummy = strdup(doc_str);                            // Create a dummy string
+    String token = strtok(dummy, " \t\n");
+    String word =  strdup(token);
 
-    int doc_size = strlen(doc_str);
-    for (int i = 0; i < doc_size; i++){                                 // Read char by charfile
-        char a = doc_str[i];
-        if(a == ' ' || a == '\n'){                                  // If word is over
-            if(!map_find(map, buffer)){                           // and not in list
-                String value = strdup(buffer);
-                map_insert(map, value);
-                list_insert(list_words, value);
-            } 
-            strcpy(buffer, "");
-        } else {
-            letter[0] = a;
-            strcat(buffer, letter);                                 // Append char to String.
+    if(!map_find(map, word)){
+        map_insert(map, word);
+        list_insert(list_words, word);
+    }
+
+    while( (token = strtok(NULL, " \t\n")) != NULL){                // For every word in sentence
+        
+        word = strdup(token);                                   // Copy to Array[i]
+        
+        if(!map_find(map, word)){
+            map_insert(map, word);
+            list_insert(list_words, word);
         }
+    
     }
     
+    free(dummy);
+
+   
     map_destroy(map, NULL);
     return list_words;
 
@@ -271,8 +270,3 @@ Map map_of_queries(String filename, EntryList entrylist, CompareFunc compare_que
     return map;
 
 }
-
-// const void destroy_query(Query q){
-//     free(q->words);
-//     free(q);
-// }

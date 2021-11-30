@@ -55,6 +55,8 @@ void test_MatchDocument(){
 
     TEST_ASSERT(MatchDocument(1, "This were lovely query good looks") == EC_SUCCESS);
 
+    
+
     TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
 }
 
@@ -79,16 +81,22 @@ void test_GetNextAvailRes(void) {
 
     GetNextAvailRes(&p_doc_id, &p_num_res, &p_query_id);
 
-    free(p_query_id);
+    for(int i = 0; i < p_num_res; i++){
+       printf("ID = %d\n", p_query_id[i]);
+    }
 
+    free(p_query_id);
     TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
+
+    puts("##########################################################");
+
 }
 
 TEST_LIST = {
 
 	{ "CreateIndex", test_CreateIndex },
     { "StartQuery", test_StartQuery },
-    { "MatchDocument", test_MatchDocument},
+    //{ "MatchDocument", test_MatchDocument},
     { "GetNextAvailRes", test_GetNextAvailRes},
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL

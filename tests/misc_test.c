@@ -13,6 +13,10 @@ int compare_query(QueryID* q1, QueryID* q2){
     return *q1 - *q2;
 }
 
+int compare_queries(Query q1, Query q2){
+  return q1->queryID - q2->queryID;
+}
+
 
 int compare_entry(Entry e1, Entry e2){
     return strcmp(e1->word, e2->word);
@@ -99,7 +103,7 @@ void test_find_complete_queries(){
 
 
 
-  list = find_complete_queries(entrylist);
+  list = find_complete_queries(entrylist, compare_queries);
   
   ListNode node = list_first(list);
   Query query = list_node_value(node);
