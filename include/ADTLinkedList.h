@@ -21,6 +21,8 @@ ListNode list_first(List list);                                 // Return first 
 
 void list_insert(List list, Pointer value);                // Insert value in list.
 
+ErrorCode list_remove(List list, DestroyFunc destroy, Pointer value);
+
 Pointer list_remove_first(List list);
 
 Pointer list_node_value(ListNode node);                         // Return value of node.

@@ -66,6 +66,31 @@ void list_insert(List list, Pointer value){
     list->size++;
 }
 
+ErrorCode list_remove(List list, DestroyFunc destroy, Pointer value) {
+    assert(list);
+
+    ListNode node = list->dummyNode;
+    ListNode next = node->next;
+
+    while (next) {
+        if (list->compare && (list->compare(next->value, value) == 0)) {
+            if (destroy)
+                destroy(next->value);
+
+            node->next = next->next;
+            
+            free(next);
+
+            return EC_SUCCESS;
+        }
+
+        node = next;
+        next = next;
+    }
+
+    return EC_NO_AVAIL_RES;
+}
+
 Pointer list_remove_first(List list) {
     assert(list);
 
