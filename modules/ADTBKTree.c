@@ -35,9 +35,17 @@ void destroy_bk_node(BKNode node){
 
 
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           // Insert new in bktree.
+
+    if(strcmp(bkparent->entry->word, new->entry->word) == 0){
+        Query query = list_node_value(list_first(new->entry->payload));
+        list_insert(bkparent->entry->payload, query);
+        destroy_bk_node(new);
+        return EC_SUCCESS;
+    }
+
     int dist = compare(bkparent->entry->word, new->entry->word);          // Get dist between new and bkparent
 
-    if(!bkparent->children){                                                                  // If parent was no children insert new as child
+    if(!bkparent->children){                                                                  // If parent has no children insert new as child
         bkparent->children = list_create(NULL);
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
@@ -48,8 +56,9 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
 
     for (node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){   // Traverse in list of children of bkparent 
         child = list_node_value(node);
-        if(compare(child->entry->word, bkparent->entry->word) == dist)    // If new has same distance as chld with parent get Child node
+        if(compare(child->entry->word, bkparent->entry->word) == dist){    // If new has same distance as child with parent get Child node
             break;
+        }
     }
 
     if(!node){                                                                                // If no child was found with such distance insert new as child of parent
