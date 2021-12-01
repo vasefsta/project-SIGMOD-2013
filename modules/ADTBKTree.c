@@ -69,7 +69,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
 
 
 int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryList entrylist, String word, int threshold) {         // Find entries with threshold and word
-    int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
+int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
     int low_range = dist_value_parent - threshold;                                                        // Calculate ( d - n)
 
     if (low_range < 0)
@@ -108,6 +108,31 @@ int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryL
     return 0;
 }
 
+Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word) {
+    int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
+    int low_range = dist_value_parent;                                                        // Calculate ( d - n)
+
+    if (low_range < 0)
+        low_range = 0;
+
+    if (dist_value_parent == 0){                                   // if d <= n and d > 0
+        return bkparent->entry;
+    }
+
+    if (bkparent->children == NULL)                                                                      // If parent has no children
+        return NULL;
+
+    Entry entry;
+    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
+        BKNode child = list_node_value(node);
+        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                       // Calculate d for parent and child
+
+        if ( (dist_parent_child <= dist_value_parent) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
+            entry = help_find_entry(child, compare, word);                                             // Call recursice for child
+    }
+
+    return entry;
+}
 
 void destroy(BKNode bknode, DestroyFunc destroy_value){                         // Destroy bknode and its value
     if (!bknode)
@@ -215,6 +240,26 @@ int bk_find(BKTree bktree, EntryList entrylist, CompareFunc compare_query, Strin
     return -1;
 }
 
+Entry bk_find_entry(BKTree bktree, String word) {
+    assert(bktree);
+
+    if (bktree->type == MT_EDIT_DIST) {
+        if (*bktree->root == NULL)
+            return NULL;
+        else 
+            return help_find_entry(*bktree->root, bktree->compare, word);     // Return result of find
+    }
+    else if (bktree->type == MT_HAMMING_DIST) {
+        int pos = strlen(word) - 4;
+
+        if (bktree->root[pos] == NULL)
+            return NULL;
+        else 
+            return help_find_entry(bktree->root[pos], bktree->compare, word);     // Return result of find
+    }
+
+    return NULL;
+}
 
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){

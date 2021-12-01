@@ -252,24 +252,26 @@ ErrorCode EndQuery(QueryID query_id) {
             if (errcode == EC_NO_AVAIL_RES)
                 return errcode;           
         
-        } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {
-    
-            EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
-            bk_find((BKTree)index_index(index), entrylist, (CompareFunc)compare_queries, words[i], 0);
+        } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {    
+            Entry entry = bk_find_entry((BKTree)index_index(index), words[i]);
 
-            Entry entry = get_first(entrylist);
-
-            destroy_entry_list(entrylist, NULL);
-
-            if (!entry) {
-                puts("CCCCCCCCCCCCC");
+            printf("QUERYIDDDDDDDDDDD = %d\n\n", query_id);
+            if (!entry)
                 return EC_NO_AVAIL_RES;
-            }
 
+            printf("NUM OF QUERIES == %d\n", list_size(entry->payload));
+            for (ListNode node = list_first(entry->payload); node != NULL; node = list_find_next(node))
+                {
+                    Query q = list_node_value(node);
+                    printf("query id = %d\t", q->queryID);
+                }
+
+            puts(" ");
             ErrorCode errcode = list_remove(entry->payload, NULL, query);
 
-            if (errcode == EC_NO_AVAIL_RES)
+            if (errcode == EC_NO_AVAIL_RES) {
                 return errcode;           
+            }
         }
     }
 

@@ -53,6 +53,22 @@ void test_EndQuery(void) {
     TEST_ASSERT(StartQuery(6, "This query looks good", 2, 0) == EC_SUCCESS);
 
     TEST_ASSERT(EndQuery(1) == EC_SUCCESS);
+    TEST_ASSERT(EndQuery(1) == EC_NO_AVAIL_RES);
+
+    TEST_ASSERT(EndQuery(2) == EC_SUCCESS);
+    TEST_ASSERT(EndQuery(2) == EC_NO_AVAIL_RES);
+
+    TEST_ASSERT(EndQuery(3) == EC_SUCCESS);
+    TEST_ASSERT(EndQuery(3) == EC_NO_AVAIL_RES);
+
+    TEST_ASSERT(EndQuery(4) == EC_SUCCESS);
+    TEST_ASSERT(EndQuery(4) == EC_NO_AVAIL_RES);
+
+    TEST_ASSERT(EndQuery(5) == EC_SUCCESS);
+    TEST_ASSERT(EndQuery(5) == EC_NO_AVAIL_RES);
+
+    TEST_ASSERT(EndQuery(6) == EC_SUCCESS);
+    TEST_ASSERT(EndQuery(6) == EC_NO_AVAIL_RES);
 
     TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
 }

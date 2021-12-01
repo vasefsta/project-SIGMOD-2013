@@ -84,6 +84,7 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList 
     return EC_SUCCESS;
 }
 
+
 int size_index(Index index) {
     return index->size;
 }
