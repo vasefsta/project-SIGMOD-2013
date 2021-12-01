@@ -85,7 +85,7 @@ ErrorCode list_remove(List list, DestroyFunc destroy, Pointer value) {
         }
 
         node = next;
-        next = next;
+        next = next->next;
     }
 
     return EC_NO_AVAIL_RES;
