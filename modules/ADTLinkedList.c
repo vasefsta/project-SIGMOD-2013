@@ -81,6 +81,8 @@ ErrorCode list_remove(List list, DestroyFunc destroy, Pointer value) {
             
             free(next);
 
+            list->size--;
+            
             return EC_SUCCESS;
         }
 

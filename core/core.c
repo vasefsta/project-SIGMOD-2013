@@ -255,21 +255,28 @@ ErrorCode EndQuery(QueryID query_id) {
         } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {    
             Entry entry = bk_find_entry((BKTree)index_index(index), words[i]);
 
-            printf("QUERYIDDDDDDDDDDD = %d\n\n", query_id);
-            if (!entry)
+            if (!entry) {
+                puts("BYYYEEEEEEEEEEE");
                 return EC_NO_AVAIL_RES;
+            }
 
             printf("NUM OF QUERIES == %d\n", list_size(entry->payload));
+            printf("QUERYIDDDDDDDDDDD = %d  QUERYY WOOOORD = %s\n\n", query_id, entry->word);
             for (ListNode node = list_first(entry->payload); node != NULL; node = list_find_next(node))
                 {
                     Query q = list_node_value(node);
-                    printf("query id = %d\t", q->queryID);
+
+                    if (q)
+                        printf("query id = %d\t", q->queryID);
+                    else    
+                        puts("NOTHING");
                 }
 
             puts(" ");
             ErrorCode errcode = list_remove(entry->payload, NULL, query);
 
             if (errcode == EC_NO_AVAIL_RES) {
+                puts("RRRRRRRRRRRRRRRRRR");
                 return errcode;           
             }
         }
