@@ -128,22 +128,15 @@ ErrorCode InitializeIndex() {
 }
 
 ErrorCode DestroyIndex() {
-    puts("1111");
     destroy_entry_index(Index_Exact,(DestroyFunc) destroy_entry);
-    puts("222");
 
     destroy_entry_index(Index_Edit,(DestroyFunc) destroy_entry);
-    puts("3333");
-
 
     destroy_entry_index(Index_Hamming,(DestroyFunc) destroy_entry);
-    puts("4444");
 
     list_destroy(doc_list, (DestroyFunc) destroy_document);
-    puts("5555");
 
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
-    puts("6666");
 
     return EC_SUCCESS;
 }
@@ -152,7 +145,6 @@ ErrorCode DestroyIndex() {
 int Insert_Query(Query query) {
     
     String *Array = Seperate_sentence(query);
-
     for(int i = 0; i < query->length; i++) {
         Entry entry = create_entry(Array[i], (CompareFunc) compare_queries);
         list_insert(entry->payload, query);
@@ -215,13 +207,8 @@ ErrorCode EndQuery(QueryID query_id) {
     struct query tmpquery;
 
     tmpquery.queryID = query_id;
-    tmpquery.length = 0;
-    tmpquery.match_dist = 0;
-    tmpquery.match_type = MT_EXACT_MATCH;
-    tmpquery.words = NULL;
 
     Query query = map_find(Map_Queries, &tmpquery);
-
     if (!query)
         return EC_NO_AVAIL_RES;
 
@@ -243,40 +230,42 @@ ErrorCode EndQuery(QueryID query_id) {
 
         if (query->match_type == MT_EXACT_MATCH) {
             Entry entry = map_find((Map)index_index(index), &tmpentry);
+            
+            if (!entry){
+                for (int i = 0; i < query->length; i++)
+                    free(words[i]);
 
-            if (!entry) 
+                free(words);
                 return EC_NO_AVAIL_RES;
+            } 
             
             ErrorCode errcode = list_remove(entry->payload, NULL, query); 
 
-            if (errcode == EC_NO_AVAIL_RES)
+            if (errcode == EC_NO_AVAIL_RES){
+                for (int i = 0; i < query->length; i++)
+                    free(words[i]);
+                
+                free(words);
                 return errcode;           
+            }
         
         } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {    
             Entry entry = bk_find_entry((BKTree)index_index(index), words[i]);
 
-            if (!entry) {
-                puts("BYYYEEEEEEEEEEE");
+            if (!entry){
+                for (int i = 0; i < query->length; i++)
+                    free(words[i]);
+
+                free(words);
                 return EC_NO_AVAIL_RES;
             }
-
-            printf("NUM OF QUERIES == %d\n", list_size(entry->payload));
-            printf("QUERYIDDDDDDDDDDD = %d  QUERYY WOOOORD = %s\n\n", query_id, entry->word);
-            for (ListNode node = list_first(entry->payload); node != NULL; node = list_find_next(node))
-                {
-                    Query q = list_node_value(node);
-
-                    if (q)
-                        printf("query id = %d\t", q->queryID);
-                    else    
-                        puts("NOTHING");
-                }
-
-            puts(" ");
             ErrorCode errcode = list_remove(entry->payload, NULL, query);
 
             if (errcode == EC_NO_AVAIL_RES) {
-                puts("RRRRRRRRRRRRRRRRRR");
+                for (int i = 0; i < query->length; i++)
+                    free(words[i]);
+
+                free(words);
                 return errcode;           
             }
         }
