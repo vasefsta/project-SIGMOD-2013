@@ -212,7 +212,68 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 }
 
 ErrorCode EndQuery(QueryID query_id) {
-    return EC_SUCCESS;
+    struct query tmpquery;
+
+    tmpquery.queryID = query_id;
+    tmpquery.length = 0;
+    tmpquery.match_dist = 0;
+    tmpquery.match_type = MT_EXACT_MATCH;
+    tmpquery.words = NULL;
+
+    Query query = map_find(Map_Queries, &tmpquery);
+
+    if (!query)
+        return EC_NO_AVAIL_RES;
+
+    String* words = Seperate_sentence(query);
+
+    for (int i = 0; i < query->length; i++) {
+        struct entry tmpentry;
+
+        tmpentry.word = words[i];
+        tmpentry.payload = NULL;
+
+        Entry entry = map_find((Map)index_index(Index_Exact), &tmpentry);
+
+        if (!entry)
+            return EC_NO_AVAIL_RES;
+        
+        ErrorCode errcode = list_remove(entry->payload, NULL, query);
+
+        if (errcode == EC_NO_AVAIL_RES)
+            return errcode;
+    
+        EntryList entrylist = create_entry_list((CompareFunc)compare_entries);
+        bk_find((BKTree)index_index(Index_Edit), entrylist, (CompareFunc)compare_queries, words[i], 0);
+
+        entry = get_first(entrylist);
+
+        destroy_entry_list(entrylist, NULL);
+
+        if (!entry) {
+            return EC_NO_AVAIL_RES;
+        }
+
+        errcode = list_remove(entry->payload, NULL, query);
+
+        if (errcode == EC_NO_AVAIL_RES)
+            return errcode;
+        
+        entrylist = create_entry_list((CompareFunc)compare_entries);
+        bk_find((BKTree)index_index(Index_Hamming), entrylist, (CompareFunc)compare_queries, words[i], 0);
+
+        entry = get_first(entrylist);
+
+        destroy_entry_list(entrylist, NULL);
+        
+        if (!entry) {
+            return EC_NO_AVAIL_RES;
+        }
+
+        return list_remove(entry->payload, NULL, query);
+    }
+
+    return EC_NO_AVAIL_RES;
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
