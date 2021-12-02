@@ -96,13 +96,13 @@ void destroy_document(Document doc){
 
 ErrorCode InitializeIndex() {
 
-    Map_Queries = map_create((CompareFunc)compare_queries, 100);
+    Map_Queries = map_create((CompareFunc)compare_queries, 1000);
     if(Map_Queries == NULL)
         return EC_NO_AVAIL_RES;
 
     map_set_hash_function(Map_Queries, (HashFunc) hash_queries);
 
-    Index_Exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 100);
+    Index_Exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 1000);
     if(Index_Exact == NULL)
         return EC_NO_AVAIL_RES;
 
@@ -319,18 +319,23 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
         i++;
     }
 
-    for(ListNode node = list_first(complete_queries2); node != NULL; node = list_find_next(node) ){
-        int *ID = list_node_value(node);
-        complete_ids[i] = *ID;
-        i++;
-    }
 
     for(ListNode node = list_first(complete_queries3); node != NULL; node = list_find_next(node) ){
         int *ID = list_node_value(node);
         complete_ids[i] = *ID;
         i++;
-    }
 
+    }
+    qsort(complete_ids, i, sizeof(QueryID), (compare_ids));
+
+
+    for(ListNode node = list_first(complete_queries2); node != NULL; node = list_find_next(node) ){
+        int *ID = list_node_value(node);
+        complete_ids[i] = *ID;
+        i++;
+    }
+    qsort(complete_ids, i, sizeof(QueryID), (compare_ids));
+    
     document->query_ids = complete_ids;
 
     list_insert(doc_list, document);
@@ -368,7 +373,6 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
         }
     }
 
-    qsort(tmp, *p_num_res, sizeof(QueryID), (compare_ids));
 
     free(document->query_ids);
     free(document);

@@ -87,8 +87,6 @@ void test_MatchDocument(void) {
 
     TEST_ASSERT(MatchDocument(1, "This were lovely query good looks") == EC_SUCCESS);
 
-    
-
     TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
 }
 

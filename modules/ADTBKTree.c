@@ -222,12 +222,6 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
     return EC_FAIL;
 }
 
-
-Entry bk_node_value(BKNode node){
-    assert(node);
-    return node->entry;                                         // Return entry of bknode
-}
-
 int bk_find(BKTree bktree, EntryList entrylist, CompareFunc compare_query, String word, int n) {
     assert(bktree);
     
@@ -305,18 +299,6 @@ int hamming_distance(Pointer value1, Pointer value2){
     return hamming_dist;
 }
 
-int find_min(int one, int two, int three){
-    int min = one;
-
-    if(two < min)
-        min = two;
-
-    if (three < min)
-        min = three;
-
-    return min;
-}
-
 int edit_distance(Pointer value1, Pointer value2) {
     String word1 = value1;
     String word2 = value2;
@@ -345,20 +327,12 @@ int edit_distance(Pointer value1, Pointer value2) {
                 matrix[i][j] = matrix[i-1][j-1];
             }
             else {
-                int delete;
-                int insert;
-                int substitute;
-                int minimum;
-
-                delete = matrix[i-1][j] + 1;
-                insert = matrix[i][j-1] + 1;
-                substitute = matrix[i-1][j-1] + 1;
-                minimum = delete;
-                if (insert < minimum) {
-                    minimum = insert;
+                int minimum = matrix[i-1][j] + 1;
+                if (matrix[i][j-1] + 1 < minimum) {
+                    minimum = matrix[i][j-1] + 1;
                 }
-                if (substitute < minimum) {
-                    minimum = substitute;
+                if (matrix[i-1][j-1] + 1 < minimum) {
+                    minimum = matrix[i-1][j-1] + 1;
                 }
                 matrix[i][j] = minimum;
             }

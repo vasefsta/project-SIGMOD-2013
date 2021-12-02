@@ -61,8 +61,15 @@ int count_queries(String filename){
     return count;
 }
 
+int hash_query(Query q){
+    return q->queryID;
+}
+
 
 List unique_queries(EntryList entrylist, CompareFunc compare_query) {                  // Return a list of all queries in entrylist (queries are not duplicated)
+
+    Map map = map_create((CompareFunc) compare_query, 300);
+    map_set_hash_function(map, (HashFunc)hash_query);
 
     List list_of_queries = list_create((CompareFunc) compare_query);
 
@@ -70,29 +77,61 @@ List unique_queries(EntryList entrylist, CompareFunc compare_query) {           
         List list = entry->payload;
         for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){ // For every query in payload
             Query query = list_node_value(listnode);
-            if(list_find(list_of_queries, query) == NULL){
+            if(map_find(map, query) == NULL){
                 list_insert(list_of_queries, query);
+                map_insert(map, query);
             }
         }
     }
+
+    map_destroy(map, NULL);
     return list_of_queries;
+}
+
+struct special{
+    QueryID id;
+    int times;
+};
+
+typedef struct special *Special;
+
+int comp_spec(Special s1, Special s2){
+    return s1->id - s2->id;
+}
+
+int hash_spec(Special s){
+    return s->id;
 }
 
 
 List find_complete_queries(EntryList entrylist, CompareFunc compare_query){
 
-    List complete_list = list_create((CompareFunc) compare_query);        
+    Map map = map_create((CompareFunc)comp_spec, 1000);
+    map_set_hash_function(map, (HashFunc)hash_spec);
 
-    List unique = unique_queries(entrylist, compare_query);             //Mpori na veltistopiithii
+    List complete_list = list_create(compare_query);
 
-    for(ListNode listnode = list_first(unique); listnode != NULL; listnode = list_find_next(listnode)){     // For every query
-        Query query = list_node_value(listnode);
-        int times = times_in_list(entrylist, query);            
-        if(query->length == times)                      // If is as times as its length then it's full
-            list_insert(complete_list, &query->queryID);
+    for(ListNode listnode = list_first(entrylist); listnode != NULL; listnode = list_find_next(listnode)){
+        Entry entry = list_node_value(listnode);
+        
+        for (ListNode node = list_first(entry->payload); node != NULL; node = list_find_next(node)){
+            Query query = list_node_value(node);
+            Special s1 = malloc(sizeof(*s1));
+            s1->id = query->queryID;
+            s1->times = 0;
+            Special S = map_find(map, s1);
+            if(S){
+                S->times++;
+                if(S->times == query->length){
+                    list_insert(complete_list, query);
+                }
+                free(s1);
+            } else{
+                map_insert(map, s1);
+            }
+        }
     }
-
-    list_destroy(unique, NULL);
+    map_destroy(map, free);
 
     return complete_list;
 
@@ -136,44 +175,6 @@ String *Seperate_sentence(Query query){
     return Array;
 }
 
-List deduplicated_words(String filename){                          
-    FILE *FP = fopen(filename,"r");                                 //Open filename
-
-    if(!FP){
-        puts("Is null");
-        return NULL;
-    }
-
-    char buffer[MAX_WORD_LENGTH+1];
-    char letter[2];
-    letter[1] = '\0';
-    char a;
-
-
-    List list = list_create((CompareFunc) strcmp);                  // Create list
-            
-
-    strcpy(buffer, "");
-
-    while ((a = fgetc(FP)) != EOF){                                 // Read char by charfile
-        if(a == ' ' || a == '\n'){                                  // If word is over
-            if(!list_find(list, buffer)){                           // and not in list
-                String value = strdup(buffer);
-                list_insert(list, value);                           // Insert in list
-            } 
-            strcpy(buffer, "");
-        } else {
-            letter[0] = a;
-            strcat(buffer, letter);                                 // Append char to String.
-        }
-    }
-
-    fclose(FP);
-    
-    return list;
-
-}
-
 List deduplicated_words_map(String doc_str){                          
 
     Map map = map_create((CompareFunc)strcmp, MAX_DOC_LENGTH);           
@@ -202,7 +203,6 @@ List deduplicated_words_map(String doc_str){
     }
     
     free(dummy);
-
    
     map_destroy(map, NULL);
     return list_words;

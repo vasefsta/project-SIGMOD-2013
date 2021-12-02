@@ -54,13 +54,13 @@ void list_insert(List list, Pointer value){
 
     ListNode new = malloc(sizeof(*new));                // Create new ListNode
     new->value = value;
-
+    new->next = NULL;
     if(node == NULL){
         list->dummyNode->next = new;
         new->next = NULL;
-    } else {
+    } else {                         // Append in list
         new->next = node;
-        list->dummyNode->next = new;                                   // Append in list
+        list->dummyNode->next = new;
     }
     
     list->size++;
