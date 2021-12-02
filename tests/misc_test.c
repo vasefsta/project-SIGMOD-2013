@@ -180,8 +180,8 @@ void test_deduplicate(){
 
 TEST_LIST = {
   { "find_complete_queries", test_find_complete_queries },
-  { "seperate_sentence", test_seperate_sentence },
-	{ "deduplicate_map", test_deduplicate },
+ // { "seperate_sentence", test_seperate_sentence },
+	//{ "deduplicate_map", test_deduplicate },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

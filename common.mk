@@ -48,7 +48,7 @@ CORE := $(MY_PATH)core
 #
 # Το override επιτρέπει την προσθήκη επιπλέον παραμέτρων από τη γραμμή εντολών: make CFLAGS=...
 #
-override CFLAGS += -g -Wall -MMD -I$(INCLUDE) -DEXACT
+override CFLAGS += -g -Wall -MMD -I$(INCLUDE) -DEXACT -fPIC
 
 # Linker options
 #   -lm        Link με τη math library
