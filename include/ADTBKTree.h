@@ -9,7 +9,7 @@
 #include "common_types.h"
 #include "ADTEntryList.h"
 
-#include "ADTEntryList.h"
+#include "ADTMap.h"
 
 
 typedef struct bktree* BKTree;

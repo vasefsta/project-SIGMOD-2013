@@ -93,11 +93,13 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
 
                     map_insert(map_result, special);
                 
-                } else if (tmpspecial.times < tmpspecial.query->length)
+                } else if (special->times != special->query->length){
                     special->times++;
+                }   
 
-                if (tmpspecial.times == tmpspecial.query->length) 
+                if (special->times == special->query->length) {
                     list_insert(complete_queries, &query->queryID);
+                }
                 
             }   
         } else 

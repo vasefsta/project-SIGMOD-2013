@@ -298,7 +298,7 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     List list_words = deduplicated_words_map(doc_str1);
 
     Map map_result = map_create((CompareFunc)comp_spec, 1000);
-    map_set_hash_function(map_result, hash_spec);
+    map_set_hash_function(map_result, (HashFunc) hash_spec);
 
     List complete_queries = list_create((CompareFunc)compare_ids);
 
@@ -306,14 +306,10 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
-        lookup_entry_index(Index_Exact, doc_word, max_thres, map_result,complete_queries, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Exact, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
     }
-
-    // List complete_queries1 = find_complete_queries(result1, (CompareFunc) compare_queries);
-    // List complete_queries2 = find_complete_queries(result2, (CompareFunc) compare_queries);
-    // List complete_queries3 = find_complete_queries(result3, (CompareFunc) compare_queries);
 
 
     document->num_res = list_size(complete_queries);
@@ -323,7 +319,7 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     int i = 0;
     for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
         QueryID* queryid = list_node_value(node);
-        document->query_ids[i] = queryid;
+        document->query_ids[i] = *queryid;
         i++;
     }
 

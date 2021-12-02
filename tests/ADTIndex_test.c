@@ -18,6 +18,13 @@ int compare_query(QueryID* q1, QueryID* q2) {
     return *q1 - *q2;
 }
 
+int compare_special(Special s1, Special s2){
+    return s1->query->queryID - s2->query->queryID;
+}
+
+int hash_special(Special s1){
+    return s1->query->queryID;
+}
 
 int compare_entry(Entry e1, Entry e2){
     return (strcmp(e1->word, e2->word));
@@ -61,16 +68,19 @@ void test_build_lookup_exact(void) {
         add_entry(entrylist, entry);
     }
 
-
-
     ErrorCode errcode = build_entry_index(index, entrylist);
 
     TEST_ASSERT(size_index(index) == N);
     TEST_ASSERT(errcode == EC_SUCCESS);
 
+    List list = list_create((CompareFunc) compare_query);
+    
+    Map map = map_create((CompareFunc) compare_special, 1000);
+    map_set_hash_function(map, hash_special);
+
     for (int i = 0; i < N; i++) {
-        EntryList result = create_entry_list((CompareFunc)compare_entry);
-        
+
+
         lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
 
         Entry entry = create_entry(strdup(Array[i]), NULL);
