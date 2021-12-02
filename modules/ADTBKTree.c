@@ -10,7 +10,7 @@
 
 #include "ADTBKTree.h"
 #include "ADTLinkedList.h"
-
+#include "misc.h"
 
 struct bknode {
     Entry entry;      //Entry to struct Entry
@@ -77,29 +77,43 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
 }
 
 
-int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, EntryList entrylist, String word, int threshold) {         // Find entries with threshold and word
+int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, Map map_result, List complete_queries, String word, int threshold) {         // Find entries with threshold and word
 int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
     int low_range = dist_value_parent - threshold;                                                        // Calculate ( d - n)
 
     if (low_range < 0)
         low_range = 0;
 
-    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ){                                   // if d <= n and d > 0
-        Entry entry = find_entry(entrylist, bkparent->entry); 
-        
-        if(entry == NULL) {
-            entry = create_entry(bkparent->entry->word, compare_query);
-            add_entry(entrylist, entry);                                                        // Insert bkparent's entry in entrylist
-        }
+    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ) {                                   // if d <= n and d > 0
 
         List bkpayload = bkparent->entry->payload;
-        List entrypayload = entry->payload;
 
         for (ListNode node = list_first(bkpayload); node != NULL; node = list_find_next(node)) {
             Query query = list_node_value(node);
 
-            if (dist_value_parent <= query->match_dist) 
-                list_insert(entrypayload, query);
+            if (dist_value_parent <= query->match_dist) {
+                struct special tmpspecial;
+
+                tmpspecial.query = query;
+                tmpspecial.times = 0;
+
+                Special special = map_find(map_result, &tmpspecial);
+
+                if (!special) {
+                    special = malloc(sizeof(*special));
+
+                    special->query = query;
+                    special->times = 1;
+
+                    map_insert(map_result, special);
+                
+                } else if (tmpspecial.times < tmpspecial.query->length)
+                    special->times++;
+
+                if (tmpspecial.times == tmpspecial.query->length) 
+                    list_insert(complete_queries, &query->queryID);
+            }
+
         }
     }
 
@@ -111,7 +125,7 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
         int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                       // Calculate d for parent and child
 
         if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
-            find(child, compare, compare_query, entrylist, word, threshold);                                             // Call recursice for child
+            find(child, compare, compare_query, map_result, complete_queries, word, threshold);                                             // Call recursice for child
     }
 
     return 0;
@@ -222,14 +236,14 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
     return EC_FAIL;
 }
 
-int bk_find(BKTree bktree, EntryList entrylist, CompareFunc compare_query, String word, int n) {
+int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc compare_query, String word, int n) {
     assert(bktree);
     
     if (bktree->type == MT_EDIT_DIST) {
         if (*bktree->root == NULL)
             return -1;
         else 
-            return find(*bktree->root, bktree->compare, compare_query, entrylist, word, n);     // Return result of find
+            return find(*bktree->root, bktree->compare, compare_query, map_result, complete_queries, word, n);     // Return result of find
     }
     else if (bktree->type == MT_HAMMING_DIST) {
         int pos = strlen(word) - 4;
@@ -237,7 +251,7 @@ int bk_find(BKTree bktree, EntryList entrylist, CompareFunc compare_query, Strin
         if (bktree->root[pos] == NULL)
             return -1;
         else 
-            return find(bktree->root[pos], bktree->compare, compare_query, entrylist, word, n);     // Return result of find
+            return find(bktree->root[pos], bktree->compare, compare_query, map_result, complete_queries, word, n);     // Return result of find
     }
 
     return -1;

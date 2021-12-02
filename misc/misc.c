@@ -9,6 +9,7 @@
 #include "ADTEntryList.h"
 #include "ADTMap.h"
 #include "ADTIndex.h"
+#include "misc.h"
 
 
 #include <stdlib.h>
@@ -66,76 +67,70 @@ int hash_query(Query q){
 }
 
 
-List unique_queries(EntryList entrylist, CompareFunc compare_query) {                  // Return a list of all queries in entrylist (queries are not duplicated)
+// List unique_queries(EntryList entrylist, CompareFunc compare_query) {                  // Return a list of all queries in entrylist (queries are not duplicated)
 
-    Map map = map_create((CompareFunc) compare_query, 300);
-    map_set_hash_function(map, (HashFunc)hash_query);
+//     Map map = map_create((CompareFunc) compare_query, 300);
+//     map_set_hash_function(map, (HashFunc)hash_query);
 
-    List list_of_queries = list_create((CompareFunc) compare_query);
+//     List list_of_queries = list_create((CompareFunc) compare_query);
 
-    for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){           //For every entry in entrylist
-        List list = entry->payload;
-        for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){ // For every query in payload
-            Query query = list_node_value(listnode);
-            if(map_find(map, query) == NULL){
-                list_insert(list_of_queries, query);
-                map_insert(map, query);
-            }
-        }
-    }
+//     for(Entry entry = get_first(entrylist); entry != NULL; entry = get_next(entrylist, entry)){           //For every entry in entrylist
+//         List list = entry->payload;
+//         for(ListNode listnode = list_first(list); listnode != NULL; listnode = list_find_next(listnode)){ // For every query in payload
+//             Query query = list_node_value(listnode);
+//             if(map_find(map, query) == NULL){
+//                 list_insert(list_of_queries, query);
+//                 map_insert(map, query);
+//             }
+//         }
+//     }
 
-    map_destroy(map, NULL);
-    return list_of_queries;
-}
-
-struct special{
-    QueryID id;
-    int times;
-};
-
-typedef struct special *Special;
-
-int comp_spec(Special s1, Special s2){
-    return s1->id - s2->id;
-}
-
-int hash_spec(Special s){
-    return s->id;
-}
+//     map_destroy(map, NULL);
+//     return list_of_queries;
+// }
 
 
-List find_complete_queries(EntryList entrylist, CompareFunc compare_query){
+// int comp_spec(Special s1, Special s2){
+//     return s1->id - s2->id;
+// }
 
-    Map map = map_create((CompareFunc)comp_spec, 1000);
-    map_set_hash_function(map, (HashFunc)hash_spec);
+// int hash_spec(Special s){
+//     return s->id;
+// }
 
-    List complete_list = list_create(compare_query);
 
-    for(ListNode listnode = list_first(entrylist); listnode != NULL; listnode = list_find_next(listnode)){
-        Entry entry = list_node_value(listnode);
+// List find_complete_queries(EntryList entrylist, CompareFunc compare_query){
+
+//     Map map = map_create((CompareFunc)comp_spec, 1000);
+//     map_set_hash_function(map, (HashFunc)hash_spec);
+
+//     List complete_list = list_create(compare_query);
+
+//     for(ListNode listnode = list_first(entrylist); listnode != NULL; listnode = list_find_next(listnode)){
+//         Entry entry = list_node_value(listnode);
         
-        for (ListNode node = list_first(entry->payload); node != NULL; node = list_find_next(node)){
-            Query query = list_node_value(node);
-            Special s1 = malloc(sizeof(*s1));
-            s1->id = query->queryID;
-            s1->times = 0;
-            Special S = map_find(map, s1);
-            if(S){
-                S->times++;
-                if(S->times == query->length){
-                    list_insert(complete_list, query);
-                }
-                free(s1);
-            } else{
-                map_insert(map, s1);
-            }
-        }
-    }
-    map_destroy(map, free);
+//         for (ListNode node = list_first(entry->payload); node != NULL; node = list_find_next(node)){
+//             Query query = list_node_value(node);
+//             Special s1 = malloc(sizeof(*s1));
+//             s1->id = query->queryID;
+//             s1->times = 0;
+//             Special S = map_find(map, s1);
+//             if(S){
+//                 S->times++;
+//                 if(S->times == query->length){
+//                     list_insert(complete_list, query);
+//                 }
+//                 free(s1);
+//             } else{
+//                 map_insert(map, s1);
+//             }
+//         }
+//     }
+//     map_destroy(map, free);
 
-    return complete_list;
+//     return complete_list;
 
-}
+// }
 
 
 Query convert_to_query(String string){ 
@@ -215,58 +210,57 @@ int hash_func(Query query){
 }
 
 
-Map map_of_queries(String filename, EntryList entrylist, CompareFunc compare_query){
+// Map map_of_queries(String filename, EntryList entrylist, CompareFunc compare_query){
     
+//     FILE *FP = fopen(filename, "r");                            // Open filename
+//     if(FP == NULL)
+//         return NULL;
 
-    FILE *FP = fopen(filename, "r");                            // Open filename
-    if(FP == NULL)
-        return NULL;
+//     size_t buffsize = MAX_QUERY_LENGTH;
+//     String buffer = NULL;
 
-    size_t buffsize = MAX_QUERY_LENGTH;
-    String buffer = NULL;
+//     size_t bytes;
 
-    size_t bytes;
+//     int num_of_queries = count_queries(filename);
+//     num_of_queries *= 1.2;
 
-    int num_of_queries = count_queries(filename);
-    num_of_queries *= 1.2;
+//     Map map = map_create( (CompareFunc) compare_query, num_of_queries);      // Create map for queries
+//     map_set_hash_function(map, (HashFunc) hash_func);
 
-    Map map = map_create( (CompareFunc) compare_query, num_of_queries);      // Create map for queries
-    map_set_hash_function(map, (HashFunc) hash_func);
+//     int i = 0;
+//     while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){        // Read file line by line
+//         i++;                                                        
+//         buffer[strlen(buffer)-1] = '\0';
+//         Query new_query = convert_to_query(buffer);                 // Create new query
+//         new_query->queryID = i-1;
+//         map_insert(map, new_query);                                 // Insert query in map
 
-    int i = 0;
-    while((bytes = getline(&buffer, &buffsize, FP)) != -1 ){        // Read file line by line
-        i++;                                                        
-        buffer[strlen(buffer)-1] = '\0';
-        Query new_query = convert_to_query(buffer);                 // Create new query
-        new_query->queryID = i-1;
-        map_insert(map, new_query);                                 // Insert query in map
+//         String *Array = Seperate_sentence(new_query);               // Get every word of query's sentence
 
-        String *Array = Seperate_sentence(new_query);               // Get every word of query's sentence
-
-        for(int i = 0; i < new_query->length; i++){                 // For every word
-            Entry e1 = create_entry(Array[i], (CompareFunc) compare_query);   // Create a new entry          
-            Entry entry = find_entry(entrylist, e1);
-            if(entry != NULL){                                      // If entry with keyword was found
-                list_insert(entry->payload, new_query);   // Inserty query in entry's payload
-                free(Array[i]);
-            } else {
-                entry = create_entry(Array[i], (CompareFunc) compare_query);  // Create new entry
-                list_insert(entry->payload, new_query);               // Add query in entry's payload
-                add_entry(entrylist, entry);                                    // Add entry in entrylist
-            }
-            List e1_payload = e1->payload;
-            list_destroy(e1_payload, NULL);                                     // Free dummy Pointers
-            free(e1);
-        }
+//         for(int i = 0; i < new_query->length; i++){                 // For every word
+//             Entry e1 = create_entry(Array[i], (CompareFunc) compare_query);   // Create a new entry          
+//             Entry entry = find_entry(entrylist, e1);
+//             if(entry != NULL){                                      // If entry with keyword was found
+//                 list_insert(entry->payload, new_query);   // Inserty query in entry's payload
+//                 free(Array[i]);
+//             } else {
+//                 entry = create_entry(Array[i], (CompareFunc) compare_query);  // Create new entry
+//                 list_insert(entry->payload, new_query);               // Add query in entry's payload
+//                 add_entry(entrylist, entry);                                    // Add entry in entrylist
+//             }
+//             List e1_payload = e1->payload;
+//             list_destroy(e1_payload, NULL);                                     // Free dummy Pointers
+//             free(e1);
+//         }
     
-        free(Array);
-    }
+//         free(Array);
+//     }
 
     
-    free(buffer);
+//     free(buffer);
     
-    fclose(FP);
+//     fclose(FP);
 
-    return map;
+//     return map;
 
-}
+// }

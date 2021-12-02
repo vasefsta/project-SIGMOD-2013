@@ -10,6 +10,7 @@
 #include "ADTIndex.h"
 #include "ADTMap.h"
 #include "ADTBKTree.h"
+#include "misc.h"
 
 unsigned int hash_function(Entry entry) {
 	return hash_string(entry->word);
@@ -61,24 +62,46 @@ ErrorCode build_entry_index(Index index, const EntryList entrylist) {
 }
 
 
-ErrorCode lookup_entry_index(Index index, String word, int threshold, EntryList result, CompareFunc compare_query) {
+ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_result, List complete_queries, CompareFunc compare_query) {
 
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST)
-        bk_find((BKTree)index->index, result, compare_query, word, threshold);
+        bk_find((BKTree)index->index, map_result, complete_queries, compare_query, word, threshold);
     else {
-        Entry entry = create_entry(word, compare_query);
-        Entry res = map_find((Map)index->index, entry);                 // Check if it exists in index      // Exact match
+        struct entry entry;
+
+        entry.word = word;
+        entry.payload = NULL;
+
+        Entry res = map_find((Map)index->index, &entry);                 // Check if it exists in index      // Exact match
         
-        if(res != NULL){                                                // If not
+        if(res != NULL) {                                                // If not
             for (ListNode node = list_first(res->payload); node != NULL; node = list_find_next(node)) {
                 Query query = list_node_value(node);
-                list_insert(entry->payload, query);
+                
+                struct special tmpspecial;
+
+                tmpspecial.query = query;
+                tmpspecial.times = 0;
+
+                Special special = map_find(map_result, &tmpspecial);
+
+                if (!special) {
+                    special = malloc(sizeof(*special));
+
+                    special->query = query;
+                    special->times = 1;
+
+                    map_insert(map_result, special);
+                
+                } else if (tmpspecial.times < tmpspecial.query->length)
+                    special->times++;
+
+                if (tmpspecial.times == tmpspecial.query->length) 
+                    list_insert(complete_queries, &query->queryID);
+                
             }   
-            add_entry(result, entry);                                     // add in entrylist
-        } else {
-            list_destroy(entry->payload, NULL);
-            free(entry);
-        }
+        } else 
+            return EC_NO_AVAIL_RES;
     }
 
     return EC_SUCCESS;

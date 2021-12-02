@@ -33,12 +33,20 @@ int compare_doc(Document doc1, Document doc2) {
     return doc1->doc_id - doc2->doc_id;
 }
 
+int comp_spec(Special s1, Special s2){
+    return s1->query->queryID - s2->query->queryID;
+}
+
 int hash_entries(Entry entry) {
     return hash_string(entry->word);
 }
 
 int hash_queries(Query query) {
     return query->queryID;
+}
+
+int hash_spec(Special s){
+    return s->query->queryID;
 }
 
 Map get_map_queries() {
@@ -57,7 +65,7 @@ Index get_index_hamming() {
     return Index_Hamming;
 }
 
-void destroy_entry_only(Entry entry){
+void destroy_entry_only(Entry entry) {
     list_destroy(entry->payload, NULL);
     free(entry);
 }
@@ -289,66 +297,43 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     String doc_str1 = strdup(doc_str);
     List list_words = deduplicated_words_map(doc_str1);
 
-    EntryList result1 = create_entry_list((CompareFunc)compare_entries);
-    EntryList result2 = create_entry_list((CompareFunc)compare_entries);
-    EntryList result3 = create_entry_list((CompareFunc)compare_entries);
+    Map map_result = map_create((CompareFunc)comp_spec, 1000);
+    map_set_hash_function(map_result, hash_spec);
+
+    List complete_queries = list_create((CompareFunc)compare_ids);
 
     int max_thres = 3;
 
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
-        lookup_entry_index(Index_Exact, doc_word, max_thres, result1, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Hamming, doc_word, max_thres, result2, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Edit, doc_word, max_thres, result3, (CompareFunc)compare_queries);   
+        lookup_entry_index(Index_Exact, doc_word, max_thres, map_result,complete_queries, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
+        lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
     }
 
-    List complete_queries1 = find_complete_queries(result1, (CompareFunc) compare_queries);
-    List complete_queries2 = find_complete_queries(result2, (CompareFunc) compare_queries);
-    List complete_queries3 = find_complete_queries(result3, (CompareFunc) compare_queries);
+    // List complete_queries1 = find_complete_queries(result1, (CompareFunc) compare_queries);
+    // List complete_queries2 = find_complete_queries(result2, (CompareFunc) compare_queries);
+    // List complete_queries3 = find_complete_queries(result3, (CompareFunc) compare_queries);
 
 
-    document->num_res = list_size(complete_queries1) + list_size(complete_queries2) + list_size(complete_queries3);
+    document->num_res = list_size(complete_queries);
 
-    QueryID *complete_ids = malloc(sizeof(QueryID)*document->num_res);
-
-    int i = 0;
-
-    for(ListNode node = list_first(complete_queries1); node != NULL; node = list_find_next(node) ){
-        int *ID = list_node_value(node);
-        complete_ids[i] = *ID;
-        i++;
-    }
-
-
-    for(ListNode node = list_first(complete_queries3); node != NULL; node = list_find_next(node) ){
-        int *ID = list_node_value(node);
-        complete_ids[i] = *ID;
-        i++;
-
-    }
-    qsort(complete_ids, i, sizeof(QueryID), (compare_ids));
-
-
-    for(ListNode node = list_first(complete_queries2); node != NULL; node = list_find_next(node) ){
-        int *ID = list_node_value(node);
-        complete_ids[i] = *ID;
-        i++;
-    }
-    qsort(complete_ids, i, sizeof(QueryID), (compare_ids));
+    document->query_ids = malloc(sizeof(QueryID)*document->num_res);
     
-    document->query_ids = complete_ids;
+    int i = 0;
+    for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
+        QueryID* queryid = list_node_value(node);
+        document->query_ids[i] = queryid;
+        i++;
+    }
 
+    qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
+    
     list_insert(doc_list, document);
 
 
-    destroy_entry_list(result1, (DestroyFunc) destroy_entry_only);
-    destroy_entry_list(result2, (DestroyFunc) destroy_entry_only);
-    destroy_entry_list(result3, (DestroyFunc) destroy_entry_only);
-
     list_destroy(list_words, free);
-    list_destroy(complete_queries1, NULL);
-    list_destroy(complete_queries2, NULL);
-    list_destroy(complete_queries3, NULL);
+    list_destroy(complete_queries, NULL);
 
     free(doc_str1);
 

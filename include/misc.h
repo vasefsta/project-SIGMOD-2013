@@ -9,6 +9,12 @@
 #include "ADTEntryList.h"
 #include "ADTMap.h"
 
+struct special{
+    Query query;
+    int times;
+};
+
+typedef struct special *Special;
 
 String path_of_doc(String namedoc);                                  // create the path of the given document
 
