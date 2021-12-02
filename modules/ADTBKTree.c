@@ -96,22 +96,44 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
 
                 tmpspecial.query = query;
                 tmpspecial.times = 0;
+                
+                printf("START MAP FIND IN BKTREE = %d\n", query->queryID);
 
                 Special special = map_find(map_result, &tmpspecial);
+
+                printf("END MAP FIND IN BKTREE = %d\n", query->queryID);
 
                 if (!special) {
                     special = malloc(sizeof(*special));
 
                     special->query = query;
                     special->times = 1;
+                    
+                    printf("START MAP INSERT IN BKTREE = %d\n", special->query->queryID);
 
                     map_insert(map_result, special);
-                
+
+                    printf("END MAP INSERT IN BKTREE = %d\n", special->query->queryID);
+
                 } else if (special->times != special->query->length)
                     special->times++;
 
-                if (special->times == special->query->length) 
-                    list_insert(complete_queries, &query->queryID);
+                if (special->times == special->query->length) {
+                    // printf("QUERYYY IDDD BKTREE = %d\n", query->queryID);
+                    ListNode node = list_find(complete_queries, &query->queryID);
+                    // printf("QUERYYY IDDD BKTREE = %d\n", query->queryID);
+
+                    if (!node) {
+                        // printf("START LIST INSERT BKTREE = %d\n", query->queryID);
+                        QueryID* queryid = malloc(sizeof(*queryid));
+
+                        *queryid = query->queryID;
+                        printf("START LIST INSERT BKTREE = %d\n", query->queryID);
+                        list_insert(complete_queries, queryid);
+                        printf("END LIST INSERT BKTREE = %d\n", query->queryID);
+
+                    }
+                }
             }
 
         }

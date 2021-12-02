@@ -34,7 +34,8 @@ int compare_doc(Document doc1, Document doc2) {
 }
 
 int comp_spec(Special s1, Special s2){
-    return s1->query->queryID - s2->query->queryID;
+    // printf("AAAAAAA = %d\t %d\t %d\n", s1->query->queryID, s2->query->queryID, (s1->query->queryID) - (s2->query->queryID));
+    return (s1->query->queryID) - (s2->query->queryID);
 }
 
 int hash_entries(Entry entry) {
@@ -304,24 +305,31 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 
     int max_thres = 3;
 
+    printf("MATCH DOCID = %d\t SIZE = %d\n", document->doc_id, document->num_res);
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
+        puts(doc_word);
         lookup_entry_index(Index_Exact, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
     }
 
+    
 
     document->num_res = list_size(complete_queries);
 
     document->query_ids = malloc(sizeof(QueryID)*document->num_res);
     
     int i = 0;
+
     for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
         QueryID* queryid = list_node_value(node);
         document->query_ids[i] = *queryid;
+
+        // printf("MATCH DOC QUERYID = %d\n", document->query_ids[i]);
         i++;
     }
+
 
     qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
     
@@ -331,6 +339,7 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     list_destroy(list_words, free);
     list_destroy(complete_queries, NULL);
 
+    map_destroy(map_result, free);
     free(doc_str1);
 
 
@@ -340,12 +349,15 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
     Document document = list_remove_first(doc_list);
 
+
     if (!document)
         return EC_NO_AVAIL_RES;
 
     *p_doc_id = document->doc_id;
     *p_num_res = document->num_res;
     QueryID* tmp = malloc(sizeof(QueryID) * document->num_res);
+
+    printf("GETNEXT QUERYID = %d\t SIZE = %d\n", document->doc_id, document->num_res);
 
     if ((*p_num_res) != 0) {
 

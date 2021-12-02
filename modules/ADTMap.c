@@ -121,7 +121,8 @@ Pointer map_find(Map map, Pointer value){
 
     while (node){                                                   // Traverse through list
         if(node->value){
-            if(!(map->compare_function(value, node->value))){       // If node->value is same as value
+            int res = (map->compare_function(value, node->value));
+            if(map->compare_function && res == 0){       // If node->value is same as value
                 return node->value;
             }
         }

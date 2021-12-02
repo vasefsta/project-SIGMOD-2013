@@ -66,7 +66,7 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
 
     if (index->matchtype == MT_EDIT_DIST || index->matchtype == MT_HAMMING_DIST)
         bk_find((BKTree)index->index, map_result, complete_queries, compare_query, word, threshold);
-    else {
+    else if (index->matchtype == MT_EXACT_MATCH) {
         struct entry entry;
 
         entry.word = word;
@@ -83,7 +83,11 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
                 tmpspecial.query = query;
                 tmpspecial.times = 0;
 
+                printf("START MAP FIND IN INDEX = %d\n", query->queryID);
+
                 Special special = map_find(map_result, &tmpspecial);
+
+                printf("END MAP FIND IN INDEX = %d\n", query->queryID);
 
                 if (!special) {
                     special = malloc(sizeof(*special));
@@ -91,19 +95,32 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
                     special->query = query;
                     special->times = 1;
 
+                    printf("START MAP INSERT IN INDEX = %d\n", special->query->queryID);
                     map_insert(map_result, special);
+                    printf("END MAP INSERT IN INDEX = %d\n", special->query->queryID);
                 
-                } else if (special->times != special->query->length){
+                } else {
                     special->times++;
                 }   
 
                 if (special->times == special->query->length) {
-                    list_insert(complete_queries, &query->queryID);
+                    // printf("QUERYYY IDDD MAP = %d\n", query->queryID);
+                    ListNode node = list_find(complete_queries, &query->queryID);
+                    // printf("QUERYYY IDDD MAP = %d\n", query->queryID);
+
+                    if (!node) {
+                        QueryID* queryid = malloc(sizeof(*queryid));
+
+                        *queryid = query->queryID;
+                        printf("START LIST INSERT MAP = %d\n", query->queryID);
+                        list_insert(complete_queries, queryid);
+                        printf("END LIST INSERT MAP = %d\n", query->queryID);
+                    }
                 }
                 
             }   
         } else 
-            return EC_NO_AVAIL_RES;
+            exit(-1);
     }
 
     return EC_SUCCESS;
