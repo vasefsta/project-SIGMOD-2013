@@ -37,6 +37,7 @@ void destroy_bk_node(BKNode node){
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           // Insert new in bktree.
 
     if(strcmp(bkparent->entry->word, new->entry->word) == 0){
+        printf("A########### %s %s\n", new->entry->word, bkparent->entry->word);
         Query query = list_node_value(list_first(new->entry->payload));
         list_insert(bkparent->entry->payload, query);
         destroy_bk_node(new);
@@ -67,6 +68,8 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
     } else {
         if(strcmp(child->entry->word, new->entry->word) == 0){                                // If entry with same words exists append the ID of new in the existing entry.
             Query query = list_node_value(list_first(new->entry->payload));
+                   printf("B########### %s %s\n", new->entry->word, child->entry->word);
+
             list_insert(child->entry->payload, query);
             destroy_bk_node(new);
             return EC_SUCCESS;
@@ -97,11 +100,9 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
                 tmpspecial.query = query;
                 tmpspecial.times = 0;
                 
-                printf("START MAP FIND IN BKTREE = %d\n", query->queryID);
 
                 Special special = map_find(map_result, &tmpspecial);
 
-                printf("END MAP FIND IN BKTREE = %d\n", query->queryID);
 
                 if (!special) {
                     special = malloc(sizeof(*special));
@@ -109,11 +110,7 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
                     special->query = query;
                     special->times = 1;
                     
-                    printf("START MAP INSERT IN BKTREE = %d\n", special->query->queryID);
-
                     map_insert(map_result, special);
-
-                    printf("END MAP INSERT IN BKTREE = %d\n", special->query->queryID);
 
                 } else if (special->times != special->query->length)
                     special->times++;
@@ -128,9 +125,7 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
                         QueryID* queryid = malloc(sizeof(*queryid));
 
                         *queryid = query->queryID;
-                        printf("START LIST INSERT BKTREE = %d\n", query->queryID);
                         list_insert(complete_queries, queryid);
-                        printf("END LIST INSERT BKTREE = %d\n", query->queryID);
 
                     }
                 }
@@ -155,25 +150,25 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
 
 Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word, Entry entry) {
     int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
-    int low_range = dist_value_parent;                                                        // Calculate ( d - n)
+    int low_range = dist_value_parent - 0;                                                        // Calculate ( d - n)
 
     if (low_range < 0)
         low_range = 0;
 
-    if (dist_value_parent == 0){                                   // if d <= n and d > 0
-        entry = bkparent->entry;
-        return bkparent->entry;
+    if( (dist_value_parent <= 0) && (dist_value_parent >= 0) ){                                   // if d <= n and d > 0
+        return bkparent->entry;                                                                   // Insert bkparent's entry in entrylist
     }
 
-    if (bkparent->children == NULL)                                                                      // If parent has no children
+    if(bkparent->children == NULL){                                                                       // If parent has no children
         return NULL;
+    }
 
     for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
         BKNode child = list_node_value(node);
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                       // Calculate d for parent and child
+        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);   // Calculate d for parent and child
 
-        if ( (dist_parent_child <= dist_value_parent) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
-            help_find_entry(child, compare, word, entry);                                             // Call recursice for child
+        if ( (dist_parent_child <= dist_value_parent + 0 ) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
+            return help_find_entry(child, compare, word, 0);                                             // Call recursice for child
     }
 
     return NULL;

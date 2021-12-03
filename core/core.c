@@ -161,40 +161,17 @@ int Insert_Query(Query query) {
         if (query->match_type == MT_EXACT_MATCH) {
             Entry entry = map_find(index_index(Index_Exact), newentry);
             if(!entry) {
-                printf("EXACT INSERT WORD = %s\n", newentry->word);
                 map_insert(index_index(Index_Exact), newentry);
             } else {
-                printf("EXACT NOT INSERT WORD = %s\n", entry->word);
                 destroy_entry(newentry);
                 list_insert(entry->payload, query);
             }
 
         } else if (query->match_type == MT_EDIT_DIST) {
-            Entry entry = NULL;
-            bk_find_entry(index_index(Index_Edit), Array[i], entry);
-
-            if (!entry) {
-                printf("EDIT INSERT WORD = %s\n", newentry->word);
-                bk_insert(index_index(Index_Edit), newentry);
-            }
-            else {
-                printf("EDIT NOT INSERT WORD = %s\n", entry->word);
-                list_insert(entry->payload, query);
-            }
+            bk_insert(index_index(Index_Edit), newentry);
 
         } else if (query->match_type == MT_HAMMING_DIST) {
-            Entry entry = NULL;
-            bk_find_entry(index_index(Index_Edit), Array[i], entry);
-
-            if (!entry) {
-                printf("HAMM INSERT WORD = %s\n", newentry->word);
-                bk_insert(index_index(Index_Hamming), newentry);
-            }
-            else {
-                printf("HAMM NOT INSERT WORD = %s\n", entry->word);
-                list_insert(entry->payload, query);
-            }
-
+            bk_insert(index_index(Index_Hamming), newentry);
         } else {
             return EC_NO_AVAIL_RES;
         }
@@ -281,7 +258,7 @@ ErrorCode EndQuery(QueryID query_id) {
         
         } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {    
             Entry entry = NULL;
-            bk_find_entry((BKTree)index_index(index), words[i], entry);
+            entry = bk_find_entry((BKTree)index_index(index), words[i], entry);
 
             if (!entry){
                 for (int i = 0; i < query->length; i++)
@@ -327,10 +304,8 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 
     int max_thres = 3;
 
-    printf("MATCH DOCID = %d\t SIZE = %d\n", document->doc_id, document->num_res);
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
-        puts(doc_word);
         lookup_entry_index(Index_Exact, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
         lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
@@ -378,8 +353,6 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
     *p_doc_id = document->doc_id;
     *p_num_res = document->num_res;
     QueryID* tmp = malloc(sizeof(QueryID) * document->num_res);
-
-    printf("GETNEXT QUERYID = %d\t SIZE = %d\n", document->doc_id, document->num_res);
 
     if ((*p_num_res) != 0) {
 
