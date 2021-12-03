@@ -153,7 +153,7 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
     return 0;
 }
 
-Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word) {
+Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word, Entry entry) {
     int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
     int low_range = dist_value_parent;                                                        // Calculate ( d - n)
 
@@ -161,22 +161,22 @@ Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word) {
         low_range = 0;
 
     if (dist_value_parent == 0){                                   // if d <= n and d > 0
+        entry = bkparent->entry;
         return bkparent->entry;
     }
 
     if (bkparent->children == NULL)                                                                      // If parent has no children
         return NULL;
 
-    Entry entry;
     for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
         BKNode child = list_node_value(node);
         int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                       // Calculate d for parent and child
 
         if ( (dist_parent_child <= dist_value_parent) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
-            entry = help_find_entry(child, compare, word);                                             // Call recursice for child
+            help_find_entry(child, compare, word, entry);                                             // Call recursice for child
     }
 
-    return entry;
+    return NULL;
 }
 
 void destroy(BKNode bknode, DestroyFunc destroy_value){                         // Destroy bknode and its value
@@ -279,14 +279,14 @@ int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc co
     return -1;
 }
 
-Entry bk_find_entry(BKTree bktree, String word) {
+Entry bk_find_entry(BKTree bktree, String word, Entry entry) {
     assert(bktree);
 
     if (bktree->type == MT_EDIT_DIST) {
         if (*bktree->root == NULL)
             return NULL;
         else 
-            return help_find_entry(*bktree->root, bktree->compare, word);     // Return result of find
+            return help_find_entry(*bktree->root, bktree->compare, word, entry);     // Return result of find
     }
     else if (bktree->type == MT_HAMMING_DIST) {
         int pos = strlen(word) - 4;
@@ -294,7 +294,7 @@ Entry bk_find_entry(BKTree bktree, String word) {
         if (bktree->root[pos] == NULL)
             return NULL;
         else 
-            return help_find_entry(bktree->root[pos], bktree->compare, word);     // Return result of find
+            return help_find_entry(bktree->root[pos], bktree->compare, word, entry);     // Return result of find
     }
 
     return NULL;

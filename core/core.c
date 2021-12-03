@@ -155,24 +155,45 @@ int Insert_Query(Query query) {
     
     String *Array = Seperate_sentence(query);
     for(int i = 0; i < query->length; i++) {
-        Entry entry = create_entry(Array[i], (CompareFunc) compare_queries);
-        list_insert(entry->payload, query);
+        Entry newentry = create_entry(Array[i], (CompareFunc) compare_queries);
+        list_insert(newentry->payload, query);
 
         if (query->match_type == MT_EXACT_MATCH) {
-            Entry node = map_find(index_index(Index_Exact), entry);
-            if(!node) {
-                map_insert(index_index(Index_Exact), entry);
+            Entry entry = map_find(index_index(Index_Exact), newentry);
+            if(!entry) {
+                printf("EXACT INSERT WORD = %s\n", newentry->word);
+                map_insert(index_index(Index_Exact), newentry);
             } else {
-                destroy_entry(entry);
-                Entry entry2 = node;
-                list_insert(entry2->payload, query);
+                printf("EXACT NOT INSERT WORD = %s\n", entry->word);
+                destroy_entry(newentry);
+                list_insert(entry->payload, query);
             }
 
         } else if (query->match_type == MT_EDIT_DIST) {
-            bk_insert(index_index(Index_Edit), entry);
+            Entry entry = NULL;
+            bk_find_entry(index_index(Index_Edit), Array[i], entry);
+
+            if (!entry) {
+                printf("EDIT INSERT WORD = %s\n", newentry->word);
+                bk_insert(index_index(Index_Edit), newentry);
+            }
+            else {
+                printf("EDIT NOT INSERT WORD = %s\n", entry->word);
+                list_insert(entry->payload, query);
+            }
 
         } else if (query->match_type == MT_HAMMING_DIST) {
-            bk_insert(index_index(Index_Hamming), entry);
+            Entry entry = NULL;
+            bk_find_entry(index_index(Index_Edit), Array[i], entry);
+
+            if (!entry) {
+                printf("HAMM INSERT WORD = %s\n", newentry->word);
+                bk_insert(index_index(Index_Hamming), newentry);
+            }
+            else {
+                printf("HAMM NOT INSERT WORD = %s\n", entry->word);
+                list_insert(entry->payload, query);
+            }
 
         } else {
             return EC_NO_AVAIL_RES;
@@ -259,7 +280,8 @@ ErrorCode EndQuery(QueryID query_id) {
             }
         
         } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {    
-            Entry entry = bk_find_entry((BKTree)index_index(index), words[i]);
+            Entry entry = NULL;
+            bk_find_entry((BKTree)index_index(index), words[i], entry);
 
             if (!entry){
                 for (int i = 0; i < query->length; i++)
