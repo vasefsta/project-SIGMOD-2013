@@ -183,7 +183,7 @@ int Insert_Query(Query query) {
 
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
-
+    puts("StartQuery...");
     int count = 0;
     String string = strdup(query_str);
     String token = strtok(string, " \t\n");
@@ -211,6 +211,7 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 }
 
 ErrorCode EndQuery(QueryID query_id) {
+    puts("EndQuery...");
     struct query tmpquery;
 
     tmpquery.queryID = query_id;
@@ -288,6 +289,7 @@ ErrorCode EndQuery(QueryID query_id) {
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
+    puts("MatchDocument...");
     Document document = malloc(sizeof(*document));
 
     document->doc_id = doc_id;
@@ -344,6 +346,7 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
+    puts("GetNextAvailRes...");
     Document document = list_remove_first(doc_list);
 
 
