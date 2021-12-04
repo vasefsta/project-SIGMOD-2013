@@ -113,7 +113,6 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
         } else
             return EC_NO_AVAIL_RES;  
     }
-
     return EC_SUCCESS;
 }
 
