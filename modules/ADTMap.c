@@ -26,7 +26,6 @@ struct map {
 
 
 Map map_create( CompareFunc compare_function, int size) {
-    size *= 1.2;
 
     Map map = malloc(sizeof(*map));                     // Allocate map
     map->size = size;

@@ -172,7 +172,7 @@ String *Seperate_sentence(Query query){
 
 List deduplicated_words_map(String doc_str){                          
 
-    Map map = map_create((CompareFunc)strcmp, MAX_DOC_LENGTH);           
+    Map map = map_create((CompareFunc)strcmp, 450);           
     map_set_hash_function(map,(HashFunc)hash_string);
 
     List list_words = list_create((CompareFunc)strcmp);

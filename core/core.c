@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "ADTIndex.h"
 #include "misc.h"
@@ -104,13 +105,13 @@ void destroy_document(Document doc){
 
 ErrorCode InitializeIndex() {
 
-    Map_Queries = map_create((CompareFunc)compare_queries, 5000);
+    Map_Queries = map_create((CompareFunc)compare_queries, 200);
     if(Map_Queries == NULL)
         return EC_NO_AVAIL_RES;
 
     map_set_hash_function(Map_Queries, (HashFunc) hash_queries);
 
-    Index_Exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 5000);
+    Index_Exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 500);
     if(Index_Exact == NULL)
         return EC_NO_AVAIL_RES;
 
@@ -302,12 +303,29 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 
     int max_thres = 3;
 
+     clock_t start, end;
+     double cpu_time_used;
+
     for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
         String doc_word = list_node_value(node);
+        // start = clock();
         lookup_entry_index(Index_Exact, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
+        // end = clock();
+        // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        // printf("Time needed by hash is %lf\n", cpu_time_used);
+        
+        // start = clock();
         lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
+        // end = clock();
+        // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        // printf("Time needed by hamming is %lf\n", cpu_time_used);
+        
+        // start = clock();
         lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
-    }
+        // end = clock();
+        // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        // printf("Time needed by edit is %lf\n", cpu_time_used);
+    }   
 
     document->num_res = list_size(complete_queries);
     
@@ -321,8 +339,15 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
         i++;
     }
 
+  //  start = clock();
     qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
-    
+    // end = clock();
+    // cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    // printf("Time needed by qsort is %lf\n", cpu_time_used);
+
+    // puts("");
+    // puts("");
+
     list_insert(doc_list, document);
 
     list_destroy(list_words, free);
