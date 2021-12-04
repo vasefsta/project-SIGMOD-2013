@@ -34,7 +34,6 @@ int compare_doc(Document doc1, Document doc2) {
 }
 
 int comp_spec(Special s1, Special s2){
-    // printf("AAAAAAA = %d\t %d\t %d\n", s1->query->queryID, s2->query->queryID, (s1->query->queryID) - (s2->query->queryID));
     return (s1->query->queryID) - (s2->query->queryID);
 }
 
@@ -105,13 +104,13 @@ void destroy_document(Document doc){
 
 ErrorCode InitializeIndex() {
 
-    Map_Queries = map_create((CompareFunc)compare_queries, 1000);
+    Map_Queries = map_create((CompareFunc)compare_queries, 5000);
     if(Map_Queries == NULL)
         return EC_NO_AVAIL_RES;
 
     map_set_hash_function(Map_Queries, (HashFunc) hash_queries);
 
-    Index_Exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 1000);
+    Index_Exact = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entries, 5000);
     if(Index_Exact == NULL)
         return EC_NO_AVAIL_RES;
 
@@ -183,7 +182,6 @@ int Insert_Query(Query query) {
 
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
-    puts("StartQuery...");
     int count = 0;
     String string = strdup(query_str);
     String token = strtok(string, " \t\n");
@@ -211,7 +209,6 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 }
 
 ErrorCode EndQuery(QueryID query_id) {
-    puts("EndQuery...");
     struct query tmpquery;
 
     tmpquery.queryID = query_id;
@@ -289,7 +286,6 @@ ErrorCode EndQuery(QueryID query_id) {
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    puts("MatchDocument...");
     Document document = malloc(sizeof(*document));
 
     document->doc_id = doc_id;
@@ -313,10 +309,8 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
         lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
     }
 
-    
-
     document->num_res = list_size(complete_queries);
-
+    
     document->query_ids = malloc(sizeof(QueryID)*document->num_res);
     
     int i = 0;
@@ -324,16 +318,12 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
         QueryID* queryid = list_node_value(node);
         document->query_ids[i] = *queryid;
-
-        // printf("MATCH DOC QUERYID = %d\n", document->query_ids[i]);
         i++;
     }
-
 
     qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
     
     list_insert(doc_list, document);
-
 
     list_destroy(list_words, free);
     list_destroy(complete_queries, NULL);
@@ -346,7 +336,6 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
-    puts("GetNextAvailRes...");
     Document document = list_remove_first(doc_list);
 
 

@@ -11,7 +11,7 @@
 
 struct special{
     Query query;
-    int times;
+    List words;
 };
 
 typedef struct special *Special;

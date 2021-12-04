@@ -81,32 +81,29 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
                 struct special tmpspecial;
 
                 tmpspecial.query = query;
-                tmpspecial.times = 0;
-
-
+                tmpspecial.words = NULL;
                 Special special = map_find(map_result, &tmpspecial);
-
 
                 if (!special) {
                     special = malloc(sizeof(*special));
 
                     special->query = query;
-                    special->times = 1;
-
+                    special->words = list_create((CompareFunc) strcmp);
+                    
                     map_insert(map_result, special);
-                
-                } else {
-                    special->times++;
-                }   
 
-                if (special->times == special->query->length) {
-                    // printf("QUERYYY IDDD MAP = %d\n", query->queryID);
-                    ListNode node = list_find(complete_queries, &query->queryID);
-                    // printf("QUERYYY IDDD MAP = %d\n", query->queryID);
+                    list_insert(special->words, entry.word);
 
-                    if (!node) {
+                    if (list_size(special->words) == special->query->length) {
+                       QueryID* queryid = malloc(sizeof(*queryid));
+                        *queryid = query->queryID;
+                        list_insert(complete_queries, queryid);
+                    }
+                } else if (!list_find(special->words, entry.word)){
+                    list_insert(special->words, entry.word);
+
+                    if (list_size(special->words) == special->query->length) {
                         QueryID* queryid = malloc(sizeof(*queryid));
-
                         *queryid = query->queryID;
                         list_insert(complete_queries, queryid);
                     }

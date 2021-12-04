@@ -37,7 +37,6 @@ void destroy_bk_node(BKNode node){
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           // Insert new in bktree.
 
     if(strcmp(bkparent->entry->word, new->entry->word) == 0){
-        // printf("A########### %s %s\n", new->entry->word, bkparent->entry->word);
         Query query = list_node_value(list_first(new->entry->payload));
         list_insert(bkparent->entry->payload, query);
         destroy_bk_node(new);
@@ -68,7 +67,6 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
     } else {
         if(strcmp(child->entry->word, new->entry->word) == 0){                                // If entry with same words exists append the ID of new in the existing entry.
             Query query = list_node_value(list_first(new->entry->payload));
-                // printf("B########### %s %s\n", new->entry->word, child->entry->word);
 
             list_insert(child->entry->payload, query);
             destroy_bk_node(new);
@@ -96,10 +94,9 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
 
             if (dist_value_parent <= query->match_dist) {
                 struct special tmpspecial;
-               printf("I am query %d with dist_value_parent %d and query_match_dist %d for %s with %s\n", query->queryID, dist_value_parent, query->match_dist, bkparent->entry->word, word);
 
                 tmpspecial.query = query;
-                tmpspecial.times = 0;
+                tmpspecial.words = NULL;
 
                 Special special = map_find(map_result, &tmpspecial);
                 
@@ -107,25 +104,24 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
                     special = malloc(sizeof(*special));
 
                     special->query = query;
-                    special->times = 1;
+                    special->words = list_create((CompareFunc) strcmp);
                     
                     map_insert(map_result, special);
 
-                } else if (special->times != special->query->length)
-                    special->times++;
+                    list_insert(special->words, bkparent->entry->word);
 
-                if (special->times == special->query->length) {
-                    // printf("QUERYYY IDDD BKTREE = %d\n", query->queryID);
-                    ListNode node = list_find(complete_queries, &query->queryID);
-                    // printf("QUERYYY IDDD BKTREE = %d\n", query->queryID);
-
-                    if (!node) {
-                        // printf("START LIST INSERT BKTREE = %d\n", query->queryID);
-                        QueryID* queryid = malloc(sizeof(*queryid));
-
+                    if (list_size(special->words) == special->query->length) {
+                       QueryID* queryid = malloc(sizeof(*queryid));
                         *queryid = query->queryID;
                         list_insert(complete_queries, queryid);
+                    }
+                } else if (!list_find(special->words, bkparent->entry->word)){
+                    list_insert(special->words, bkparent->entry->word);
 
+                    if (list_size(special->words) == special->query->length) {
+                        QueryID* queryid = malloc(sizeof(*queryid));
+                        *queryid = query->queryID;
+                        list_insert(complete_queries, queryid);
                     }
                 }
             }
