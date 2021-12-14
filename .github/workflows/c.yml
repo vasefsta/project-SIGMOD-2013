@@ -2,9 +2,9 @@ name: sigmod-2013
 
 on:
   push:
-    branches: [ part1 ]
+    branches: [ main ]
   pull_request:
-    branches: [ part1 ]
+    branches: [ main ]
 
 jobs:
   build:
