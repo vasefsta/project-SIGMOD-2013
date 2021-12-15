@@ -13,22 +13,33 @@ typedef struct listnode* ListNode;
 
 typedef struct list* List;
 
-List list_create(CompareFunc compare);                          // Return pointer to a list
+// Create an empty list.
+List list_create(CompareFunc compare);
 
-int list_size(List list);                                       // Return number of elements in list
+// Get Number of elements in list.
+int list_size(List list);
 
-ListNode list_first(List list);                                 // Return first ListNode from list
+// Get first element of list(Next of dummyNode).
+ListNode list_first(List list);                                
 
-void list_insert(List list, Pointer value);                // Insert value in list.
+// Insert value at the start of list.
+void list_insert(List list, Pointer value);
 
+// Remove node with specific value from list.
 ErrorCode list_remove(List list, DestroyFunc destroy, Pointer value);
 
+// Remove first element of list.
 Pointer list_remove_first(List list);
 
-Pointer list_node_value(ListNode node);                         // Return value of node.
+// Return the value of node.
+Pointer list_node_value(ListNode node);                         
 
-ListNode list_find(List list, Pointer value);                   // Return ListNode with value from list.
+// Return Listnode with value value if exists
+// else return NULL.
+ListNode list_find(List list, Pointer value);      
 
-ListNode list_find_next(ListNode node);                         // Return next ListNode of node.
+// Return next node of node.
+ListNode list_find_next(ListNode node);                      
 
-void list_destroy(List list, DestroyFunc destoy);               // Destroy list with destroy function.
+// Destroy every ListNode and list.
+void list_destroy(List list, DestroyFunc destoy);
