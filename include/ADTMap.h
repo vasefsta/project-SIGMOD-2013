@@ -12,19 +12,27 @@ typedef struct map* Map;
 
 typedef unsigned int (*HashFunc)(Pointer value);
 
+// Create an empty hashtable with size size and compare function.
+Map map_create(CompareFunc compare_function, int size);
 
-Map map_create(CompareFunc compare_function, int size);   // Return Pointer to a map
+// Insert value in map. Value is inserted first in the bucket.
+ErrorCode map_insert(Map map, Pointer value);             
 
-ErrorCode map_insert(Map map, Pointer value);             // Insert value in map
+// Get number of elements in map
+int map_capacity(Map map);                                
 
-int map_capacity(Map map);                                // Return number of elements in map
+// Destroy map and map_nodes with destroy
+int map_destroy(Map map, DestroyFunc destroy);                                 
 
-int map_destroy(Map map, DestroyFunc destroy);                                 // Destroy map and map_nodes with destroy
+// Find element in map with value value.
+// If such value exists return in, else returns NULL.
+Pointer map_find(Map map, Pointer value);                 
 
-Pointer map_find(Map map, Pointer value);                 // Find element in map with value value
-
+// Return node's value.
 Pointer map_node_value(MapNode node);
 
-void map_set_hash_function(Map map, HashFunc hash);       // Set hash as hashfunction of map
+// Set hash as hashfunction of map
+void map_set_hash_function(Map map, HashFunc hash);
 
-unsigned int hash_string(String value);                   // Hashfunction for strings
+// Hash function for strings
+unsigned int hash_string(String value);                   
