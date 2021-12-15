@@ -18,7 +18,7 @@ unsigned int hash_function(Entry entry) {
 }
 
 struct index {
-    Pointer index;          // Holds a Pointer to an index.               
+    Pointer index;          // Holds a Pointer to a map or a bktree.               
     MatchType matchtype;    // MT_EXACT_MATCH or MT_EDIT_DIST or MT_HAMMING_DIST.
     int size;               // Number of elements in index.
 };  

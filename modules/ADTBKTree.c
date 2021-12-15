@@ -42,7 +42,7 @@ void destroy_bk_node(BKNode node){
 
 
 // A helpful function for the bk_insert function.
-// Returns the appropriate ErrorCode.
+// Returns the appropriate EC_SUCCESS.
 ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           
     
     // If the new->entry->word and the bkparent->word are equal, then 
@@ -58,37 +58,48 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
         return EC_SUCCESS;
     }
 
-
-    if(!bkparent->children){                                                                  // If parent has no children insert new as child
+    // If parent has no children, then it creates 
+    // a new list, which will holds the children of the parent.
+    // After that it inserts new as child in the list of children.
+    if(!bkparent->children){                                                                  
         bkparent->children = list_create(NULL);
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     }
 
-    ListNode node;
-    BKNode child;
-    int dist = compare(bkparent->entry->word, new->entry->word);          // Get dist between new and bkparent
+    ListNode node;      // node that traverse the list of children
+    BKNode child;       // holds the node value which is the bknode
+    int dist = compare(bkparent->entry->word, new->entry->word);        // Get dist between new and bkparent
 
-    for (node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){   // Traverse in list of children of bkparent 
+    // Traverse in list of children of bkparent
+    for (node = list_first(bkparent->children); node != NULL; node = list_find_next(node)) {    
         child = list_node_value(node);
-        if(compare(child->entry->word, bkparent->entry->word) == dist){    // If new has same distance as child with parent get Child node
+
+        // If new has same distance as child with parent get Child node
+        if(compare(child->entry->word, bkparent->entry->word) == dist) {    
             break;
         }
     }
 
-    if(!node){                                                                                // If no child was found with such distance insert new as child of parent
+    // If no child was found with such distance 
+    // insert new as child of parent.
+    // Else:
+    // -> If entry with same word exists append the query of new in the existing entry.
+    // -> Else call recursively the insert function with chile. 
+    if(!node){                                                                                
         list_insert(bkparent->children, new);
         return EC_SUCCESS;
     } else {
-        if(strcmp(child->entry->word, new->entry->word) == 0){                                // If entry with same words exists append the ID of new in the existing entry.
-            Query query = list_node_value(list_first(new->entry->payload));
+        if(strcmp(child->entry->word, new->entry->word) == 0){                                
+            Query query = list_node_value(list_first(new->entry->payload));     // returns the query of the 
+                                                                                // new->entry->payload
 
-            list_insert(child->entry->payload, query);
-            destroy_bk_node(new);
+            list_insert(child->entry->payload, query);      // insert the query of th new->entry in the 
+                                                            // bkparent->entry->payload
+            destroy_bk_node(new);       // the new node is destroyed
             return EC_SUCCESS;
-        } else {
-            return insert(child, new, compare);                                                   // Call recursive for child and new
-        }
+        } else 
+            return insert(child, new, compare);                                                    
     }
 }
 

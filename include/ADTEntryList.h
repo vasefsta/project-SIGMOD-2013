@@ -16,8 +16,8 @@
 ***************/
 
 struct entry{
-    String word;                //Holds keyword for queries who have the same keyword
-    List payload;               //List that holds queries that have the same keyword "word"
+    String word;                // Holds keyword for queries who have the same keyword
+    List payload;               // List that holds queries that have the same keyword "word"
 };
 
 typedef struct entry* Entry;

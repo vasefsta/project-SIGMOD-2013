@@ -18,7 +18,7 @@ typedef struct bktree* BKTree;
 typedef struct bknode* BKNode;
 
 
-// Create and returns a BKTree with Matchtype = type, 
+// Create and returns an empty BKTree with Matchtype = type, 
 // (MT_HAMMING_DIST or MT_EDIT_DIST or MT_EXACT_DIST is defined in MatchType)
 // If the matchtype is wrong then it returns NULL.
 // 
