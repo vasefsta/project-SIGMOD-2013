@@ -12,50 +12,45 @@
 #include "ADTEntryList.h"
 
 
-Entry create_entry(String word, CompareFunc compare) {      
-    Entry entry = malloc(sizeof(*entry));                   // Create new entry
+Entry create_entry(String word, CompareFunc compare) {    
 
+    // Create new entry
+    Entry entry = malloc(sizeof(*entry));                   
+
+    // Assign entry_word the word.
     entry->word = word;
-    entry->payload = list_create(compare);                  // Create empty list for payload
+    // Create empty list for payload
+    entry->payload = list_create(compare);                  
 
     return entry;
 }
-
-
-
-// ErrorCode destroy_entry(Entry entry) {
-//     assert(entry);
-
-//     free(entry->word);                              
-//     list_destroy(entry->payload, NULL);
-//     free(entry);
-
-//     return EC_SUCCESS;
-// }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 EntryList create_entry_list(CompareFunc compare) {
+    // Create a new entrylist and return it.
     EntryList entrylist = list_create(compare);
-
     return entrylist;
 }
 
 
 unsigned int get_number_entries(EntryList entrylist) {
+    // return the size of entrylist.
     return list_size(entrylist);
 }
 
 
 ErrorCode add_entry(EntryList entrylist, Entry new_entry){
+    // Insert new_entry to entrylist.
     list_insert(entrylist, new_entry);
     return EC_SUCCESS;
 }
 
 
 Entry get_first(EntryList entrylist){
+    // If entrylist has entrys returns the first one else returns NULL.
     ListNode node = list_first(entrylist);
     if(node == NULL)
         return NULL;
@@ -65,10 +60,13 @@ Entry get_first(EntryList entrylist){
 
 
 Entry get_next(EntryList entrylist, Entry current_entry){
+    // Checks if entry exists in entrylist.
     ListNode node = list_find(entrylist, current_entry);
 
-    if (!node)                                      // If no node was found
+    // If no node was found return NULL.
+    if (!node)                                      
         return NULL;
+    // Else if this entry is not the last one return next entry in entrylist.
     else {
         node = list_find_next(node);
 
@@ -82,20 +80,26 @@ Entry get_next(EntryList entrylist, Entry current_entry){
 
 
 Entry find_entry(EntryList entrylist, Entry current_entry) {
+    // If an entrylist exists.
     assert(entrylist);
-
+    
+    // Check if current_entry exists in entrylist.
     ListNode node = list_find(entrylist, current_entry);
 
+    // If current_entry exists return it. 
     if (node) {
         Entry entry = list_node_value(node);
         return entry;
     } else
+        // Else return NULL.
         return NULL;
 }
 
 
 ErrorCode destroy_entry_list(EntryList entrylist, DestroyFunc destroy_value) {
+    // If an entrylist exists.
     assert(entrylist);
+    // Destroy entrylist.
     list_destroy(entrylist, (DestroyFunc)destroy_value);
     return EC_SUCCESS;
 }
