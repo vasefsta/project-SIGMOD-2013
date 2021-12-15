@@ -1,5 +1,5 @@
 /*
- *  Authors: Vasiliki Efstathiou Nikos Eftychiou
+ *  Authors: Vasiliki Efstathiou, Nikos Eftychiou
  *  File   : ADTBKTree.c     
 */
 
@@ -12,38 +12,52 @@
 #include "ADTLinkedList.h"
 #include "misc.h"
 
+
 struct bknode {
-    Entry entry;      //Entry to struct Entry
-    List children;      //List that value in nodes is a bknode
+    Entry entry;      // Holds an entry.
+    List children;      // A list that contains bknodes that are the children of a bk-parent node.
 };
 
 struct bktree {
-    BKNode* root;
-    CompareFunc compare;    //hamming or edit
-    MatchType type;
+    BKNode* root;           // It is the root of the bktree and it is NULL if bktree is empty.
+    CompareFunc compare;    // Holds a pointer to the functions edit_distance or hamming_distance.
+    MatchType type;         // The matchtype of the bktree.
 };
 
 
+// Destroys a BKNode.
 void destroy_bk_node(BKNode node){
+    // Destroys the entry
     free(node->entry->word);
     list_destroy(node->entry->payload, NULL);
+
     free(node->entry);
+    
+    // Destroys the list of children.
     if(node->children)
         list_destroy(node->children, NULL);
+    
     free(node);
 }
 
 
-ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           // Insert new in bktree.
-
+// A helpful function for the bk_insert function.
+// Returns the appropriate ErrorCode.
+ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           
+    
+    // If the new->entry->word and the bkparent->word are equal, then 
+    // the query of the new->entry, is added in the bkparent->entry->payload.
     if(strcmp(bkparent->entry->word, new->entry->word) == 0){
-        Query query = list_node_value(list_first(new->entry->payload));
-        list_insert(bkparent->entry->payload, query);
-        destroy_bk_node(new);
+        Query query = list_node_value(list_first(new->entry->payload));     // returns the query of the 
+                                                                            // new->entry->payload
+        
+        list_insert(bkparent->entry->payload, query);       // insert the query of th new->entry in the 
+                                                            // bkparent->entry->payload 
+        destroy_bk_node(new);       // the new node is destroyed
+       
         return EC_SUCCESS;
     }
 
-    int dist = compare(bkparent->entry->word, new->entry->word);          // Get dist between new and bkparent
 
     if(!bkparent->children){                                                                  // If parent has no children insert new as child
         bkparent->children = list_create(NULL);
@@ -53,6 +67,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){             
 
     ListNode node;
     BKNode child;
+    int dist = compare(bkparent->entry->word, new->entry->word);          // Get dist between new and bkparent
 
     for (node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){   // Traverse in list of children of bkparent 
         child = list_node_value(node);
@@ -222,6 +237,7 @@ BKTree bk_create(MatchType type) {
 ErrorCode bk_insert(BKTree bktree, Entry entry){
     assert(bktree);
 
+    // Important: There is only one query in the new->entry->payload.
     BKNode new = malloc(sizeof(*new));                          // Create new bknode
     new->entry = entry;
     new->children = NULL;
