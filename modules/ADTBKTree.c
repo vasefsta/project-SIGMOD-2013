@@ -104,49 +104,70 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
 }
 
 
-int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, Map map_result, List complete_queries, String word, int threshold) {         // Find entries with threshold and word
-int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
-    int low_range = dist_value_parent - threshold;                                                        // Calculate ( d - n)
-
+int find(BKNode bkparent, CompareFunc compare, CompareFunc compare_query, Map map_result, 
+List complete_queries, String word, int threshold) {         // Find entries with threshold and word.
+    // Calculate distance between word and bkparent's entry word
+    int dist_value_parent = compare(bkparent->entry->word, word);                              
+    // Calculate ( d - n)
+    int low_range = dist_value_parent - threshold;                                                        
+    
     if (low_range < 0)
         low_range = 0;
 
-    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ) {                                   // if d <= n and d > 0
-
+    // if d <= n and d > 0
+    if( (dist_value_parent <= threshold) && (dist_value_parent >= 0) ) {                                   
+        // Get payload of entry.
         List bkpayload = bkparent->entry->payload;
 
+        // For every query in entry.
         for (ListNode node = list_first(bkpayload); node != NULL; node = list_find_next(node)) {
+            //Get query.
             Query query = list_node_value(node);
 
+            // If d is <= n.
             if (dist_value_parent <= query->match_dist) {
+                // Create dummy Special.
                 struct special tmpspecial;
-
                 tmpspecial.query = query;
                 tmpspecial.words = NULL;
-
+                // Check if dummy exists in map_result.
                 Special special = map_find(map_result, &tmpspecial);
                 
+                // If special was not found.
                 if (!special) {
+                    // Create a new Special.
                     special = malloc(sizeof(*special));
-
                     special->query = query;
                     special->words = list_create((CompareFunc) strcmp);
                     
+                    // Insert it to map_result.
                     map_insert(map_result, special);
 
+                    // Insert entry->word to special->words.
                     list_insert(special->words, bkparent->entry->word);
 
+                     // If size of special words is equal to query's length 
+                    // means that the query fully matches this document.
                     if (list_size(special->words) == special->query->length) {
-                       QueryID* queryid = malloc(sizeof(*queryid));
-                        *queryid = query->queryID;
-                        list_insert(complete_queries, queryid);
-                    }
-                } else if (!list_find(special->words, bkparent->entry->word)){
-                    list_insert(special->words, bkparent->entry->word);
-
-                    if (list_size(special->words) == special->query->length) {
+                        // Create a QueryID.
                         QueryID* queryid = malloc(sizeof(*queryid));
                         *queryid = query->queryID;
+                        // Insert queryID to complete_queries list.
+                        list_insert(complete_queries, queryid);
+                    }
+                // If entry.word does not exist in special->words.
+                // We check this so we do not store duplicate words
+                // in special->words.
+                } else if (!list_find(special->words, bkparent->entry->word)){
+                    // Insert word to special->words/
+                    list_insert(special->words, bkparent->entry->word);
+                    // If size of special words is equal to query's length 
+                    // means that the query fully matches this document.
+                    if (list_size(special->words) == special->query->length) {
+                        // Create a QueryID.
+                        QueryID* queryid = malloc(sizeof(*queryid));
+                        *queryid = query->queryID;
+                        // Insert queryID to complete_queries list.
                         list_insert(complete_queries, queryid);
                     }
                 }
@@ -155,90 +176,115 @@ int dist_value_parent = compare(bkparent->entry->word, word);                   
         }
     }
 
-    if (bkparent->children == NULL)                                                                      // If parent has no children
+    // If bkparent has no children return -1.
+    if (bkparent->children == NULL)
         return -1;
 
-    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
+    // For every node in children
+    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){
+        // Get node value.
         BKNode child = list_node_value(node);
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                       // Calculate d for parent and child
-
-        if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
-            find(child, compare, compare_query, map_result, complete_queries, word, threshold);                                             // Call recursice for child
+        // Calculate distance between child and parent.
+        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                      
+        // If distance between child and oarent is <= distance between new node and parent + threshold
+        // and distance between child and parent is >= distance between new node and parent - threshold.
+        // Call function recursively with child as parent.
+        if ( (dist_parent_child <= dist_value_parent + threshold) && (dist_parent_child >= low_range))   
+            find(child, compare, compare_query, map_result, complete_queries, word, threshold);
     }
 
     return 0;
 }
 
 Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word, Entry entry) {
-    int dist_value_parent = compare(bkparent->entry->word, word);                               // Calculate distance between word and bkparent's entry word
-    int low_range = dist_value_parent - 0;                                                        // Calculate ( d - n)
+    // Calculate distance between word and bkparent's entry word
+    int dist_value_parent = compare(bkparent->entry->word, word);
+    // Calculate ( d - n)                              
+    int low_range = dist_value_parent - 0;    
 
     if (low_range < 0)
         low_range = 0;
 
-    if( (dist_value_parent <= 0) && (dist_value_parent >= 0) ){                                   // if d <= n and d > 0
-        return bkparent->entry;                                                                   // Insert bkparent's entry in entrylist
+    // if d <= n and d > 0
+    // Insert bkparent's entry in entrylist
+    if( (dist_value_parent <= 0) && (dist_value_parent >= 0) ){                                  
+        return bkparent->entry;                                                                   
     }
-
-    if(bkparent->children == NULL){                                                                       // If parent has no children
+    // If parent has no children
+    if(bkparent->children == NULL){                                                                      
         return NULL;
     }
 
-    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       // Traverse in list of children
+    // For every child of parent.
+    for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       
+        // Get listNode value.
         BKNode child = list_node_value(node);
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);   // Calculate d for parent and child
+        // Calculate d for parent and child
 
-        if ( (dist_parent_child <= dist_value_parent + 0 ) && (dist_parent_child >= low_range))    // If distance of child and parent is in range ([d-n], [d+n])
-            return help_find_entry(child, compare, word, 0);                                             // Call recursice for child
+        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);
+        // If distance of child and parent is in range ([d-n], [d+n])
+        if ( (dist_parent_child <= dist_value_parent + 0 ) && (dist_parent_child >= low_range))    
+            // Call recursice for child
+            return help_find_entry(child, compare, word, 0);                                             
     }
-
+    // If no children were found return NULL.
     return NULL;
 }
 
-void destroy(BKNode bknode, DestroyFunc destroy_value){                         // Destroy bknode and its value
+void destroy(BKNode bknode, DestroyFunc destroy_value){                        
+    // Destroy bknode and its value
     if (!bknode)
         return;
 
-    if ((bknode->children)) {                                                   // If bknode has children
-        for (ListNode node = list_first(bknode->children);                      // Traverse children
-            node != NULL;
-            node = list_find_next(node)) {
-                BKNode bknode = list_node_value(node);
-                destroy(bknode, (DestroyFunc)destroy_value);                    // Call recursive function for child
+    // If bknode has children
+    if ((bknode->children)) {                             
+        // For every child in list.                      
+        for (ListNode node = list_first(bknode->children); node != NULL; node = list_find_next(node)) {
+            // Get listNode value.
+            BKNode bknode = list_node_value(node);
+            // Destroy bknode.
+            destroy(bknode, (DestroyFunc)destroy_value);
         }
-                
-        list_destroy(bknode->children, NULL);                                   // Destroy list of children
+        // Destroy list of children
+        list_destroy(bknode->children, NULL);                                   
     } 
-
+    // If destroy function and entry exists, destroy entry.
     if (destroy_value && bknode->entry)
         destroy_value(bknode->entry);
     
+    // Free bknode.
     free(bknode);
 }
 
 
 
 BKTree bk_create(MatchType type) {
-    BKTree new_tree = malloc(sizeof(*new_tree));                                // Create new bktree
+    // Create a new bktree.
+    BKTree new_tree = malloc(sizeof(*new_tree));        
     
+    // If type is MT_EDIT_DIST.
     if (type == MT_EDIT_DIST) {
+        //Assign values.
         new_tree->compare = edit_distance;
         new_tree->root = malloc(sizeof(*new_tree->root));
-
         *(new_tree->root) = NULL;
-    }                         
+    }                 
+    // If type is MT_HAMMING_DIST.        
     else if (type == MT_HAMMING_DIST) {
+        // Assign values.
         new_tree->compare = hamming_distance;
+        // Create an array of 28 positions. (One for every available word length)
+        // and initializes it.
         new_tree->root = malloc(sizeof(*new_tree->root) * 28);
-
         for (int i = 0; i < 28; i++) 
             new_tree->root[i] = NULL;
-    }
-    else{
+    // If any other match type is given
+    // free memory and return NULL.
+    } else {      
         free(new_tree);
         return NULL;
     }
-
+    
     new_tree->type = type;
     
     return new_tree;
@@ -246,28 +292,39 @@ BKTree bk_create(MatchType type) {
 
 
 ErrorCode bk_insert(BKTree bktree, Entry entry){
+    // Important: There is only one query in the entry->payload.
+
+    // If bktree exists, continue.
     assert(bktree);
 
-    // Important: There is only one query in the new->entry->payload.
-    BKNode new = malloc(sizeof(*new));                          // Create new bknode
+    // Create a new bknode which contains the entry
+    BKNode new = malloc(sizeof(*new));                          
     new->entry = entry;
     new->children = NULL;
 
+    // If type is MT_EDIT_DIST
     if (bktree->type == MT_EDIT_DIST) {
+        // If root is NULL assign new as root.
         if (*(bktree->root) == NULL) {
             *(bktree->root) = new;
             return EC_SUCCESS;
         }
+        // If root is occupied, call insert to insert new in bktree.
         else 
             return insert(*bktree->root, new, bktree->compare);
     }
+    // If type is MT_HAMMING_DIST.
     else if (bktree->type == MT_HAMMING_DIST) {
+        // Pos starts from word length -4
+        // Because the lower length is 4.
         int pos = strlen(entry->word) - 4;
 
+        // If root is NULL assign new as root.
         if ((bktree->root[pos]) == NULL) {
             bktree->root[pos] = new;
             return EC_SUCCESS;
         }
+        // If root is occupied, call insert to insert new in bktree.
         else
             return insert(bktree->root[pos], new, bktree->compare);
     }
@@ -276,58 +333,77 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
 }
 
 int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc compare_query, String word, int n) {
+    // If bktree exists.
     assert(bktree);
     
+    // If type is MT_EDIT_DIST.
     if (bktree->type == MT_EDIT_DIST) {
+        // If root is empty return -1.
         if (*bktree->root == NULL)
             return -1;
+        // If root is not empty.
+        // call find to fill complete queries.
         else 
-            return find(*bktree->root, bktree->compare, compare_query, map_result, complete_queries, word, n);     // Return result of find
+            return find(*bktree->root, bktree->compare, compare_query, map_result, complete_queries, word, n);
     }
+    // If type is MT_HAMMING_DIST.
     else if (bktree->type == MT_HAMMING_DIST) {
+        // Pos starts from word length -4
+        // Because the lower length is 4.
         int pos = strlen(word) - 4;
-
+        // If root is NULL return -1.
         if (bktree->root[pos] == NULL)
             return -1;
+        // If root exists call find to fill complete queries.
         else 
-            return find(bktree->root[pos], bktree->compare, compare_query, map_result, complete_queries, word, n);     // Return result of find
+            return find(bktree->root[pos], bktree->compare, compare_query, map_result, complete_queries, word, n);
     }
 
     return -1;
 }
 
 Entry bk_find_entry(BKTree bktree, String word, Entry entry) {
+    // If bktree exists, continue.
     assert(bktree);
-
+    // If type is MT_EDIT_DIST.
     if (bktree->type == MT_EDIT_DIST) {
+        // If root is empty return NULL.
         if (*bktree->root == NULL)
             return NULL;
+        // If root is occupied, call insert to insert new in bktree.
         else 
-            return help_find_entry(*bktree->root, bktree->compare, word, entry);     // Return result of find
+            return help_find_entry(*bktree->root, bktree->compare, word, entry);
     }
+    // If type is MT_HAMMING_DIST.
     else if (bktree->type == MT_HAMMING_DIST) {
+        // Pos starts from word length -4
+        // Because the lower length is 4.
         int pos = strlen(word) - 4;
-
+        // If root is empty return NULL.
         if (bktree->root[pos] == NULL)
             return NULL;
+        // If root is occupied, call insert to insert new in bktree.
         else 
             return help_find_entry(bktree->root[pos], bktree->compare, word, entry);     // Return result of find
     }
-
+    // If any other match type was given, return NULL.
     return NULL;
 }
 
 
 void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
-    assert(bktree);
+    assert(bktree);     
 
+    // Call destroy to free recursively bknodes of bktree
     if (bktree->type == MT_EDIT_DIST)
-        destroy(*bktree->root, (DestroyFunc)destroy_value);                  // Call destroy to destroy bknodes of bktree
+        destroy(*bktree->root, (DestroyFunc)destroy_value);                  
     else if (bktree->type == MT_HAMMING_DIST) {
+        // Call destroy for all bktrees of the array
         for (int i = 0; i < 28; i++) 
-        destroy(bktree->root[i], (DestroyFunc)destroy_value);                  // Call destroy to destroy bknodes of bktree
+        destroy(bktree->root[i], (DestroyFunc)destroy_value);                  
     }
     
+    // Free root node and bktree.   
     free(bktree->root);
     free(bktree);
 }
