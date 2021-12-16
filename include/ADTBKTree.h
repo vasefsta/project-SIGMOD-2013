@@ -58,7 +58,7 @@ int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc co
 // -> If it does then it returns the exist entry.
 // -> If it does not then it returns NULL.
 // 
-Entry bk_find_entry(BKTree bktree, String word, Entry entry);
+Entry bk_find_entry(BKTree bktree, String word);
 
 ////////////////////////////////////////////////////////////////////////
 // Helpful functions that return the destance of value1 and value2

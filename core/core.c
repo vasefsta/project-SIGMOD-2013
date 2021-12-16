@@ -319,8 +319,7 @@ ErrorCode EndQuery(QueryID query_id) {
         } else if (query->match_type == MT_EDIT_DIST || query->match_type == MT_HAMMING_DIST) {    
             
             // Check if entry exists in index.
-            Entry entry = NULL;
-            entry = bk_find_entry((BKTree)index_index(index), words[i], entry);
+            Entry entry = bk_find_entry((BKTree)index_index(index), words[i]);
 
             //If no entry was found free words.
             if (!entry){

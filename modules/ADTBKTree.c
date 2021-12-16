@@ -196,7 +196,7 @@ List complete_queries, String word, int threshold) {         // Find entries wit
     return 0;
 }
 
-Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word, Entry entry) {
+Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word) {
     // Calculate distance between word and bkparent's entry word
     int dist_value_parent = compare(bkparent->entry->word, word);
     // Calculate ( d - n)                              
@@ -225,7 +225,7 @@ Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word, Entry e
         // If distance of child and parent is in range ([d-n], [d+n])
         if ( (dist_parent_child <= dist_value_parent + 0 ) && (dist_parent_child >= low_range))    
             // Call recursice for child
-            return help_find_entry(child, compare, word, 0);                                             
+            return help_find_entry(child, compare, word);                                             
     }
     // If no children were found return NULL.
     return NULL;
@@ -362,7 +362,7 @@ int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc co
     return -1;
 }
 
-Entry bk_find_entry(BKTree bktree, String word, Entry entry) {
+Entry bk_find_entry(BKTree bktree, String word) {
     // If bktree exists, continue.
     assert(bktree);
     // If type is MT_EDIT_DIST.
@@ -372,7 +372,7 @@ Entry bk_find_entry(BKTree bktree, String word, Entry entry) {
             return NULL;
         // If root is occupied, call insert to insert new in bktree.
         else 
-            return help_find_entry(*bktree->root, bktree->compare, word, entry);
+            return help_find_entry(*bktree->root, bktree->compare, word);
     }
     // If type is MT_HAMMING_DIST.
     else if (bktree->type == MT_HAMMING_DIST) {
@@ -384,7 +384,7 @@ Entry bk_find_entry(BKTree bktree, String word, Entry entry) {
             return NULL;
         // If root is occupied, call insert to insert new in bktree.
         else 
-            return help_find_entry(bktree->root[pos], bktree->compare, word, entry);     // Return result of find
+            return help_find_entry(bktree->root[pos], bktree->compare, word);     // Return result of find
     }
     // If any other match type was given, return NULL.
     return NULL;

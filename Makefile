@@ -45,6 +45,7 @@ clean: clean-test_driver clean-tests
 # Εκκαθάριση
 clean-test_driver:
 	$(MAKE) -C test_driver/$* clean
+	rm -f test_driver/result.txt test_driver/libcore.so
 
 clean-tests: $(addprefix clean-test_driver-, $(PROGRAMS))
 	$(MAKE) -C tests clean
