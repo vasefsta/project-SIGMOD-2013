@@ -61,7 +61,7 @@ void test_insert(void) {
 		map_insert(map, strArray[i]);		
 	}
 
-	// Test if all strings were iserted in Map
+	// Test if all strings were inserted in Map
 	for(int i = 0; i < N; i++)
 		TEST_ASSERT(map_find(map, strArray[i]) != NULL);
 
@@ -77,14 +77,6 @@ void test_insert(void) {
 	TEST_ASSERT(map_find(map, newstr) != NULL);					
 	// Test map capacity
 	TEST_ASSERT(map_capacity(map) == N+1);					
-
-    char tempstr[5] = "Goku"; 
-	
-	// Test if tempstr is not in map
-    TEST_ASSERT((map_find(map, tempstr) == NULL));				
-    
-	// Test if map capacity remained same
-	TEST_ASSERT(map_capacity(map) == N + 1);			
 
 	// Free allocated memory.
 	map_destroy(map, (DestroyFunc) destroy_word);	
@@ -110,6 +102,10 @@ void test_find(void) {
 		map_insert(map, strArray[i]);
 	}
 
+	// checks if the number of elements that inserted
+	// in the list is equal to N.
+	TEST_ASSERT(map_capacity(map) == N);
+
 	// Check if every word was inserted in map.
 	// For every word in array check if
 	// it exists in map.
@@ -132,9 +128,10 @@ void test_find(void) {
 }
 
 TEST_LIST = {
-	// List of al tests.
+	// List of all tests.
 	{ "map_create", test_create },
 	{ "map_insert", test_insert },
 	{ "map_find", test_find },
+
 	{ NULL, NULL }
 }; 

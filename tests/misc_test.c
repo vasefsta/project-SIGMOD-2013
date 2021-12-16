@@ -9,16 +9,16 @@
 #include "ADTLinkedList.h"
 
 
-int compare_query(QueryID* q1, QueryID* q2){
+int compare_query(QueryID* q1, QueryID* q2) {
     return *q1 - *q2;
 }
 
-int compare_queries(Query q1, Query q2){
+int compare_queries(Query q1, Query q2) {
   return q1->queryID - q2->queryID;
 }
 
 
-int compare_entry(Entry e1, Entry e2){
+int compare_entry(Entry e1, Entry e2) {
     return strcmp(e1->word, e2->word);
 }
 
@@ -49,7 +49,7 @@ void test_convert_to_query(void) {
   free(string);
 }
 
-void test_Seperate_Sentence(void){
+void test_Seperate_Sentence(void) {
   // Create a query with string as word.
   String string = strdup("looks watermelon winter");
   Query query = convert_to_query(string);
@@ -75,13 +75,14 @@ void test_Seperate_Sentence(void){
   // Free allocated memory.
   for(int i = 0; i < 3; i++)
     free(Array[i]);
+
   free(Array);
   free(query->words);
   free(query);
   free(string);
 }
 
-void test_Deduplicate_worsd_map(void){
+void test_Deduplicate_words_map(void){
   // Create a string to deduplicate
   String string = strdup("first second third fourth fifth sixth second seventh first second eighth ninenth fourth first");
   
@@ -155,6 +156,6 @@ void test_Deduplicate_worsd_map(void){
 TEST_LIST = {
   { "convert_to_quet", test_convert_to_query },
   { "Seperate_Sentence", test_Seperate_Sentence },
-  { "Deduplicate_words_map", test_Deduplicate_worsd_map},
+  { "Deduplicate_words_map", test_Deduplicate_words_map},
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 
