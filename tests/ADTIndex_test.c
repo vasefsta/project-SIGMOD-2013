@@ -5,6 +5,7 @@
 #include "ADTIndex.h"
 #include "ADTEntryList.h"
 #include "misc.h"
+#include "ADTBKTree.h"
 
 char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", "mall", "hospital", "hello", "world", "beautiful", "water", "music", "chocolate",
 "sunny", "beach", "summer", "winter", "autumn", "spring", "diving", "cream", "sotira", "book", "potatoes", "poetry", "athletes", "salad" , "lobster", "forest",
@@ -14,29 +15,34 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
 
-int compare_query(QueryID* q1, QueryID* q2) {
-    return *q1 - *q2;
-}
-
-int compare_special(Special s1, Special s2){
-    return s1->query->queryID - s2->query->queryID;
-}
-
+// Hash function for special.
 int hash_special(Special s1){
     return s1->query->queryID;
 }
 
+// Compare function for query ids.
+int compare_query(QueryID* q1, QueryID* q2) {                           
+    return *q1 - *q2;
+}
+
+// Compare function for specials.
+int compare_special(Special s1, Special s2){
+    return s1->query->queryID - s2->query->queryID;
+}
+
+
+//Compare function for entries.
 int compare_entry(Entry e1, Entry e2){
     return (strcmp(e1->word, e2->word));
 }
 
-
+// Destroy function for entries.
 const void destroy_entry_payload(Entry entry){
     list_destroy(entry->payload, NULL);
     free(entry);
 }
 
-
+// Destroy function for entries.
 const void destroy_entry(Entry entry) {
     free(entry->word);                              
     list_destroy(entry->payload, NULL);
@@ -45,65 +51,67 @@ const void destroy_entry(Entry entry) {
 
 
 void test_create(void) {
+    // Create an index of type MT_EDIT_DIST.
     Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entry, 0);
 
+    // Test if index is created.
     TEST_ASSERT(index != NULL);
 
+    // Free allocated memory.
     destroy_entry_index(index, NULL);
 }
 
 
 void test_build_lookup_exact(void) {
-    // EXACT
+    // Test for build_lookup for MT_EXACT_MATCH.
+
+    // Create an index of type MT_EXACT_MATCH.
     Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry, 20);
 
+    // Test if index is created.
     TEST_ASSERT(index != NULL);
 
+    // Create an empty EntryList.
     EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
+    // Add 20 entries with words from Array in the EntryList.
     int N = 20;
-
     for (int i = 0; i < N; i++) {
         Entry entry = create_entry(Array[i], NULL);
         add_entry(entrylist, entry);
     }
-
+    // Build index.
     ErrorCode errcode = build_entry_index(index, entrylist);
 
+    // Test index size.
     TEST_ASSERT(size_index(index) == N);
+    
+    // Test error code returned from function.
     TEST_ASSERT(errcode == EC_SUCCESS);
 
-    List list = list_create((CompareFunc) compare_query);
-    
-    Map map = map_create((CompareFunc) compare_special, 1000);
-    map_set_hash_function(map, hash_special);
+    // Get the index->index.
+    Map map_index = index_index(index);
 
-    for (int i = 0; i < N; i++) {
-
-
-        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
-
-        Entry entry = create_entry(strdup(Array[i]), NULL);
-
-        Entry existentry = find_entry(result, entry);
-
-        TEST_ASSERT(existentry != NULL);
-
-        destroy_entry(entry);
-
-        if(i+1 < N) {                                                       // Test for lookup entry
-            entry = create_entry(strdup(Array[i+1]), NULL);
-            existentry = find_entry(result, entry);
-            TEST_ASSERT(existentry == NULL);
-            destroy_entry(entry);
-        } 
+    for (int i = 0; i < N; i++){
+        // Create a dummy entry with word = Array[i].
+        struct entry dummyEntry;
+        dummyEntry.word = Array[i];
+        // Check if Entry with word = Array[i] exists in map_index.
+        MapNode node = map_find(map_index, &dummyEntry);
         
-        destroy_entry_list(result, NULL);
+        // Test if an entry was found
+        TEST_ASSERT(node != NULL);
+
+        // Get the found entry and test if 
+        // dummyString is the correct word.
+        String dummyString = map_node_value(node);
+        TEST_ASSERT(dummyString != NULL);
+        TEST_ASSERT(strcmp(dummyString, Array[i]) == 0);
 
     }
 
+    //Free allocated memory.
     destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
-
     destroy_entry_index(index, NULL);
 
 
@@ -111,133 +119,137 @@ void test_build_lookup_exact(void) {
 
 
 void test_build_lookup_edit(void) {
+    // Test for build_lookup for MT_EDIT_DIST.
+
+    // Create an index of type MT_EDIT_DIST.
     Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entry, 20);
 
+    // Test if index is created.
     TEST_ASSERT(index != NULL);
 
+    // Create an empty EntryList.
     EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
+    // Add 20 entries with words from Array in the EntryList.
     int N = 20;
-
     for (int i = 0; i < N; i++) {
         Entry entry = create_entry(Array[i], NULL);
         add_entry(entrylist, entry);
     }
-
-
-
+    // Build index.
     ErrorCode errcode = build_entry_index(index, entrylist);
 
+    // Test index size.
     TEST_ASSERT(size_index(index) == N);
+    
+    // Test error code returned from function.
     TEST_ASSERT(errcode == EC_SUCCESS);
 
-    for (int i = 0; i < N; i++) {
-        EntryList result = create_entry_list((CompareFunc)compare_entry);
-        
-        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
+    // Get the index->index.
+    BKTree tree = index_index(index);
 
-        Entry entry = create_entry(strdup(Array[i]), NULL);
+    for (int i = 0; i < N; i++){
+        // Check if this string is in tree.
+        Entry dummyEntry = bk_find_entry(tree, Array[i]);
 
-        Entry existentry = find_entry(result, entry);
-
-        TEST_ASSERT(existentry != NULL);
-
-        destroy_entry(entry);
-
-        if(i+1 < N) {                                               // Test for lookup entry
-            entry = create_entry(strdup(Array[i+1]), NULL);
-            existentry = find_entry(result, entry);
-            TEST_ASSERT(existentry == NULL);
-            destroy_entry(entry);
-        } 
-
-
-        destroy_entry_list(result, NULL);
-
+        // Test if dummyString exists and is the correct word.
+        TEST_ASSERT(dummyEntry != NULL);
+        TEST_ASSERT(strcmp(dummyEntry->word, Array[i]) == 0);
     }
 
-   
-    EntryList result = create_entry_list((CompareFunc)compare_entry);
-        
-    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_query);
-
-    TEST_ASSERT(get_number_entries(result) == 7);
-
-    destroy_entry_list(result, NULL);
-
+    // Free allocated memory.
     destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
-
     destroy_entry_index(index, NULL);
 
 }
 
 
 void test_build_lookup_hamming(void) {
-        Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entry, 20);
+    // Test for build_lookup for MT_HAMMING_DIST.
 
+    // Create an index of type MT_HAMMING_DIST.
+    Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entry, 20);
+
+    // Test if index is created.
     TEST_ASSERT(index != NULL);
 
+    // Create an empty EntryList.
     EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
 
+    // Add 20 entries with words from Array in the EntryList.
     int N = 20;
-
     for (int i = 0; i < N; i++) {
         Entry entry = create_entry(Array[i], NULL);
         add_entry(entrylist, entry);
     }
-
+    // Build index.
     ErrorCode errcode = build_entry_index(index, entrylist);
 
+    // Test index size.
     TEST_ASSERT(size_index(index) == N);
+    
+    // Test error code returned from function.
     TEST_ASSERT(errcode == EC_SUCCESS);
 
-    for (int i = 0; i < N; i++) {
-        EntryList result = create_entry_list((CompareFunc)compare_entry);
-        
-        lookup_entry_index(index, Array[i], 0, result, (CompareFunc)compare_query);
+    // Get the index->index.
+    BKTree tree = index_index(index);
 
-        Entry entry = create_entry(strdup(Array[i]), NULL);
+    for (int i = 0; i < N; i++){
+        // Check if this string is in tree.
+        Entry dummyEntry = bk_find_entry(tree, Array[i]);
 
-        Entry existentry = find_entry(result, entry);
-
-        TEST_ASSERT(existentry != NULL);
-
-        destroy_entry(entry);
-
-        if(i+1 < N) {                                                   // Test for lookup entry
-            entry = create_entry(strdup(Array[i+1]), NULL);
-            existentry = find_entry(result, entry);
-            TEST_ASSERT(existentry == NULL);
-            destroy_entry(entry);
-        } 
-
-        destroy_entry_list(result, NULL);
-
+        // Test if dummyString exists and is the correct word.
+        TEST_ASSERT(dummyEntry != NULL);
+        TEST_ASSERT(strcmp(dummyEntry->word, Array[i]) == 0);
     }
 
-    EntryList result = create_entry_list((CompareFunc)compare_entry);
-        
-    lookup_entry_index(index, Array[0], 4, result, (CompareFunc)compare_query);
-
-    TEST_ASSERT(get_number_entries(result) == 3);
-
-    destroy_entry_list(result, NULL);
-
-
+    // Free allocated memory.
     destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
-
     destroy_entry_index(index, NULL);
+
 }
 
+void test_lookup_entry_index_exact(void) {
+    // Test for build_lookup for MT_EXACT_MATCH.
 
+    // Create an index of type MT_EXACT_MATCH.
+    Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry, 20);
+
+    // Test if index is created.
+    TEST_ASSERT(index != NULL);
+
+     // Create an empty EntryList.
+    EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
+
+    // Add 20 entries with words from Array in the EntryList.
+    int N = 20;
+    for (int i = 0; i < N; i++) {
+        Entry entry = create_entry(Array[i], NULL);
+        add_entry(entrylist, entry);
+    }
+    // Build index.
+    ErrorCode errcode = build_entry_index(index, entrylist);
+
+    // Test index size.
+    TEST_ASSERT(size_index(index) == N);
+    
+    // Test error code returned from function.
+    TEST_ASSERT(errcode == EC_SUCCESS);
+
+    // Free allocated memory.
+    destroy_entry_list(entrylist, (DestroyFunc)destroy_entry_payload);
+    destroy_entry_index(index, NULL);
+
+
+}
 
 TEST_LIST = {
 
 	{ "index_create", test_create },
     { "index_build_lookup_exact", test_build_lookup_exact },
-    { "index_build_lookup_exact", test_build_lookup_edit },
-    { "index_build_lookup_exact", test_build_lookup_hamming },
-    // { "bktree_insert_hamming", test_insert_hamming },
+    { "index_build_lookup_edit", test_build_lookup_edit },
+    { "index_build_lookup_hamming", test_build_lookup_hamming },
+    { "index_lookup_entry_index", test_lookup_entry_index_exact },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

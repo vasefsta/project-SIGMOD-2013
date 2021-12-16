@@ -29,159 +29,132 @@ const void destroy_entry(Entry entry) {
     free(entry);
 }
 
+void test_convert_to_query(void) {
+  // Create a string and the query from this string.
+  String string = strdup("looks watermelon winter");
+  Query query = convert_to_query(string);
 
-void test_find_complete_queries(){
+  // Test if query is created;
+  TEST_ASSERT(query != NULL);
 
-  EntryList entrylist = create_entry_list((CompareFunc) compare_entry);
-
-  struct query q1 = {
-    "this test looks good",
-    4
-  };
-
-  struct query q2 = {
-    "what does this thing",
-    4
-  };
-
-  struct query q3 = {
-    "marver looks good right",
-    4
-  };
-
-
-  String word = strdup("this");
-  Entry e1 = create_entry(word, (CompareFunc) compare_query);
-  List list = e1->payload;
-  list_insert(list, &q1);
-  list_insert(list, &q2);
-  add_entry(entrylist,e1);
-
-  word = strdup("test");
-  Entry e2 = create_entry(word, (CompareFunc) compare_query);
-  list = e2->payload;
-  list_insert(list, &q1);
-  add_entry(entrylist,e2);
-
-
-  word = strdup("looks");
-  Entry e3 = create_entry(word, (CompareFunc) compare_query); 
-  list = e3->payload;
-  list_insert(list, &q1);
-  list_insert(list, &q3);
-  add_entry(entrylist,e3);
-
+  // Test query's string.
+  TEST_ASSERT(strcmp(query->words, "looks watermelon winter") == 0);
   
-  word = strdup("good");
-  Entry e4 = create_entry(word, (CompareFunc) compare_query); 
-  list = e4->payload;
-  list_insert(list, &q1);
-  list_insert(list, &q3);
-  add_entry(entrylist,e4);
+  // Test query's length.
+  TEST_ASSERT(query->length == 3);
+
+  // Free Query.
+  free(query->words);
+  free(query);
+  free(string);
+}
+
+void test_Seperate_Sentence(void){
+  // Create a query with string as word.
+  String string = strdup("looks watermelon winter");
+  Query query = convert_to_query(string);
+
+  // Test if query is created;
+  TEST_ASSERT(query != NULL);
+
+  // Test query's string.
+  TEST_ASSERT(strcmp(query->words, "looks watermelon winter") == 0);
   
+  // Test query's length.
+  TEST_ASSERT(query->length == 3);
 
-  word = strdup("marvel");
-  Entry e5 = create_entry(word, (CompareFunc) compare_query); 
-  list = e5->payload;
-  list_insert(list, &q3);
-  add_entry(entrylist,e5);
+  String *Array = Seperate_sentence(query);
+
+  // Test first element in array.
+  TEST_ASSERT(strcmp(Array[0], "looks") == 0);  
+  // Test second element in array.
+  TEST_ASSERT(strcmp(Array[1], "watermelon") == 0);  
+  // Test third element in array.
+  TEST_ASSERT(strcmp(Array[2], "winter") == 0);  
+
+  // Free allocated memory.
+  for(int i = 0; i < 3; i++)
+    free(Array[i]);
+  free(Array);
+  free(query->words);
+  free(query);
+  free(string);
+}
+
+void test_Deduplicate_worsd_map(void){
+  // Create a string to deduplicate
+  String string = strdup("first second third fourth fifth sixth second seventh first second eighth ninenth fourth first");
   
+  // Get result in list.
+  List list = deduplicated_words_map(string);
 
-
-  word = strdup("right");
-  Entry e6 = create_entry(word, (CompareFunc) compare_query); 
-  list = e6->payload;
-  list_insert(list, &q3);
-  add_entry(entrylist,e6);
-  
-
-  word = strdup("does");
-  Entry e7 = create_entry(word, (CompareFunc) compare_query);
-  list = e7->payload;
-  list_insert(list, &q2);
-  add_entry(entrylist,e7);
-
-
-
-  list = find_complete_queries(entrylist, compare_queries);
-  
   ListNode node = list_first(list);
-  Query query = list_node_value(node);
-
-  TEST_ASSERT((strcmp(q1.words,query->words) == 0 ));
-
-  node  = list_find_next(node);
-  query = list_node_value(node);
-
-  TEST_ASSERT(( strcmp(q3.words,query->words) == 0 ) );
+  // Get word from node
+  String word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "ninenth") == 0 );
+  
+  node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "eighth") == 0 );
 
   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "seventh") == 0 );
 
-  TEST_ASSERT(node == NULL);
+   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "sixth") == 0 );
 
-  list_destroy(list, NULL);
+   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "fifth") == 0 );
 
-  destroy_entry_list(entrylist, (DestroyFunc) destroy_entry);
+   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "fourth") == 0 );
 
+   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "third") == 0 );
+
+   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "second") == 0 );
+
+   node = list_find_next(node);
+  // Get word from node
+  word = list_node_value(node);
+  // Test word. 
+  TEST_ASSERT(strcmp(word, "first") == 0 );
+
+  //NULL
+
+
+  // Free allocated memory
+  free(string);
+  list_destroy(list, (DestroyFunc)free);
 }
-
-
-void test_seperate_sentence(){
-  
-  struct query q1 = {
-    "This test looks good", 
-    4
-  };
-
-  String *Array = Seperate_sentence(&q1);
-
-  for(int i = 0; i < q1.length; i++){
-    TEST_ASSERT(Array[i] != NULL);
-  }
-
-  for (int i = 0; i < q1.length; i++){
-    free(Array[i]);
-  }
-
-  free(Array);
-
-
-}
-
-
-void test_deduplicate(){
-    
-    Map map = deduplicated_words_map("../misc/documents/Document1");
-    
-    TEST_ASSERT(map != NULL);
-
-    TEST_ASSERT(map_find(map, "sotira") != NULL);
-    TEST_ASSERT(map_find(map, "micro") != NULL);
-    TEST_ASSERT(map_find(map, "music") != NULL);
-    TEST_ASSERT(map_find(map, "portrait") != NULL);
-    TEST_ASSERT(map_find(map, "book") != NULL);
-    TEST_ASSERT(map_find(map, "forest") != NULL);
-    TEST_ASSERT(map_find(map, "kiss") != NULL);
-    TEST_ASSERT(map_find(map, "hospital") != NULL);
-    TEST_ASSERT(map_find(map, "chocolate") != NULL);
-    TEST_ASSERT(map_find(map, "manager") != NULL);
-    TEST_ASSERT(map_find(map, "coffee") != NULL);
-    TEST_ASSERT(map_find(map, "basket") != NULL);
-    TEST_ASSERT(map_find(map, "somethingelse") == NULL);
-
-    TEST_ASSERT(map_capacity(map) == 12);
-
-    map_destroy(map, free);
-
-}
-
 
 
 
 TEST_LIST = {
-  { "find_complete_queries", test_find_complete_queries },
- // { "seperate_sentence", test_seperate_sentence },
-	//{ "deduplicate_map", test_deduplicate },
-
+  { "convert_to_quet", test_convert_to_query },
+  { "Seperate_Sentence", test_Seperate_Sentence },
+  { "Deduplicate_words_map", test_Deduplicate_worsd_map},
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

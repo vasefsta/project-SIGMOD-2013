@@ -25,94 +25,116 @@ unsigned int hash_function(String word) {
 	return hash_string(word);
 }
 
-// int compare_words(String stra, String strb) {
-// 	return strcmp(stra,strb);
-// }
-
 void test_create(void) {
 
+	// Create map with size 100.
 	int size = 100;
 	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
-	TEST_ASSERT(map != NULL);									// Test if map is created
-	TEST_ASSERT(map_capacity(map) == 0);						// Test if map capacity is 0
+	// Test if map is created.
+	TEST_ASSERT(map != NULL);	
+
+	// Test if map capacity is 0.
+	TEST_ASSERT(map_capacity(map) == 0);						
 	
+	// Free allocated memory of map.
 	map_destroy(map, NULL);
 }
 
 void test_insert(void) {
+	// Create map with size 100.
 	int size = 100;
 	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
 
-	TEST_ASSERT(map != NULL);									// Test if map is created
+	// Test if map is created
+	TEST_ASSERT(map != NULL);									
 
 	int N = 50;
 	String strArray[N];
 	
-	// ελεγχουμε αν υπάρχουν στο map τα στοιχεία που εισάγαμε
+	// Create an array with 50 strings
+	// and insert all strings in map.
 	for (int i = 0; i < N; i++) {
 		strArray[i] = strdup(Array[i]);
-		map_insert(map, strArray[i]);
-		TEST_ASSERT(map_find(map, strArray[i]) != NULL);		// Test if string is inserted in Map
+		map_insert(map, strArray[i]);		
 	}
 
-	TEST_ASSERT(map_capacity(map) == N);						// Test map capacity
+	// Test if all strings were iserted in Map
+	for(int i = 0; i < N; i++)
+		TEST_ASSERT(map_find(map, strArray[i]) != NULL);
+
+	// Test map capacity
+	TEST_ASSERT(map_capacity(map) == N);						
 
 	String newstr = strdup("Athens");
 
+	// Insert a new string.
 	map_insert(map, newstr);
 
-	TEST_ASSERT(map_find(map, newstr) != NULL);					// Test if new string was inserted
-	TEST_ASSERT(map_capacity(map) == N + 1);					// Test map capacity
+	// Test if new string was inserted
+	TEST_ASSERT(map_find(map, newstr) != NULL);					
+	// Test map capacity
+	TEST_ASSERT(map_capacity(map) == N+1);					
 
     char tempstr[5] = "Goku"; 
+	
+	// Test if tempstr is not in map
+    TEST_ASSERT((map_find(map, tempstr) == NULL));				
+    
+	// Test if map capacity remained same
+	TEST_ASSERT(map_capacity(map) == N + 1);			
 
-    TEST_ASSERT((map_find(map, tempstr) == NULL));				// Test if tempstr is not in map
-    TEST_ASSERT(map_capacity(map) == N + 1);					// Test if map capacity remained same
-
+	// Free allocated memory.
 	map_destroy(map, (DestroyFunc) destroy_word);	
 }
 
 
 void test_find(void) {
+	// Create map with size 100.
 	int size = 100;
 	Map map = map_create((CompareFunc)strcmp, size);
 	map_set_hash_function(map, (HashFunc)hash_function);
-
+	
+	// Test if map is created
 	TEST_ASSERT(map != NULL);
 
 	int N = 50;
 	String strArray[N];
 	
-	// ελεγχουμε αν υπάρχουν στο map τα στοιχεία που εισάγαμε
+	// Create an array with 50 strings
+	// and insert all strings in map.
 	for (int i = 0; i < N; i++) {
 		strArray[i] = strdup(Array[i]);
 		map_insert(map, strArray[i]);
 	}
 
+	// Check if every word was inserted in map.
+	// For every word in array check if
+	// it exists in map.
 	for (int i = 0; i < N; i++) {
 		String checkstr = map_find(map, strArray[i]);
-
 		TEST_ASSERT(checkstr != NULL);
 		TEST_ASSERT(!strcmp(checkstr, strArray[i]));
 	}
 
 	char tempstr[5] = "Goku"; 
-
+	// Checks if word exists in map.
+	// This word is not inserted in map!!!
     String checkstr = map_find(map, tempstr);
 
+	// Check if word was not found in map.
 	TEST_ASSERT(checkstr == NULL);
 
+	// Free allocated memory.
 	map_destroy(map, (DestroyFunc) destroy_word);	
 }
 
 TEST_LIST = {
-
+	// List of al tests.
 	{ "map_create", test_create },
 	{ "map_insert", test_insert },
 	{ "map_find", test_find },
-
-	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
+	{ NULL, NULL }
 }; 
