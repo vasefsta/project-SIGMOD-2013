@@ -17,6 +17,7 @@ char Array[93][31] = {"where", "flower", "done", "wonderful", "coffee", "shop", 
 "carribean", "spray", "hookah", "chair", "sofa", "basket", "apple", "banana", "orange", "peach", "strawberry", "blue", "pink", "yellow", "brown", "black",
 "white", "shadow", "jumbo", "public", "private", "glass", "plastic", "balcony", "floor", "plug", "piano", "electricity", "carbon", "bars", "portrait" }; 
 
+// char Queries[][] = {}
 char Hamming_Array[12][7] = {"flower","coffee","summer","autumn","winter","spring","diving","sotira","poetry",
 "forest","guitar","simple"};
 
@@ -50,8 +51,11 @@ void test_create() {
 // Initialiaze bktree with the first 50 entries from Array
 // and then checks if all of them are exist in the bktree.
 //   
-void test_insert_edit() {
-    BKTree bktree = bk_create(MT_EDIT_DIST);    // creates an empty bktree with matchtype MT_EDIT_DIST
+void test_insert() {
+
+/////////////////////////////////// checking bktree with matchtype = MT_HAMMING_DIST //////////////////////////////
+    
+    BKTree bktree = bk_create(MT_EDIT_DIST);    // creates an empty bktree 
 
     TEST_ASSERT(bktree != NULL);        // test if bktree is created
 
@@ -77,76 +81,55 @@ void test_insert_edit() {
     }
 
     bk_destroy(bktree, (DestroyFunc) destroy_entry);    // destroy bktree 
+
+
+    //////////////////////////// checking bktree with matchtype = MT_HAMMING_DIST //////////////////////////////
+
+    bktree = bk_create(MT_HAMMING_DIST);    // creates an empty bktree 
+
+    TEST_ASSERT(bktree != NULL);        // test if bktree is created
+
+    for (int i = 0; i < N; i++) {
+        entriesArray[i] = create_entry(Array[i], NULL); // initialiaze entriesArray with new entries
+        bk_insert(bktree, entriesArray[i]);     // insert an entry in bktree
+    }
+
+    for (int i = 0; i < N; i++) {
+        
+        Entry entry = bk_find_entry(bktree, entriesArray[i]->word);     // search for entry which has got word 
+                                                                        // equal to entriesArray[i]->word
+        
+        TEST_ASSERT(entry != NULL);         // checks if entry exists in bktree  
+
+        int res = compare_entry(entry, entriesArray[i]);        
+
+        TEST_ASSERT(res == 0);      // checks if entries are equal
+    }
+
+    bk_destroy(bktree, (DestroyFunc) destroy_entry);    // destroy bktree 
 }
 
-// void test_insert_hamming(){
-//     BKTree bktree = bk_create(MT_HAMMING_DIST);
+void test_find(void) {
+    BKTree bktree = bk_create(MT_EDIT_DIST);    // creates an empty bktree 
 
-//     TEST_ASSERT(bktree != NULL);                                        // Test if bktree is created
+    TEST_ASSERT(bktree != NULL);        // test if bktree is created
 
-//     int N = 50;
-//     Entry entriesArray[N];
-//     for (int i = 0; i < N; i++) {
-//         entriesArray[i] = create_entry(Array[i], NULL);
+    int N = 50;     // size of entriesArray and bktree
+    Entry entriesArray[N];      // holds entries
 
-//         bk_insert(bktree, entriesArray[i]);
-//     }
+     
+    for (int i = 0; i < N; i++) {
+        entriesArray[i] = create_entry(Array[i], NULL); // initialiaze entriesArray with new entries
+        bk_insert(bktree, entriesArray[i]);     // insert an entry in bktree
+    }
 
-//     int threshold = 0;
-
-//     for (int i = 0; i < N; i++) {
-//         EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
-        
-//         bk_find(bktree, entrylist, (CompareFunc) compare_query, entriesArray[i]->word, threshold);
-
-//         TEST_ASSERT(get_number_entries(entrylist) == 1);                // Test if entry was inserted in entrylist
-
-//         Entry entry = find_entry(entrylist, entriesArray[i]);
-
-//         TEST_ASSERT(entry != NULL);                                     // Test if it was the right entry
-
-//         list_destroy(entrylist, NULL);
-//     }
-
-
-//     Entry entry = create_entry("guitar", NULL);       // mas emfanise tis lexeis me mikos 6 pou exoun threshold =20 apo thn guitar
-//     threshold = 20;
-
-//     EntryList entrylist = create_entry_list((CompareFunc)compare_entry);
-
-//     bk_find(bktree, entrylist, (CompareFunc) compare_query, entry->word, threshold);
-
-//     // DIORTHOMA
-//     Entry entriesArrayHamming[N];
-
-//     for (int i = 0; i < 12; i++) {
-
-//         entriesArrayHamming[i] = create_entry(Hamming_Array[i], NULL);
-
-//         Entry entry = find_entry(entrylist, entriesArrayHamming[i]);
-
-//         TEST_ASSERT(entry != NULL);                                 //  Test if entry was found in entrylist
-
-//         destroy_entry(entriesArrayHamming[i]);
-//     }
-
-//     TEST_ASSERT(get_number_entries(entrylist) == 12);               // Test if entries were exactly 12 (Calculated from array before)
-
-//     bk_destroy(bktree, (DestroyFunc) destroy_entry);
-
-//     list_destroy(entrylist, NULL);
-
-//     list_destroy(entry->payload, NULL);
-
-//     free(entry);
-// }
-
-
+}
 
 TEST_LIST = {
 
 	{ "bktree_create", test_create },
-    { "bktree_insert_edit", test_insert_edit },
+    { "bktree_insert", test_insert },
+    { "bktree_find", test_find },
     // { "bktree_insert_hamming", test_insert_hamming },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL

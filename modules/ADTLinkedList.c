@@ -131,6 +131,8 @@ Pointer list_remove_first(List list) {
     // Free first node.
     free(first_node); 
 
+    list->size--;
+
     // Return it's value.
     return value;
 }
