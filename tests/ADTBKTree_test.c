@@ -7,6 +7,7 @@
 #include "acutest.h"
 #include "ADTBKTree.h"
 #include "ADTEntryList.h"
+#include "misc.h"
 
 
 // holds words that will be store in entries
@@ -37,6 +38,12 @@ const void destroy_entry(Entry entry){
     list_destroy(entry->payload, NULL);
     free(entry);
 }
+
+// Compare function for specials.
+int compare_special(Special s1, Special s2){
+    return s1->query->queryID - s2->query->queryID;
+}
+
 
 
 void test_create() {
@@ -114,14 +121,61 @@ void test_find(void) {
 
     TEST_ASSERT(bktree != NULL);        // test if bktree is created
 
-    int N = 50;     // size of entriesArray and bktree
-    Entry entriesArray[N];      // holds entries
+    // Create queries.
+    Query query1 = convert_to_query("watemelon");
+    query1->queryID = 1;
+    query1->length = 1;
+    query1->match_dist = 0;
+    query1->match_type = MT_EDIT_DIST;
 
-     
-    for (int i = 0; i < N; i++) {
-        entriesArray[i] = create_entry(Array[i], NULL); // initialiaze entriesArray with new entries
-        bk_insert(bktree, entriesArray[i]);     // insert an entry in bktree
-    }
+
+    Query query2 = convert_to_query("table fire");
+    query2->queryID = 2;
+    query2->length = 2;
+    query2->match_dist = 0;
+    query2->match_type = MT_HAMMING_DIST;
+
+    
+    Query query3 = convert_to_query("watermelon table fire");
+    query3->queryID = 3;
+    query1->length = 3;
+    query1->match_dist = 0;
+    query1->match_type = MT_EXACT_MATCH;
+
+    
+    Query query4 = convert_to_query("table work school");
+    query4->queryID = 4;
+    query1->length = 3;
+    query1->match_dist = 0;
+    query1->match_type = MT_EDIT_DIST;
+
+    Entry entry1 = create_entry("watermelon", (CompareFunc)compare_query);
+    Entry entry2 = create_entry("table", (CompareFunc)compare_query);
+    Entry entry3 = create_entry("fire", (CompareFunc)compare_query);
+    Entry entry4 = create_entry("work", (CompareFunc)compare_query);
+    Entry entry5 = create_entry("school", (CompareFunc)compare_query);
+
+    list_insert(entry1->payload, query1);
+    list_insert(entry1->payload, query3);
+
+    list_insert(entry2->payload, query2);
+    list_insert(entry2->payload, query3);
+    list_insert(entry2->payload, query4);
+
+    list_insert(entry3->payload, query2);
+    list_insert(entry3->payload, query3);
+
+    list_insert(entry4->payload, query4);
+
+    list_insert(entry5->payload, query4);
+
+
+    // Create structures that help bk_find work.
+    Map map_result = map_create((CompareFunc) compare_special, 20);
+    List complete_list = list_create((CompareFunc)compare_query);
+
+
+    bk_destroy(bktree, (DestroyFunc) destroy_entry);    // destroy bktree 
 
 }
 
