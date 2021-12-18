@@ -123,7 +123,7 @@ ErrorCode lookup_entry_index(Index index, String word, int threshold, Map map_re
                     }
 
                 }
-                // If entry.word does not exist in special->words.
+                // Check if entry.word does not exist in special->words.
                 // We check this so we do not store duplicate words
                 // in special->words.
                 else if (!list_find(special->words, entry.word)){

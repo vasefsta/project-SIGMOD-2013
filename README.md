@@ -34,6 +34,13 @@
  
 ### General Information:
 
+- Struct Special
+  Struct Special has two members. A Query and a list.
+  - The Query points to a query that partly matches a document.
+  - The list stores every matching word of a query with the document.
+    This way we know which words of the query are matching the document
+    and so we can decide if a query fully matches a document or not.
+
 - We decided to organize the code in five directories. 
   - programs : Containing the main function of program.
   - modules &nbsp; : Containing all functions needed by modules to work properly.

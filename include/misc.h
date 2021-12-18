@@ -9,9 +9,12 @@
 #include "ADTEntryList.h"
 #include "ADTMap.h"
 
+// This struct help us find very fast a query
+// that is fully matching a document.
+// Specials are stored in a map (map_result).
 struct special{
-    Query query;
-    List words;
+    Query query;                                     // Stores a Query.
+    List words;                                      // A list that holds every word we found for query from lookup_entry_index
 };
 
 typedef struct special *Special;
