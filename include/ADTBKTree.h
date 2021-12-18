@@ -19,15 +19,10 @@ typedef struct bknode* BKNode;
 
 
 // Create and returns an empty BKTree with Matchtype = type, 
-// (MT_HAMMING_DIST or MT_EDIT_DIST or MT_EXACT_DIST is defined in MatchType)
+// (MT_HAMMING_DIST or MT_EDIT_DIST is defined in MatchType)
 // If the matchtype is wrong then it returns NULL.
 // 
 BKTree bk_create(MatchType type);                                       
-
-
-// Returns the number of entries in the bktree.
-// 
-int bk_size(BKTree bktree);
 
 
 // Insert a new entry in the bktree.
@@ -40,7 +35,7 @@ int bk_size(BKTree bktree);
 ErrorCode bk_insert(BKTree bktree, Entry value);                        
 
 
-// Returns the entry that exists in the node.
+// Returns the entry that exists in the node (BKNode->entry).
 // If the entry does not exist then it returns NULL.
 // 
 Entry bk_node_value(BKNode node);                                       
@@ -52,9 +47,10 @@ Entry bk_node_value(BKNode node);
 void bk_destroy(BKTree bktree, DestroyFunc destroy);  
 
 
-// Adds entries in the entrylist which are in the space [d-n, d+n].
-// If there is no entry in the space [d-n, d+n], function returns -1,
-// else it returns 0.
+// map_result stores Special elements, complete_queries stores all QueryID's that are fully matched.
+// Searches at tree to find an entry with entry->word = word. If such entry exists then adds entry's queries
+// to map_result. If a Special element is found where Special->query->length = number of elements in Special->words
+// then the query is added in complete_queries.
 // 
 int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc compare_query, String word, int n);    
 
