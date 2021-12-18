@@ -58,7 +58,6 @@ const void destroy_query(Query query) {
 const void destroy_special(Special special) {
     list_destroy(special->words, NULL);
     free(special);
-
 }
 
 // Compare function for specials.
@@ -308,13 +307,154 @@ void test_bk_find(void) {
     destroy_entry_list(entrlylist, (DestroyFunc)NULL);
 }
 
-void test_bk_find_entry(void){
+void test_bk_find_entry_edit(void){
     // Create an empty bktree;
     BKTree bktree = bk_create(MT_EDIT_DIST);     
     TEST_ASSERT(bktree != NULL);        // Test if bktree is created.
 
      // Create queries.
-    String s = strdup("watemelon");
+    String s = strdup("watermelon");
+    Query query1 = convert_to_query(s);
+    query1->queryID = 1;
+    query1->length = 1;
+    query1->match_dist = 0;
+    query1->match_type = MT_EDIT_DIST;
+
+    free(s);
+    s = strdup("table fire");
+    Query query2 = convert_to_query(s);
+    query2->queryID = 2;
+    query2->length = 2;
+    query2->match_dist = 0;
+    query2->match_type = MT_HAMMING_DIST;
+
+    free(s);
+    s = strdup("watermelon table fire");
+    Query query3 = convert_to_query(s);
+    query3->queryID = 3;
+    query3->length = 3;
+    query3->match_dist = 0;
+    query3->match_type = MT_EXACT_MATCH;
+
+    free(s);
+    s = strdup("table work school");    
+    Query query4 = convert_to_query(s);
+    query4->queryID = 4;
+    query4->length = 3;
+    query4->match_dist = 0;
+    query4->match_type = MT_EDIT_DIST;
+    free(s);
+
+    Map map_queries = map_create((CompareFunc)compare_query, 10);
+    map_set_hash_function(map_queries, (HashFunc) hash_queries);
+    map_insert(map_queries, query1);
+    map_insert(map_queries, query2);
+    map_insert(map_queries, query3);
+    map_insert(map_queries, query4);
+
+
+    // Create the entries for entrylist.
+    Entry entry1 = create_entry("watermelon", (CompareFunc)compare_query);
+    Entry entry2 = create_entry("table", (CompareFunc)compare_query);
+    Entry entry3 = create_entry("fire", (CompareFunc)compare_query);
+    Entry entry4 = create_entry("work", (CompareFunc)compare_query);
+    Entry entry5 = create_entry("school", (CompareFunc)compare_query);
+
+    // Insert queries to entries.
+    list_insert(entry1->payload, query1);
+    list_insert(entry1->payload, query3);
+
+    list_insert(entry2->payload, query2);
+    list_insert(entry2->payload, query3);
+    list_insert(entry2->payload, query4);
+
+    list_insert(entry3->payload, query2);
+    list_insert(entry3->payload, query3);
+
+    list_insert(entry4->payload, query4);
+
+    list_insert(entry5->payload, query4);
+
+    // Create the entrylist to build bktree.
+    EntryList entrlylist = create_entry_list((CompareFunc)compare_entry);
+    add_entry(entrlylist, entry1);
+    add_entry(entrlylist, entry2);
+    add_entry(entrlylist, entry3);
+    add_entry(entrlylist, entry4);
+    add_entry(entrlylist, entry5);
+
+    // Insert entries to bk tree.
+    bk_insert(bktree, entry1);
+    bk_insert(bktree, entry2);
+    bk_insert(bktree, entry3);
+    bk_insert(bktree, entry4);
+    bk_insert(bktree, entry5);
+
+    // Check if entry with word "watermelon" exists in bktree.
+    Entry entry = bk_find_entry(bktree, "watermelon");
+    TEST_ASSERT(entry != NULL);
+    TEST_ASSERT(list_size(entry->payload) == 2);
+    ListNode listnode = list_first(entry->payload);
+    Query q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 3);
+    listnode = list_find_next(listnode);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 1);
+
+    // Check if entry with word "table" exists in bktree.
+    entry = bk_find_entry(bktree, "table");
+    TEST_ASSERT(entry != NULL);
+    TEST_ASSERT(list_size(entry->payload) == 3);
+    listnode = list_first(entry->payload);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 4);
+    listnode = list_find_next(listnode);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 3);
+    listnode = list_find_next(listnode);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 2);
+    
+    // Check if entry with word "fire" exists in bktree.
+    entry = bk_find_entry(bktree, "fire");
+    TEST_ASSERT(entry != NULL);
+    TEST_ASSERT(list_size(entry->payload) == 2);
+    listnode = list_first(entry->payload);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 3);
+    listnode = list_find_next(listnode);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 2);
+
+    // Check if entry with word "work" exists in bktree.
+    entry = bk_find_entry(bktree, "work");
+    TEST_ASSERT(entry != NULL);
+    TEST_ASSERT(list_size(entry->payload) == 1);
+    listnode = list_first(entry->payload);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 4);
+
+
+    // Check if entry with word "school" exists in bktree.
+    entry = bk_find_entry(bktree, "school");
+    TEST_ASSERT(entry != NULL);
+    TEST_ASSERT(list_size(entry->payload) == 1);
+    listnode = list_first(entry->payload);
+    q = list_node_value(listnode);
+    TEST_ASSERT(q->queryID == 4);
+
+    bk_destroy(bktree, (DestroyFunc) destroy_entry);
+    map_destroy(map_queries, (DestroyFunc) destroy_query);
+    destroy_entry_list(entrlylist, (DestroyFunc) NULL);
+}
+
+void test_bk_find_entry_hamming(void){
+    // Create an empty bktree;
+    BKTree bktree = bk_create(MT_EDIT_DIST);     
+    TEST_ASSERT(bktree != NULL);        // Test if bktree is created.
+
+     // Create queries.
+    String s = strdup("watermelon");
     Query query1 = convert_to_query(s);
     query1->queryID = 1;
     query1->length = 1;
@@ -454,7 +594,8 @@ TEST_LIST = {
 	{ "bktree_create", test_create },
     { "bktree_insert", test_insert },
     { "bktree_find",  test_bk_find },
-    { "bktree_find_entry",  test_bk_find_entry },
+    { "bktree_find_entry_edit",  test_bk_find_entry_edit },
+    { "bktree_find_entry_hamming",  test_bk_find_entry_hamming },
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 }; 

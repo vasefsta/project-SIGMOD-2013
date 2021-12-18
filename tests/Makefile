@@ -4,7 +4,7 @@
 
 ADTBKTree_test_OBJS = ADTBKTree_test.o $(MODULES)/ADTMap.o $(MODULES)/ADTBKTree.o $(MODULES)/ADTLinkedList.o $(MODULES)/ADTEntryList.o $(MISC)/misc.o
 
-# ADTIndex_test_OBJS = ADTIndex_test.o $(MODULES)/ADTIndex.o $(MODULES)/ADTMap.o $(MODULES)/ADTBKTree.o $(MODULES)/ADTLinkedList.o $(MODULES)/ADTEntryList.o $(MISC)/misc.o
+ADTIndex_test_OBJS = ADTIndex_test.o $(MODULES)/ADTIndex.o $(MODULES)/ADTMap.o $(MODULES)/ADTBKTree.o $(MODULES)/ADTLinkedList.o $(MODULES)/ADTEntryList.o $(MISC)/misc.o
 
 # misc_test_OBJS = misc_test.o $(MODULES)/ADTMap.o $(MODULES)/ADTLinkedList.o $(MISC)/misc.o $(MODULES)/ADTEntryList.o
 
