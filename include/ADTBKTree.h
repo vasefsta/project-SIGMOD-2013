@@ -35,6 +35,11 @@ BKTree bk_create(MatchType type);
 ErrorCode bk_insert(BKTree bktree, Entry value);                        
 
 
+// Returns the number of entries in the bktree.
+// 
+int bk_size(BKTree bktree);
+
+
 // Returns the entry that exists in the node (BKNode->entry).
 // If the entry does not exist then it returns NULL.
 // 

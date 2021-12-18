@@ -294,10 +294,6 @@ BKTree bk_create(MatchType type) {
     return new_tree;
 }   
 
-int bk_size(BKTree bktree) {
-    return bktree->size;
-}
-
 ErrorCode bk_insert(BKTree bktree, Entry entry){
     // Important: There is only one query in the entry->payload.
 
@@ -339,6 +335,10 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
     }
 
     return EC_FAIL;
+}
+
+int bk_size(BKTree bktree) {
+    return bktree->size;
 }
 
 int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc compare_query, String word, int n) {
