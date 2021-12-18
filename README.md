@@ -22,7 +22,7 @@
 
 ```
     cd PROJECT-SIGMOD-2013
-    make run
+    make run && cat test_driver/result.txt
     make clean
 ```
 
