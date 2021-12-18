@@ -22,6 +22,7 @@ struct bktree {
     BKNode* root;           // It is the root of the bktree and it is NULL if bktree is empty.
     CompareFunc compare;    // Holds a pointer to the functions edit_distance or hamming_distance.
     MatchType type;         // The matchtype of the bktree.
+    int size;
 };
 
 
@@ -43,7 +44,7 @@ void destroy_bk_node(BKNode node){
 
 // A helpful function for the bk_insert function.
 // Returns the appropriate EC_SUCCESS.
-ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){                           
+ErrorCode insert(BKTree bktree,BKNode bkparent, BKNode new, CompareFunc compare){                           
     
     // If the new->entry->word and the bkparent->word are equal, then 
     // the query of the new->entry, is added in the bkparent->entry->payload.
@@ -64,6 +65,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     if(!bkparent->children){                                                                  
         bkparent->children = list_create(NULL);
         list_insert(bkparent->children, new);
+        bktree->size++;
         return EC_SUCCESS;
     }
 
@@ -88,6 +90,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
     // -> Else call recursively the insert function with chile. 
     if(!node){                                                                                
         list_insert(bkparent->children, new);
+        bktree->size++;
         return EC_SUCCESS;
     } else {
         if(strcmp(child->entry->word, new->entry->word) == 0){                                
@@ -99,7 +102,7 @@ ErrorCode insert(BKNode bkparent, BKNode new, CompareFunc compare){
             destroy_bk_node(new);       // the new node is destroyed
             return EC_SUCCESS;
         } else 
-            return insert(child, new, compare);                                                    
+            return insert(bktree, child, new, compare);                                                    
     }
 }
 
@@ -286,10 +289,14 @@ BKTree bk_create(MatchType type) {
     }
     
     new_tree->type = type;
+    new_tree->size = 0;
     
     return new_tree;
 }   
 
+int bk_size(BKTree bktree) {
+    return bktree->size;
+}
 
 ErrorCode bk_insert(BKTree bktree, Entry entry){
     // Important: There is only one query in the entry->payload.
@@ -307,11 +314,12 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
         // If root is NULL assign new as root.
         if (*(bktree->root) == NULL) {
             *(bktree->root) = new;
+            bktree->size++;
             return EC_SUCCESS;
         }
         // If root is occupied, call insert to insert new in bktree.
         else 
-            return insert(*bktree->root, new, bktree->compare);
+            return insert(bktree, *bktree->root, new, bktree->compare);
     }
     // If type is MT_HAMMING_DIST.
     else if (bktree->type == MT_HAMMING_DIST) {
@@ -322,11 +330,12 @@ ErrorCode bk_insert(BKTree bktree, Entry entry){
         // If root is NULL assign new as root.
         if ((bktree->root[pos]) == NULL) {
             bktree->root[pos] = new;
+            bktree->size++;
             return EC_SUCCESS;
         }
         // If root is occupied, call insert to insert new in bktree.
         else
-            return insert(bktree->root[pos], new, bktree->compare);
+            return insert(bktree, bktree->root[pos], new, bktree->compare);
     }
 
     return EC_FAIL;

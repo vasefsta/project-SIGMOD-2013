@@ -25,6 +25,11 @@ typedef struct bknode* BKNode;
 BKTree bk_create(MatchType type);                                       
 
 
+// Returns the number of entries in the bktree.
+// 
+int bk_size(BKTree bktree);
+
+
 // Insert a new entry in the bktree.
 // -> If the new entry already exists in the bktree, then 
 // we insert the only query of the new entry in the payload of the 
