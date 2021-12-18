@@ -3,6 +3,7 @@
 #include "acutest.h"			// Απλή βιβλιοθήκη για unit testing
 
 #include "core_test.h"
+#include "misc.h"
 #include "ADTMap.h"
 #include "ADTIndex.h"
 #include "ADTEntryList.h"
@@ -25,14 +26,103 @@ void test_CreateIndex(void) {
 void test_StartQuery(void) {
     
     TEST_ASSERT(InitializeIndex() == EC_SUCCESS); 
-    TEST_ASSERT(StartQuery(1, "This query looks good", 0, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(2, "This query looks good", 0, 0) == EC_SUCCESS);
 
-    TEST_ASSERT(StartQuery(3, "This query looks good", 1, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(4, "This query looks good", 1, 0) == EC_SUCCESS);
+    struct query query;
 
-    TEST_ASSERT(StartQuery(5, "This query looks good", 2, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(6, "This query looks good", 2, 0) == EC_SUCCESS);
+    query.words = strdup("This query looks good");
+    query.length = 4;
+
+    TEST_ASSERT(StartQuery(1, query.words, 0, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(2, query.words, 0, 0) == EC_SUCCESS);
+
+    TEST_ASSERT(StartQuery(3, query.words, 1, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(4, query.words, 1, 0) == EC_SUCCESS);
+
+    TEST_ASSERT(StartQuery(5, query.words, 2, 0) == EC_SUCCESS);
+    TEST_ASSERT(StartQuery(6, query.words, 2, 0) == EC_SUCCESS);
+
+    Map map_queries = get_map_queries();
+
+    TEST_ASSERT(map_capacity(map_queries) == 6);
+
+    struct query tmpquery;
+
+    tmpquery.queryID = 1;
+    tmpquery.words = NULL;
+
+    Query existquery = map_find(map_queries, &tmpquery);
+
+    TEST_ASSERT(existquery != NULL);
+
+    TEST_ASSERT(existquery->queryID == 1);
+
+    tmpquery.queryID = 2;
+
+    existquery = map_find(map_queries, &tmpquery);
+
+    TEST_ASSERT(existquery != NULL);
+
+    TEST_ASSERT(existquery->queryID == 2);
+
+    tmpquery.queryID = 3;
+
+    existquery = map_find(map_queries, &tmpquery);
+
+    TEST_ASSERT(existquery != NULL);
+
+    TEST_ASSERT(existquery->queryID == 3);
+
+
+    tmpquery.queryID = 4;
+
+    existquery = map_find(map_queries, &tmpquery);
+
+    TEST_ASSERT(existquery != NULL);
+
+    TEST_ASSERT(existquery->queryID == 4);
+
+
+    tmpquery.queryID = 5;
+
+    existquery = map_find(map_queries, &tmpquery);
+
+    TEST_ASSERT(existquery != NULL);
+
+    TEST_ASSERT(existquery->queryID == 5);
+
+
+    tmpquery.queryID = 6;
+
+    existquery = map_find(map_queries, &tmpquery);
+
+    TEST_ASSERT(existquery != NULL);
+
+    TEST_ASSERT(existquery->queryID == 6);
+
+    
+
+    Map map = index_index(get_index_edit());
+
+    String* wordsarr = Seperate_sentence(&query);
+
+    for (int i = 0; i < 4; i++) {
+        struct entry entry;
+
+        entry.word = wordsarr[i];
+        entry.payload = NULL;
+
+        Entry existentry = map_find(map, &entry);
+
+        query.queryID = 1;
+
+        ListNode res = list_find(existentry->payload, &query);
+
+        TEST_ASSERT(res != NULL);
+
+    }
+
+
+
 
     TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
 
