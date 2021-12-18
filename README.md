@@ -45,7 +45,7 @@
 ### Notes: 
 
 - With list_test both ADTLinkedList and ADTEntryList are being checked.
-- EndQuery removes thr query from all entries that this query exists. It does not remove the entry from index.
+- EndQuery removes the query from all entries that this query exists. It does not remove the entry from index.
 
 ### References
 
