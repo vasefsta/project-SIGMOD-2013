@@ -62,8 +62,8 @@ void test_create(void) {
 }
 
 
+// Test for build_lookup for MT_EXACT_MATCH.
 void test_build_lookup_exact(void) {
-    // Test for build_lookup for MT_EXACT_MATCH.
 
     // Create an index of type MT_EXACT_MATCH.
     Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry, 20);
@@ -118,8 +118,8 @@ void test_build_lookup_exact(void) {
 }
 
 
+// Test for build_lookup for MT_EDIT_DIST.
 void test_build_lookup_edit(void) {
-    // Test for build_lookup for MT_EDIT_DIST.
 
     // Create an index of type MT_EDIT_DIST.
     Index index = create_index(MT_EDIT_DIST, (CompareFunc)compare_entry, 20);
@@ -164,8 +164,8 @@ void test_build_lookup_edit(void) {
 }
 
 
+// Test for build_lookup for MT_HAMMING_DIST.
 void test_build_lookup_hamming(void) {
-    // Test for build_lookup for MT_HAMMING_DIST.
 
     // Create an index of type MT_HAMMING_DIST.
     Index index = create_index(MT_HAMMING_DIST, (CompareFunc)compare_entry, 20);
@@ -209,8 +209,8 @@ void test_build_lookup_hamming(void) {
 
 }
 
+// Test for build_lookup for MT_EXACT_MATCH.
 void test_lookup_entry_index_exact(void) {
-    // Test for build_lookup for MT_EXACT_MATCH.
 
     // Create an index of type MT_EXACT_MATCH.
     Index index = create_index(MT_EXACT_MATCH, (CompareFunc)compare_entry, 20);
