@@ -8,6 +8,7 @@
 #include "ADTMap.h"
 #include "ADTBKTree.h"
 #include "core.h"
+#include "jobscheduler.h"
 
 struct document {
 	DocID doc_id;
@@ -25,6 +26,7 @@ Map Map_Queries;
 
 List doc_list;
 
+JobScheduler jscheduler;
 
 int compare_entries(Entry e1, Entry e2) {                                       // Compare entries words.
     return strcmp(e1->word, e2->word);
@@ -144,6 +146,8 @@ ErrorCode InitializeIndex() {
     doc_list = list_create((CompareFunc)compare_doc);
     if (doc_list == NULL)
         return EC_NO_AVAIL_RES;
+
+    jscheduler = initialize_scheduler(4);
 
     return EC_SUCCESS;
 }
@@ -353,16 +357,16 @@ ErrorCode EndQuery(QueryID query_id) {
     return EC_SUCCESS;
 }
 
-ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    
+void* help_MatchDocument (void* tmpjob) {
+    Job job = tmpjob;
     // Create a new document.
     Document document = malloc(sizeof(*document));
-    document->doc_id = doc_id;
+    document->doc_id = job->doc_id;
     document->num_res = 0;
     document->query_ids = NULL;
 
     // Get document's string.
-    String doc_str1 = strdup(doc_str);
+    String doc_str1 = strdup(job->doc_str);
 
     // list_words contains every word of document's string and but has no duplicate strings.
     List list_words = deduplicated_words_map(doc_str1);
@@ -420,7 +424,21 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     free(doc_str1);
 
 
-    return EC_SUCCESS;
+    job->errcode = EC_SUCCESS;
+    
+    return job;
+}
+
+ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
+    struct job job;
+
+    job.doc_id = doc_id;
+    job.doc_str = doc_str;
+    job.errcode = EC_FAIL;
+   
+    help_MatchDocument(&job);
+
+    return job.errcode;
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {

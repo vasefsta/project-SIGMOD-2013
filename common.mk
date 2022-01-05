@@ -49,7 +49,7 @@ CORE := $(MY_PATH)core
 #
 # Το override επιτρέπει την προσθήκη επιπλέον παραμέτρων από τη γραμμή εντολών: make CFLAGS=...
 #
-override CFLAGS += -O3 -g -Wall -MMD -I$(INCLUDE) -DEXACT -fPIC
+override CFLAGS += -O3 -g -Wall -MMD -I$(INCLUDE) -DEXACT -fPIC 
 override CXXFLAGS = $(CFLAGS)
 
 
@@ -67,8 +67,8 @@ ifneq (,$(findstring coverage,$(MAKECMDGOALS)))
 endif
 
 # compiler
-CC = gcc  -fno-stack-protector 
-CXX = g++
+CC = gcc  -fno-stack-protector -lpthread
+CXX = g++ -lpthread
 
 # Λίστα με όλα τα εκτελέσιμα  για τα οποία υπάρχει μια μεταβλητή <foo>_OBJS
 WITH_OBJS := $(subst _OBJS,,$(filter %_OBJS,$(.VARIABLES)))
