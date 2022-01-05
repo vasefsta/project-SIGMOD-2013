@@ -265,26 +265,9 @@ void test_EndQuery(void) {
     TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
 }
 
-void test_MatchDocument(void) {
-
-    TEST_ASSERT(InitializeIndex() == EC_SUCCESS); 
-    
-    TEST_ASSERT(StartQuery(1, "This query looks good", 0, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(2, "This query looks good", 0, 0) == EC_SUCCESS);
 
 
-    TEST_ASSERT(StartQuery(3, "This query looks good", 1, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(4, "This query looks good", 1, 0) == EC_SUCCESS);
-
-    TEST_ASSERT(StartQuery(5, "This query looks good", 2, 0) == EC_SUCCESS);
-    TEST_ASSERT(StartQuery(6, "This query looks good", 2, 0) == EC_SUCCESS);
-
-    TEST_ASSERT(MatchDocument(1, "This were lovely query good looks") == EC_SUCCESS);
-
-    TEST_ASSERT(DestroyIndex() == EC_SUCCESS);
-}
-
-void test_GetNextAvailRes(void) {
+void test_MatchDocument_GetNextAvailRes(void) {
     // check if all queries were inserted in the complete list  
     TEST_ASSERT(InitializeIndex() == EC_SUCCESS); 
     
@@ -354,8 +337,7 @@ TEST_LIST = {
 	{ "CreateIndex", test_CreateIndex },
     { "StartQuery", test_StartQuery },
     { "EndQuery", test_EndQuery},
-    { "MatchDocument", test_MatchDocument},
-    { "GetNextAvailRes", test_GetNextAvailRes},
+    { "MatchDocument&GetNextAvailRes", test_MatchDocument_GetNextAvailRes},
 
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 };
