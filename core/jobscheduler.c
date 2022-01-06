@@ -50,8 +50,16 @@ void submit_job(JobScheduler sch, Job j) {
     }
 
     list_insert(sch->queue, j);
+
+   
     
     if (pthread_mutex_unlock(&(sch->mtx_queue))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
+    }
+
+     if (pthread_cond_signal(&(sch->queue_not_empty))) {
         perror(" ");
         j->errcode = EC_FAIL;
         return ;
@@ -70,12 +78,7 @@ void submit_job(JobScheduler sch, Job j) {
         j->errcode = EC_FAIL;
         return ;  
     }
-
-    if (pthread_cond_signal(&(sch->queue_not_empty))) {
-        perror(" ");
-        j->errcode = EC_FAIL;
-        return ;
-    }
+    
     j->errcode = EC_SUCCESS;
 }
 

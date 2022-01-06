@@ -113,7 +113,6 @@ int compare_queries(Query q1, Query q2) {                                       
 }
 
 ErrorCode InitializeIndex() {
-    puts("Entering IinitializeIndex");
 
     // Creates the map that will store all queries.
     Map_Queries = map_create((CompareFunc)compare_queries, 200);
@@ -153,8 +152,6 @@ ErrorCode InitializeIndex() {
     jscheduler = malloc(sizeof(*jscheduler));
 
     initialize_scheduler(4, jscheduler);
-
-    puts("Leaving IinitializeIndex");
 
     return EC_SUCCESS;
 }
@@ -384,19 +381,20 @@ ErrorCode EndQuery(QueryID query_id) {
 
 void* help_MatchDocument (void* tmpjob) {
     puts("Entering help_matchdocument");
-    while(1) {
+    while(!(jscheduler->finish == 1 && jscheduler->counter == 0)) {
         puts("Hey");
         pthread_mutex_lock(&(jscheduler->mtx_queue));
         puts("Hello");
+
         pthread_cond_wait(&(jscheduler->queue_not_empty), &(jscheduler->mtx_queue));
+        pthread_mutex_unlock(&(jscheduler->mtx_queue));
         puts("Bonjour");
-
-        if(jscheduler->finish == 1 && jscheduler->counter == 0)
-            break;
-
-        puts("AAAAA");
+        
         pthread_mutex_lock(&(jscheduler->mtx_queue));
+        
         puts("BBBB");
+
+        // Mpori na theli elegxo edo
         Job job = list_remove_first(jscheduler->queue);
 
         pthread_mutex_unlock(&(jscheduler->mtx_queue));
