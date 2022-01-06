@@ -6,8 +6,7 @@
 #include "jobscheduler.h"
 #include "core.h"
 
-JobScheduler initialize_scheduler(int execution_threads) {
-    JobScheduler jscheduler = malloc(sizeof(struct jobscheduler));
+void initialize_scheduler(int execution_threads, JobScheduler jscheduler) {
     jscheduler->exec_threads = execution_threads;
 
     jscheduler->tids = malloc(sizeof(pthread_t)*execution_threads);
@@ -40,7 +39,6 @@ JobScheduler initialize_scheduler(int execution_threads) {
 
     execute_all_jobs(jscheduler);
 
-    return jscheduler;
 }
 
 

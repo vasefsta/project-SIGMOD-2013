@@ -24,7 +24,7 @@ typedef struct jobscheduler* JobScheduler;
 
 typedef struct job* Job;
 
-JobScheduler initialize_scheduler(int execution_threads);
+void initialize_scheduler(int execution_threads, JobScheduler jscheduler);
 
 void submit_job(JobScheduler sch, Job j);
 

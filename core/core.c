@@ -150,7 +150,9 @@ ErrorCode InitializeIndex() {
     if (doc_list == NULL)
         return EC_NO_AVAIL_RES;
 
-    jscheduler = initialize_scheduler(4);
+    jscheduler = malloc(sizeof(*jscheduler));
+
+    initialize_scheduler(4, jscheduler);
 
     puts("Leaving IinitializeIndex");
 
@@ -185,7 +187,6 @@ ErrorCode DestroyIndex() {
 
 // Inserts the query in Index_Exact or Index_Edit or Index_Hamming based on query->match_type.
 int Insert_Query(Query query) {
-    puts("Entering InsertQuery");
 
 
     // Array stores every word of query.
@@ -231,14 +232,11 @@ int Insert_Query(Query query) {
     // Free allocated memory for Array.
     free(Array);
 
-    puts("Leaving InsertQuery");
-
     return EC_SUCCESS;
 }
 
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
-    puts("Entering StartQuery");
     //Lock mutex_counter to check jscheduler->counter
     pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
     // If couter is > 0 means that a thread did not finish from its routine so we wait.
@@ -278,13 +276,10 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
     // Inserts Query to the right index.
     Insert_Query(query);
 
-    puts("LeavingStartQuery");
-
     return EC_SUCCESS;
 }
 
 ErrorCode EndQuery(QueryID query_id) {
-    puts("Entering EndQuery");
     //Lock mutex_counter to check jscheduler->counter
     pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
 
@@ -384,9 +379,6 @@ ErrorCode EndQuery(QueryID query_id) {
         free(words[i]);
 
     free(words);
-
-    puts("Leaving EndQuery");
-
     return EC_SUCCESS;
 }
 
@@ -402,8 +394,9 @@ void* help_MatchDocument (void* tmpjob) {
         if(jscheduler->finish == 1 && jscheduler->counter == 0)
             break;
 
+        puts("AAAAA");
         pthread_mutex_lock(&(jscheduler->mtx_queue));
-
+        puts("BBBB");
         Job job = list_remove_first(jscheduler->queue);
 
         pthread_mutex_unlock(&(jscheduler->mtx_queue));
