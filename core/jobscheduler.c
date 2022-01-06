@@ -12,47 +12,113 @@ JobScheduler initialize_scheduler(int execution_threads) {
 
     jscheduler->tids = malloc(sizeof(pthread_t)*execution_threads);
 
-    // for (int i = 0; i < execution_threads; i++) {                  
-    //     puts("HELLO");
-    //     printf("%d %d\n", i, execution_threads);
-    //     if (pthread_create(&(jscheduler->tids[i]), 0, help_MatchDocument, 0)) {         // Δημιουργεία του i Thread 
-    //         perror(" ");
-    //         exit(-1);
-    //     }
-    // }
     jscheduler->queue = list_create(NULL);
 
-    if (pthread_mutex_init(&(jscheduler->mtx), 0)) {
+    if (pthread_mutex_init(&(jscheduler->mtx_counter), 0)) {
         perror(" ");
         exit(-1);
     }
 
-    if (pthread_cond_init(&(jscheduler->cond_wakeup), 0)) {
+    if (pthread_mutex_init(&(jscheduler->mtx_queue), 0)) {
         perror(" ");
         exit(-1);
     }
 
-    if (pthread_cond_init(&(jscheduler->cond_sleep), 0)) {
+    if (pthread_cond_init(&(jscheduler->queue_not_empty), 0)) {
         perror(" ");
         exit(-1);
     }
+
+    if (pthread_cond_init(&(jscheduler->threads_finished), 0)) {
+        perror(" ");
+        exit(-1);
+    }
+
+    jscheduler->counter = 0;
+
+    jscheduler->finish = 0;
+
+    execute_all_jobs(jscheduler);
 
     return jscheduler;
 }
 
 
-int submit_job(JobScheduler sch, Job j) {
-    return -1;
+void submit_job(JobScheduler sch, Job j) {
+    if (pthread_mutex_lock(&(sch->mtx_queue))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
+    }
+
+    list_insert(sch->queue, j);
+    
+    if (pthread_mutex_unlock(&(sch->mtx_queue))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
+    }
+   
+    if (pthread_mutex_lock(&(sch->mtx_counter))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
+    }
+
+    sch->counter++;
+    
+    if (pthread_mutex_unlock(&(sch->mtx_counter))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;  
+    }
+
+    if (pthread_cond_signal(&(sch->queue_not_empty))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
+    }
+    j->errcode = EC_SUCCESS;
 }
 
 int execute_all_jobs(JobScheduler sch) {
-    return -1;
+    for (int i = 0; i < sch->exec_threads; i++) {                  
+        if (pthread_create(&(sch->tids[i]), 0, help_MatchDocument, 0)) {         // Create i nth thread.
+            perror(" ");
+            exit(-1);
+        }
+    }
+
+    return 0;
 }
 
 int wait_all_tasks_finish(JobScheduler sch) {
-    return -1;
+    pthread_cond_broadcast(&(sch->queue_not_empty));
+    for (int i = 0; i < sch->exec_threads; i++)
+        if (pthread_join(sch->tids[i], 0)) {
+            perror(" ");
+            return EC_FAIL;
+        }
+
+    return EC_SUCCESS;
 }
 
-int destroy_scheduler(JobScheduler sch) {
-    return -1;
+ErrorCode destroy_scheduler(JobScheduler sch) {
+    sch->finish = 1;
+
+    if (wait_all_tasks_finish(sch) == EC_FAIL) 
+        return EC_FAIL;
+    
+    pthread_cond_destroy(&(sch->queue_not_empty));
+	pthread_cond_destroy(&(sch->threads_finished));
+	pthread_mutex_destroy(&(sch->mtx_counter));
+	pthread_mutex_destroy(&(sch->mtx_queue));
+
+    list_destroy(sch->queue, NULL);
+
+    free(sch->tids);
+
+    free(sch);
+
+    return EC_SUCCESS;
 }

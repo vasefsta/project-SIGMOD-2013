@@ -5,9 +5,12 @@ struct jobscheduler{
     int exec_threads; // number of execution threads
     List queue; // a queue that holds submitted jobs / tasks
     pthread_t* tids; // execution threads
-    pthread_mutex_t mtx;
-    pthread_cond_t cond_wakeup;
-    pthread_cond_t cond_sleep;
+    pthread_mutex_t mtx_queue;
+    pthread_mutex_t mtx_counter;
+    int counter;
+    int finish;
+    pthread_cond_t queue_not_empty;
+    pthread_cond_t threads_finished;
     // mutex, condition variable, ...
 };
 
@@ -23,12 +26,12 @@ typedef struct job* Job;
 
 JobScheduler initialize_scheduler(int execution_threads);
 
-int submit_job(JobScheduler sch, Job j);
+void submit_job(JobScheduler sch, Job j);
 
 int execute_all_jobs(JobScheduler sch);
 
 int wait_all_tasks_finish(JobScheduler sch);
 
-int destroy_scheduler(JobScheduler sch);
+ErrorCode destroy_scheduler(JobScheduler sch);
 
 void* help_MatchDocument (void* job);

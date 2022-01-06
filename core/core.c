@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
+
 
 #include "ADTIndex.h"
 #include "misc.h"
@@ -111,6 +113,7 @@ int compare_queries(Query q1, Query q2) {                                       
 }
 
 ErrorCode InitializeIndex() {
+    puts("Entering IinitializeIndex");
 
     // Creates the map that will store all queries.
     Map_Queries = map_create((CompareFunc)compare_queries, 200);
@@ -149,12 +152,16 @@ ErrorCode InitializeIndex() {
 
     jscheduler = initialize_scheduler(4);
 
+    puts("Leaving IinitializeIndex");
+
     return EC_SUCCESS;
 }
 
 ErrorCode DestroyIndex() {
+    puts("Entering DestroyIndex");
 
-
+    destroy_scheduler(jscheduler);
+    
     // Destroy Index_Exact.
     destroy_entry_index(Index_Exact,(DestroyFunc) destroy_entry);
 
@@ -170,12 +177,15 @@ ErrorCode DestroyIndex() {
     // Destroy Map_Queries.
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
 
+    puts("Leaving DestroyIndex");
+
     return EC_SUCCESS;
 }
 
 
 // Inserts the query in Index_Exact or Index_Edit or Index_Hamming based on query->match_type.
 int Insert_Query(Query query) {
+    puts("Entering InsertQuery");
 
 
     // Array stores every word of query.
@@ -221,14 +231,25 @@ int Insert_Query(Query query) {
     // Free allocated memory for Array.
     free(Array);
 
+    puts("Leaving InsertQuery");
+
     return EC_SUCCESS;
 }
 
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
-    
-    
-    int count = 0;
+    puts("Entering StartQuery");
+    //Lock mutex_counter to check jscheduler->counter
+    pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+    // If couter is > 0 means that a thread did not finish from its routine so we wait.
+    if(jscheduler->counter > 0) {                                                           
+        pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter));
+    } else {
+        pthread_mutex_unlock(&(jscheduler->mtx_counter));                                            
+    }
+
+
+    int count = 0;                              //Count words.
 
     // Get query_str.
     String string = strdup(query_str);
@@ -257,11 +278,21 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
     // Inserts Query to the right index.
     Insert_Query(query);
 
+    puts("LeavingStartQuery");
 
     return EC_SUCCESS;
 }
 
 ErrorCode EndQuery(QueryID query_id) {
+    puts("Entering EndQuery");
+    //Lock mutex_counter to check jscheduler->counter
+    pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+
+    // If couter is > 0 means that a thread did not finish from its routine so we wait.
+    if(jscheduler->counter > 0) {                                                           
+        pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter));
+    }
+
     // Create a dummy query with id = query_id.
     struct query tmpquery;
     tmpquery.queryID = query_id;
@@ -354,97 +385,138 @@ ErrorCode EndQuery(QueryID query_id) {
 
     free(words);
 
+    puts("Leaving EndQuery");
+
     return EC_SUCCESS;
 }
 
 void* help_MatchDocument (void* tmpjob) {
-    Job job = tmpjob;
-    // Create a new document.
-    Document document = malloc(sizeof(*document));
-    document->doc_id = job->doc_id;
-    document->num_res = 0;
-    document->query_ids = NULL;
+    puts("Entering help_matchdocument");
+    while(1) {
+        puts("Hey");
+        pthread_mutex_lock(&(jscheduler->mtx_queue));
+        puts("Hello");
+        pthread_cond_wait(&(jscheduler->queue_not_empty), &(jscheduler->mtx_queue));
+        puts("Bonjour");
 
-    // Get document's string.
-    String doc_str1 = strdup(job->doc_str);
+        if(jscheduler->finish == 1 && jscheduler->counter == 0)
+            break;
 
-    // list_words contains every word of document's string and but has no duplicate strings.
-    List list_words = deduplicated_words_map(doc_str1);
+        pthread_mutex_lock(&(jscheduler->mtx_queue));
 
-    // Create a map to store Specials.
-    Map map_result = map_create((CompareFunc)comp_spec, 600);
-    // Set a hash_function for map_result.
-    map_set_hash_function(map_result, (HashFunc) hash_spec);
+        Job job = list_remove_first(jscheduler->queue);
 
-    // Create a list to store the ids of the queries that fully match the document.
-    List complete_queries = list_create((CompareFunc)compare_ids);
+        pthread_mutex_unlock(&(jscheduler->mtx_queue));
 
-    // max_thres is 3 ( core.h, line: 152)
-    int max_thres = 3;
+        // Create a new document.
+        Document document = malloc(sizeof(*document));
+        document->doc_id = job->doc_id;
+        document->num_res = 0;
+        document->query_ids = NULL;
 
-    // For every word in list_words.
-    for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
-        // Get doc_word.
-        String doc_word = list_node_value(node);
+        // Get document's string.
+        String doc_str1 = strdup(job->doc_str);
 
-        // Look for this word in every index.
-        // lookup_entry_index will search if any query matches this document.
-        // map_result contains Specials. Struct Special has two members. A query and a list of strings.
-        // If query->length is equal to the size of list of strings then query fully matches document.
-        lookup_entry_index(Index_Exact, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
-        lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
-    }   
+        // list_words contains every word of document's string and but has no duplicate strings.
+        List list_words = deduplicated_words_map(doc_str1);
 
-    // Assign values to document.
-    document->num_res = list_size(complete_queries);
-    document->query_ids = malloc(sizeof(QueryID)*document->num_res);
-    
-    // Position of document->query_ids.s
-    int i = 0;
-    // For every id in complete_queries.
-    for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
-        // Get id.
-        QueryID* queryid = list_node_value(node);
-        // Add id to the table of fully matched queries of document.
-        document->query_ids[i] = *queryid;
-        i++;
+        // Create a map to store Specials.
+        Map map_result = map_create((CompareFunc)comp_spec, 600);
+        // Set a hash_function for map_result.
+        map_set_hash_function(map_result, (HashFunc) hash_spec);
+
+        // Create a list to store the ids of the queries that fully match the document.
+        List complete_queries = list_create((CompareFunc)compare_ids);
+
+        // max_thres is 3 ( core.h, line: 152)
+        int max_thres = 3;
+
+        // For every word in list_words.
+        for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
+            // Get doc_word.
+            String doc_word = list_node_value(node);
+
+            // Look for this word in every index.
+            // lookup_entry_index will search if any query matches this document.
+            // map_result contains Specials. Struct Special has two members. A query and a list of strings.
+            // If query->length is equal to the size of list of strings then query fully matches document.
+            lookup_entry_index(Index_Exact, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
+            lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
+            lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
+        }   
+
+        // Assign values to document.
+        document->num_res = list_size(complete_queries);
+        document->query_ids = malloc(sizeof(QueryID)*document->num_res);
+        
+        // Position of document->query_ids.s
+        int i = 0;
+        // For every id in complete_queries.
+        for(ListNode node = list_first(complete_queries); node != NULL; node = list_find_next(node) ){
+            // Get id.
+            QueryID* queryid = list_node_value(node);
+            // Add id to the table of fully matched queries of document.
+            document->query_ids[i] = *queryid;
+            i++;
+        }
+
+        // Quick sort ids in ascending order.
+        qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
+
+        // Insert document in doc_list.
+        list_insert(doc_list, document);
+
+        // Destroy allocated memory needed.
+        list_destroy(list_words, free);
+        list_destroy(complete_queries, free);
+        map_destroy(map_result, (DestroyFunc)destroy_special);
+        free(doc_str1);
+
+
+        job->errcode = EC_SUCCESS;
+        
+        free(job);                  // Edo logika exo leak.
+
+        pthread_mutex_lock(&(jscheduler->mtx_counter));
+        jscheduler->counter--;
+
+        if(jscheduler->counter == 0)
+            pthread_cond_signal(&(jscheduler->threads_finished));
+
+        pthread_mutex_unlock(&(jscheduler->mtx_counter));
+
+
+
     }
 
-    // Quick sort ids in ascending order.
-    qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
-
-    // Insert document in doc_list.
-    list_insert(doc_list, document);
-
-    // Destroy allocated memory needed.
-    list_destroy(list_words, free);
-    list_destroy(complete_queries, free);
-    map_destroy(map_result, (DestroyFunc)destroy_special);
-    free(doc_str1);
-
-
-    job->errcode = EC_SUCCESS;
-    
-    return job;
+    puts("Leaving help_matchdocument");
+    pthread_exit(0);
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    struct job job;
+    puts("Entering matchDocument");
 
-    job.doc_id = doc_id;
-    job.doc_str = doc_str;
-    job.errcode = EC_FAIL;
-   
-    help_MatchDocument(&job);
+    Job job = malloc(sizeof(struct job));
 
-    return job.errcode;
+    job->doc_id = doc_id;
+    job->doc_str = doc_str;
+    job->errcode = EC_FAIL;
+
+    submit_job(jscheduler, job);
+
+    puts("Leaving matchDocument");
+
+    return job->errcode;
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
+    puts("Entering GetNextAvailRes");
+
     // Pop document for doc_list.
     Document document = list_remove_first(doc_list);
 
+    printf("sizeeee = %d\n", list_size(doc_list));
+    puts("aaaaaaaaaaaaaaaaaaa");
     // If no document was found in doc_list return no availavle result.
     if (!document)
         return EC_NO_AVAIL_RES;
@@ -469,5 +541,8 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
 
     // Assign to the pointer the tmp array.
     *p_query_ids = tmp;
+
+    puts("Leaving GetNextAvailRes");
+
     return EC_SUCCESS;
 }
