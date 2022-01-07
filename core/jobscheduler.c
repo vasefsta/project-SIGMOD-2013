@@ -105,7 +105,20 @@ int execute_all_jobs(JobScheduler sch) {
 }
 
 int wait_all_tasks_finish(JobScheduler sch) {
+
+    if (pthread_mutex_lock(&(sch->mtx_queue))) {
+        perror(" ");
+        return EC_FAIL;
+    }
+
     pthread_cond_broadcast(&(sch->queue_not_empty));
+    
+     if (pthread_mutex_unlock(&(sch->mtx_queue))) {
+        perror(" ");
+        return EC_FAIL;
+    }
+   
+    
     for (int i = 0; i < sch->exec_threads; i++) {
         if (pthread_join(sch->tids[i], 0)) {
             perror(" ");
