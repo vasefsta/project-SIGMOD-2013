@@ -149,7 +149,7 @@ ErrorCode InitializeIndex() {
     if (doc_list == NULL)
         return EC_NO_AVAIL_RES;
 
-    jscheduler = malloc(sizeof(*jscheduler));
+    jscheduler = malloc(sizeof(struct jobscheduler));
 
     initialize_scheduler(4, jscheduler);
 
@@ -157,7 +157,7 @@ ErrorCode InitializeIndex() {
 }
 
 ErrorCode DestroyIndex() {
-    puts("Entering DestroyIndex");
+    // puts("Entering DestroyIndex");
 
     destroy_scheduler(jscheduler);
     
@@ -176,7 +176,7 @@ ErrorCode DestroyIndex() {
     // Destroy Map_Queries.
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
 
-    puts("Leaving DestroyIndex");
+    // puts("Leaving DestroyIndex");
 
     return EC_SUCCESS;
 }
@@ -190,7 +190,7 @@ int Insert_Query(Query query) {
     String *Array = Seperate_sentence(query);
 
     // For every word in query.
-    for(int i = 0; i < query->length; i++) {
+    for (int i = 0; i < query->length; i++) {
 
         //Create a new entry with word = Array[i].
         Entry newentry = create_entry(Array[i], (CompareFunc) compare_queries);
@@ -234,18 +234,27 @@ int Insert_Query(Query query) {
 
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
-    puts("StartQuery");
+    // puts("StartQuery");
     //Lock mutex_counter to check jscheduler->counter
-    pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+    if (pthread_mutex_lock(&(jscheduler->mtx_counter))) {
+        perror(" ");
+        exit(-1);
+    }                                            
     // If couter is > 0 means that a thread did not finish from its routine so we wait.
-    while(jscheduler->counter > 0) {                                                           
-        pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter));
-            pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+    if (jscheduler->counter > 0) {                                                           
+        if (pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        }
+            // pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
 
+    } else {
+        if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        }                                            
     }
     
-    pthread_mutex_unlock(&(jscheduler->mtx_counter));                                            
-
 
     int count = 0;                              //Count words.
 
@@ -276,24 +285,34 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
     // Inserts Query to the right index.
     Insert_Query(query);
-    puts("Finished StartQuery");
+    // puts("Finished StartQuery");
 
 
     return EC_SUCCESS;
 }
 
 ErrorCode EndQuery(QueryID query_id) {
-        puts("EndQuery");
+    // puts("EndQuery");
+
 
     //Lock mutex_counter to check jscheduler->counter
-     pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+    if (pthread_mutex_lock(&(jscheduler->mtx_counter))) {
+        perror(" ");
+        exit(-1);
+    }                                            
     // If couter is > 0 means that a thread did not finish from its routine so we wait.
-    while(jscheduler->counter > 0) {                                                           
-        pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter));
-        pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
-    }
+    if (jscheduler->counter > 0) {                                                           
+        if (pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        }
+        // pthread_mutex_unlock(&(jscheduler->mtx_counter));                                            
+    } else
+        if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        } 
     
-    pthread_mutex_unlock(&(jscheduler->mtx_counter)); 
 
     // Create a dummy query with id = query_id.
     struct query tmpquery;
@@ -301,6 +320,8 @@ ErrorCode EndQuery(QueryID query_id) {
 
     // Search if query with such query_id exists.
     Query query = map_find(Map_Queries, &tmpquery);
+
+    printf("\nI am going to free the query: %s\n", query->words);
     // If no query was found there is an error.
     if (!query)
         return EC_NO_AVAIL_RES;
@@ -388,35 +409,54 @@ ErrorCode EndQuery(QueryID query_id) {
     free(words);
     return EC_SUCCESS;
 
-    puts("FinishedEndQuery");
+    // puts("FinishedEndQuery");
 
 }
 
 void* help_MatchDocument (void* tmpjob) {
-    puts("Entering help_matchdocument");
-    while(!(jscheduler->finish == 1 && jscheduler->counter == 0)) {
-        puts("Hey");
-        pthread_mutex_lock(&(jscheduler->mtx_queue));
-        puts("Hello");
+    // puts("Entering help_matchdocument");
+    while(1) {
+        // puts("Hey");
+        // puts("Hello");
 
-        pthread_cond_wait(&(jscheduler->queue_not_empty), &(jscheduler->mtx_queue));
-        pthread_mutex_unlock(&(jscheduler->mtx_queue));
-        puts("Bonjour");
+        if (pthread_mutex_lock(&(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        }
+        if (jscheduler->counter == 0) {
+            if (pthread_cond_wait(&(jscheduler->queue_not_empty), &(jscheduler->mtx_counter))) {
+                perror(" ");
+                exit(-1);
+            }
+        } else {
+            if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
+                perror(" ");
+                exit(-1);
+            }
+
+        }
+        // puts("Bonjour");
         
-        pthread_mutex_lock(&(jscheduler->mtx_queue));
+        if (pthread_mutex_lock(&(jscheduler->mtx_queue))) {
+            perror(" ");
+            exit(-1);
+        }
         
-        puts("BBBB");
+        // puts("BBBB");
 
         // Mpori na theli elegxo edo
 
-        if(list_size(jscheduler->queue) == 0){
-            pthread_mutex_unlock(&(jscheduler->mtx_queue));
-            continue;
-        }
+        // if(list_size(jscheduler->queue) == 0){
+        //     pthread_mutex_unlock(&(jscheduler->mtx_queue));
+        //     continue;
+        // }
 
         Job job = list_remove_first(jscheduler->queue);
 
-        pthread_mutex_unlock(&(jscheduler->mtx_queue));
+        if (pthread_mutex_unlock(&(jscheduler->mtx_queue))) {
+            perror(" ");
+            exit(-1);
+        }
 
         // Create a new document.
         Document document = malloc(sizeof(*document));
@@ -439,6 +479,7 @@ void* help_MatchDocument (void* tmpjob) {
 
         // max_thres is 3 ( core.h, line: 152)
         int max_thres = 3;
+
 
         // For every word in list_words.
         for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
@@ -473,10 +514,14 @@ void* help_MatchDocument (void* tmpjob) {
         // Quick sort ids in ascending order.
         qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
         
-        pthread_mutex_lock(&(jscheduler->mtx_document));
+        if (pthread_mutex_lock(&(jscheduler->mtx_document))) {
+            perror(" ");
+            exit(-1);
+        }
 
         // Insert document in doc_list.
         list_insert(doc_list, document);
+        pthread_cond_signal(&(jscheduler->new_doc));
 
         pthread_mutex_unlock(&(jscheduler->mtx_document));
 
@@ -491,24 +536,30 @@ void* help_MatchDocument (void* tmpjob) {
         
         free(job);                  // Edo logika exo leak.
 
-        pthread_mutex_lock(&(jscheduler->mtx_counter));
+        if (pthread_mutex_lock(&(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        }
         jscheduler->counter--;
 
         if(jscheduler->counter == 0)
             pthread_cond_signal(&(jscheduler->threads_finished));
 
-        pthread_mutex_unlock(&(jscheduler->mtx_counter));
+        if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
+            perror(" ");
+            exit(-1);
+        }
 
 
 
     }
 
-    puts("Leaving help_matchdocument");
+    // puts("Leaving help_matchdocument");
     pthread_exit(0);
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    puts("Entering matchDocument");
+    // puts("Entering matchDocument");
 
     Job job = malloc(sizeof(struct job));
 
@@ -518,34 +569,51 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
 
     submit_job(jscheduler, job);
 
-    puts("Leaving matchDocument");
+    // puts("Leaving matchDocument");
 
     return job->errcode;
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
-    puts("Entering GetNextAvailRes");
+    // puts("Entering GetNextAvailRes");
 
     // Pop document for doc_list.
 
-    pthread_mutex_lock(&jscheduler->mtx_counter);
 
-    while (jscheduler->counter != 0){
-        pthread_cond_wait(&jscheduler->threads_finished, &jscheduler->mtx_counter);
-        pthread_mutex_lock(&jscheduler->mtx_counter);
+    if (pthread_mutex_lock(&jscheduler->mtx_document)) {
+        perror(" ");
+        exit(-1);
+    }
+    if (list_size(doc_list) == 0) {
+        if (pthread_cond_wait(&jscheduler->new_doc, &jscheduler->mtx_document)) {
+            perror(" ");
+            exit(-1);
+        }
+
+    }
+    else {
+        if (pthread_mutex_unlock(&jscheduler->mtx_document)) {
+            perror(" ");
+            exit(-1);
+        }
     }
 
-    pthread_mutex_unlock(&jscheduler->mtx_counter);
 
-    pthread_mutex_lock(&(jscheduler->mtx_document));
+    if (pthread_mutex_lock(&(jscheduler->mtx_document))) {
+        perror(" ");
+        exit(-1);
+    }
 
     Document document = list_remove_first(doc_list);
 
-    pthread_mutex_unlock(&(jscheduler->mtx_document));
+    if (pthread_mutex_unlock(&(jscheduler->mtx_document))) {
+        perror(" ");
+        exit(-1);
+    }
 
 
     printf("sizeeee = %d\n", list_size(doc_list));
-    puts("aaaaaaaaaaaaaaaaaaa");
+    // puts("aaaaaaaaaaaaaaaaaaa");
     // If no document was found in doc_list return no availavle result.
     if (!document)
         return EC_NO_AVAIL_RES;
@@ -571,7 +639,7 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
     // Assign to the pointer the tmp array.
     *p_query_ids = tmp;
 
-    puts("Leaving GetNextAvailRes");
+    // puts("Leaving GetNextAvailRes");
 
     return EC_SUCCESS;
 }

@@ -149,7 +149,8 @@ run: $(RUN_TARGETS)
 
 # Για κάθε εκτελέσιμο <prog> φτιάχνουμε ένα target valgrind-<prog> που το εκτελεί μέσω valgrind με παραμέτρους <prog>_ARGS
 valgrind-%: %
-	valgrind -s --error-exitcode=1 --track-origins=yes --leak-check=full --show-leak-kinds=all --trace-children=yes ./$* $($*_ARGS)
+	# valgrind -s --error-exitcode=1 --track-origins=yes --leak-check=full --show-leak-kinds=all --trace-children=yes ./$* $($*_ARGS)
+	valgrind --tool=helgrind ./$* $($*_ARGS)
 
 valgrind: $(VAL_TARGETS)
 

@@ -12,6 +12,7 @@ struct jobscheduler{
     int finish;
     pthread_cond_t queue_not_empty;
     pthread_cond_t threads_finished;
+    pthread_cond_t new_doc;
     // mutex, condition variable, ...
 };
 

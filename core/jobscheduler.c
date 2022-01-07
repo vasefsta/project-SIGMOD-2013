@@ -38,6 +38,11 @@ void initialize_scheduler(int execution_threads, JobScheduler jscheduler) {
         exit(-1);
     }
 
+    if (pthread_cond_init(&(jscheduler->new_doc), 0)) {
+        perror(" ");
+        exit(-1);
+    }
+
     jscheduler->counter = 0;
 
     jscheduler->finish = 0;
@@ -75,17 +80,18 @@ void submit_job(JobScheduler sch, Job j) {
 
     sch->counter++;
     
+    if (pthread_cond_signal(&(sch->queue_not_empty))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
+    }
+
     if (pthread_mutex_unlock(&(sch->mtx_counter))) {
         perror(" ");
         j->errcode = EC_FAIL;
         return ;  
     }
     
-    if (pthread_cond_signal(&(sch->queue_not_empty))) {
-        perror(" ");
-        j->errcode = EC_FAIL;
-        return ;
-    }
     
     j->errcode = EC_SUCCESS;
 }
@@ -103,11 +109,12 @@ int execute_all_jobs(JobScheduler sch) {
 
 int wait_all_tasks_finish(JobScheduler sch) {
     pthread_cond_broadcast(&(sch->queue_not_empty));
-    for (int i = 0; i < sch->exec_threads; i++)
+    for (int i = 0; i < sch->exec_threads; i++) {
         if (pthread_join(sch->tids[i], 0)) {
             perror(" ");
             return EC_FAIL;
         }
+    }
 
     return EC_SUCCESS;
 }
