@@ -234,14 +234,17 @@ int Insert_Query(Query query) {
 
 
 ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_type, unsigned int match_dist) {
+    puts("StartQuery");
     //Lock mutex_counter to check jscheduler->counter
     pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
     // If couter is > 0 means that a thread did not finish from its routine so we wait.
-    if(jscheduler->counter > 0) {                                                           
+    while(jscheduler->counter > 0) {                                                           
         pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter));
-    } else {
-        pthread_mutex_unlock(&(jscheduler->mtx_counter));                                            
+            pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+
     }
+    
+    pthread_mutex_unlock(&(jscheduler->mtx_counter));                                            
 
 
     int count = 0;                              //Count words.
@@ -272,18 +275,24 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
 
     // Inserts Query to the right index.
     Insert_Query(query);
+    puts("Finished StartQuery");
+
 
     return EC_SUCCESS;
 }
 
 ErrorCode EndQuery(QueryID query_id) {
-    //Lock mutex_counter to check jscheduler->counter
-    pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
+        puts("EndQuery");
 
+    //Lock mutex_counter to check jscheduler->counter
+     pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
     // If couter is > 0 means that a thread did not finish from its routine so we wait.
-    if(jscheduler->counter > 0) {                                                           
+    while(jscheduler->counter > 0) {                                                           
         pthread_cond_wait(&(jscheduler->threads_finished), &(jscheduler->mtx_counter));
+        pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
     }
+    
+    pthread_mutex_unlock(&(jscheduler->mtx_counter)); 
 
     // Create a dummy query with id = query_id.
     struct query tmpquery;
@@ -377,6 +386,9 @@ ErrorCode EndQuery(QueryID query_id) {
 
     free(words);
     return EC_SUCCESS;
+
+    puts("FinishedEndQuery");
+
 }
 
 void* help_MatchDocument (void* tmpjob) {
@@ -395,6 +407,12 @@ void* help_MatchDocument (void* tmpjob) {
         puts("BBBB");
 
         // Mpori na theli elegxo edo
+
+        if(list_size(jscheduler->queue) == 0){
+            pthread_mutex_unlock(&(jscheduler->mtx_queue));
+            continue;
+        }
+
         Job job = list_remove_first(jscheduler->queue);
 
         pthread_mutex_unlock(&(jscheduler->mtx_queue));
@@ -407,7 +425,8 @@ void* help_MatchDocument (void* tmpjob) {
 
         // Get document's string.
         String doc_str1 = strdup(job->doc_str);
-
+        puts("Printing document");
+        puts(doc_str1);
         // list_words contains every word of document's string and but has no duplicate strings.
         List list_words = deduplicated_words_map(doc_str1);
 
@@ -426,7 +445,8 @@ void* help_MatchDocument (void* tmpjob) {
         for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
             // Get doc_word.
             String doc_word = list_node_value(node);
-
+            puts("Printing word");
+            puts(doc_word);
             // Look for this word in every index.
             // lookup_entry_index will search if any query matches this document.
             // map_result contains Specials. Struct Special has two members. A query and a list of strings.
@@ -435,6 +455,8 @@ void* help_MatchDocument (void* tmpjob) {
             lookup_entry_index(Index_Hamming, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries); 
             lookup_entry_index(Index_Edit, doc_word, max_thres, map_result, complete_queries, (CompareFunc)compare_queries);   
         }   
+
+
 
         // Assign values to document.
         document->num_res = list_size(complete_queries);
@@ -453,9 +475,13 @@ void* help_MatchDocument (void* tmpjob) {
 
         // Quick sort ids in ascending order.
         qsort(document->query_ids, document->num_res, sizeof(QueryID), (compare_ids));
+        
+        pthread_mutex_lock(&(jscheduler->mtx_document));
 
         // Insert document in doc_list.
         list_insert(doc_list, document);
+
+        pthread_mutex_unlock(&(jscheduler->mtx_document));
 
         // Destroy allocated memory needed.
         list_destroy(list_words, free);
@@ -504,7 +530,11 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
     puts("Entering GetNextAvailRes");
 
     // Pop document for doc_list.
+    pthread_mutex_lock(&(jscheduler->mtx_document));
+
     Document document = list_remove_first(doc_list);
+
+
 
     printf("sizeeee = %d\n", list_size(doc_list));
     puts("aaaaaaaaaaaaaaaaaaa");
@@ -532,6 +562,7 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
 
     // Assign to the pointer the tmp array.
     *p_query_ids = tmp;
+    pthread_mutex_unlock(&(jscheduler->mtx_document));
 
     puts("Leaving GetNextAvailRes");
 

@@ -23,6 +23,11 @@ void initialize_scheduler(int execution_threads, JobScheduler jscheduler) {
         exit(-1);
     }
 
+    if (pthread_mutex_init(&(jscheduler->mtx_document), 0)) {
+        perror(" ");
+        exit(-1);
+    }
+
     if (pthread_cond_init(&(jscheduler->queue_not_empty), 0)) {
         perror(" ");
         exit(-1);

@@ -7,6 +7,7 @@ struct jobscheduler{
     pthread_t* tids; // execution threads
     pthread_mutex_t mtx_queue;
     pthread_mutex_t mtx_counter;
+    pthread_mutex_t mtx_document;
     int counter;
     int finish;
     pthread_cond_t queue_not_empty;
