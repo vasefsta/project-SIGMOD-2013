@@ -432,12 +432,33 @@ void* help_MatchDocument (void* tmpjob) {
             exit(-1);
         }
 
-        if(job == NULL){
-            if(jscheduler->finish == 1)
-                break;
-            else
-                continue;
+        if (pthread_mutex_lock(&(jscheduler->mtx_finish))) {
+            perror(" ");
+            exit(-1);
         }
+
+        if (job == NULL && jscheduler->finish == 1) {
+            if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
+                perror(" ");
+                exit(-1);
+            }
+
+            break;
+        } else if (job == NULL && jscheduler->finish == 0){
+            if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
+                perror(" ");
+                exit(-1);
+            }
+
+            continue;
+        } else {
+            if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
+                perror(" ");
+                exit(-1);
+            }
+        }
+        
+
 
         // Create a new document.
         Document document = malloc(sizeof(*document));

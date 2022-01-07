@@ -28,6 +28,11 @@ void initialize_scheduler(int execution_threads, JobScheduler jscheduler) {
         exit(-1);
     }
 
+    if (pthread_mutex_init(&(jscheduler->mtx_finish), 0)) {
+        perror(" ");
+        exit(-1);
+    }
+
     if (pthread_cond_init(&(jscheduler->queue_not_empty), 0)) {
         perror(" ");
         exit(-1);
@@ -112,7 +117,18 @@ int wait_all_tasks_finish(JobScheduler sch) {
 }
 
 ErrorCode destroy_scheduler(JobScheduler sch) {
+
+    if (pthread_mutex_lock(&(sch->mtx_finish))) {
+        perror(" ");
+        exit(-1);
+    }
+
     sch->finish = 1;
+
+    if (pthread_mutex_unlock(&(sch->mtx_finish))) {
+        perror(" ");
+        exit(-1);
+    }
 
     if (wait_all_tasks_finish(sch) == EC_FAIL) 
         return EC_FAIL;
