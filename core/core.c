@@ -12,6 +12,8 @@
 #include "core.h"
 #include "jobscheduler.h"
 
+#define THREADS 4
+
 struct document {
 	DocID doc_id;
 	unsigned int num_res;
@@ -151,7 +153,7 @@ ErrorCode InitializeIndex() {
 
     jscheduler = malloc(sizeof(struct jobscheduler));
 
-    initialize_scheduler(4, jscheduler);
+    initialize_scheduler(THREADS, jscheduler);
 
     return EC_SUCCESS;
 }
