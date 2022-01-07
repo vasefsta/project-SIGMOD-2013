@@ -564,7 +564,7 @@ ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
     Job job = malloc(sizeof(struct job));
 
     job->doc_id = doc_id;
-    job->doc_str = doc_str;
+    job->doc_str = strdup(doc_str);
     job->errcode = EC_FAIL;
 
     submit_job(jscheduler, job);
