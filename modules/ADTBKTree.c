@@ -423,10 +423,7 @@ void bk_destroy(BKTree bktree, DestroyFunc destroy_value){
 int hamming_distance(Pointer value1, Pointer value2){
     String word1 = value1;
     String word2 = value2;
-
-    printf("WORD1 = %s\n", word1);
-    printf("WORD2 = %s\n\n", word2);
-
+    
     if(strlen(word1) != strlen(word2))
         return -1;
 

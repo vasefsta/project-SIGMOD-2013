@@ -157,7 +157,6 @@ ErrorCode InitializeIndex() {
 }
 
 ErrorCode DestroyIndex() {
-    // puts("Entering DestroyIndex");
 
     destroy_scheduler(jscheduler);
     
@@ -176,7 +175,6 @@ ErrorCode DestroyIndex() {
     // Destroy Map_Queries.
     map_destroy(Map_Queries, (DestroyFunc)destroy_query);
 
-    // puts("Leaving DestroyIndex");
 
     return EC_SUCCESS;
 }
@@ -246,13 +244,12 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
             perror(" ");
             exit(-1);
         }
-            // pthread_mutex_lock(&(jscheduler->mtx_counter));                                            
 
-    } else {
-        if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
-            perror(" ");
-            exit(-1);
-        }                                            
+    }
+    
+    if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
+        perror(" ");
+        exit(-1);
     }
     
 
@@ -416,46 +413,30 @@ ErrorCode EndQuery(QueryID query_id) {
 void* help_MatchDocument (void* tmpjob) {
     // puts("Entering help_matchdocument");
     while(1) {
-        // puts("Hey");
-        // puts("Hello");
 
-        if (pthread_mutex_lock(&(jscheduler->mtx_counter))) {
-            perror(" ");
-            exit(-1);
-        }
-        if (jscheduler->counter == 0) {
-            if (pthread_cond_wait(&(jscheduler->queue_not_empty), &(jscheduler->mtx_counter))) {
-                perror(" ");
-                exit(-1);
-            }
-        } else {
-            if (pthread_mutex_unlock(&(jscheduler->mtx_counter))) {
-                perror(" ");
-                exit(-1);
-            }
-
-        }
-        // puts("Bonjour");
-        
         if (pthread_mutex_lock(&(jscheduler->mtx_queue))) {
             perror(" ");
             exit(-1);
         }
-        
-        // puts("BBBB");
 
-        // Mpori na theli elegxo edo
+        if(list_size(jscheduler->queue) == 0){
+            pthread_cond_wait(&jscheduler->queue_not_empty, &jscheduler->mtx_queue);                                //wait until there are some data to retrieve
+        }
 
-        // if(list_size(jscheduler->queue) == 0){
-        //     pthread_mutex_unlock(&(jscheduler->mtx_queue));
-        //     continue;
-        // }
 
         Job job = list_remove_first(jscheduler->queue);
+
 
         if (pthread_mutex_unlock(&(jscheduler->mtx_queue))) {
             perror(" ");
             exit(-1);
+        }
+
+        if(job == NULL){
+            if(jscheduler->finish == 1)
+                break;
+            else
+                continue;
         }
 
         // Create a new document.
@@ -466,7 +447,12 @@ void* help_MatchDocument (void* tmpjob) {
 
         // Get document's string.
         String doc_str1 = strdup(job->doc_str);
-        // list_words contains every word of document's string and but has no duplicate strings.
+        
+        free(job->doc_str);                  // Free job.
+        free(job);
+        
+        
+        // list_words contains every word of document's string but has no duplicate strings.
         List list_words = deduplicated_words_map(doc_str1);
 
         // Create a map to store Specials.
@@ -479,7 +465,6 @@ void* help_MatchDocument (void* tmpjob) {
 
         // max_thres is 3 ( core.h, line: 152)
         int max_thres = 3;
-
 
         // For every word in list_words.
         for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
@@ -531,11 +516,8 @@ void* help_MatchDocument (void* tmpjob) {
         map_destroy(map_result, (DestroyFunc)destroy_special);
         free(doc_str1);
 
-
-        job->errcode = EC_SUCCESS;
         
-        free(job);                  // Edo logika exo leak.
-
+       
         if (pthread_mutex_lock(&(jscheduler->mtx_counter))) {
             perror(" ");
             exit(-1);
@@ -550,35 +532,26 @@ void* help_MatchDocument (void* tmpjob) {
             exit(-1);
         }
 
-
-
     }
 
-    // puts("Leaving help_matchdocument");
     pthread_exit(0);
 }
 
 ErrorCode MatchDocument (DocID doc_id, const char * doc_str) {
-    // puts("Entering matchDocument");
 
     Job job = malloc(sizeof(struct job));
 
     job->doc_id = doc_id;
     job->doc_str = strdup(doc_str);
-    job->errcode = EC_FAIL;
+    job->errcode = EC_SUCCESS;
 
     submit_job(jscheduler, job);
 
-    // puts("Leaving matchDocument");
 
-    return job->errcode;
+    return EC_SUCCESS;
 }
 
 ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID ** p_query_ids) {
-    // puts("Entering GetNextAvailRes");
-
-    // Pop document for doc_list.
-
 
     if (pthread_mutex_lock(&jscheduler->mtx_document)) {
         perror(" ");
@@ -591,20 +564,10 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
         }
 
     }
-    else {
-        if (pthread_mutex_unlock(&jscheduler->mtx_document)) {
-            perror(" ");
-            exit(-1);
-        }
-    }
-
-
-    if (pthread_mutex_lock(&(jscheduler->mtx_document))) {
-        perror(" ");
-        exit(-1);
-    }
 
     Document document = list_remove_first(doc_list);
+    
+    printf("sizeeee = %d\n", list_size(doc_list));
 
     if (pthread_mutex_unlock(&(jscheduler->mtx_document))) {
         perror(" ");
@@ -612,8 +575,6 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
     }
 
 
-    printf("sizeeee = %d\n", list_size(doc_list));
-    // puts("aaaaaaaaaaaaaaaaaaa");
     // If no document was found in doc_list return no availavle result.
     if (!document)
         return EC_NO_AVAIL_RES;
@@ -639,7 +600,6 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
     // Assign to the pointer the tmp array.
     *p_query_ids = tmp;
 
-    // puts("Leaving GetNextAvailRes");
 
     return EC_SUCCESS;
 }

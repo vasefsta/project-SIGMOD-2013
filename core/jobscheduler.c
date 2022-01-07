@@ -57,43 +57,35 @@ void submit_job(JobScheduler sch, Job j) {
 
     if (pthread_mutex_lock(&(sch->mtx_queue))) {
         perror(" ");
-        j->errcode = EC_FAIL;
         return ;
     }
 
     list_insert(sch->queue, j);
 
-
-    if (pthread_mutex_unlock(&(sch->mtx_queue))) {
-        perror(" ");
-        j->errcode = EC_FAIL;
-        return ;
-    }
-
-     
-   
     if (pthread_mutex_lock(&(sch->mtx_counter))) {
         perror(" ");
-        j->errcode = EC_FAIL;
         return ;
     }
 
     sch->counter++;
     
-    if (pthread_cond_signal(&(sch->queue_not_empty))) {
-        perror(" ");
-        j->errcode = EC_FAIL;
-        return ;
-    }
-
+    
     if (pthread_mutex_unlock(&(sch->mtx_counter))) {
         perror(" ");
-        j->errcode = EC_FAIL;
         return ;  
     }
+
+
+    if (pthread_mutex_unlock(&(sch->mtx_queue))) {
+        perror(" ");
+        return ;
+    }
     
-    
-    j->errcode = EC_SUCCESS;
+    if (pthread_cond_signal(&(sch->queue_not_empty))) {
+        perror(" ");
+        return ;
+    }
+     
 }
 
 int execute_all_jobs(JobScheduler sch) {

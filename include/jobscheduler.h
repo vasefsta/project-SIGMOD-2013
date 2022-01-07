@@ -18,7 +18,7 @@ struct jobscheduler{
 
 struct job {
     DocID doc_id;
-    const char * doc_str;
+    char * doc_str;
     ErrorCode errcode;
 };
 
