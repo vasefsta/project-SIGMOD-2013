@@ -64,16 +64,20 @@ void submit_job(JobScheduler sch, Job j) {
         perror(" ");
         return ;
     }
-
-    list_insert(sch->queue, j);
-
+    
     if (pthread_mutex_lock(&(sch->mtx_counter))) {
         perror(" ");
         return ;
     }
 
+    list_insert(sch->queue, j);
     sch->counter++;
     
+     
+    if (pthread_cond_signal(&(sch->queue_not_empty))) {
+        perror(" ");
+        return ;
+    }
     
     if (pthread_mutex_unlock(&(sch->mtx_counter))) {
         perror(" ");
@@ -85,11 +89,7 @@ void submit_job(JobScheduler sch, Job j) {
         perror(" ");
         return ;
     }
-    
-    if (pthread_cond_signal(&(sch->queue_not_empty))) {
-        perror(" ");
-        return ;
-    }
+   
      
 }
 

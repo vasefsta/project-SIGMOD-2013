@@ -318,7 +318,6 @@ ErrorCode EndQuery(QueryID query_id) {
     // Search if query with such query_id exists.
     Query query = map_find(Map_Queries, &tmpquery);
 
-    printf("\nI am going to free the query: %s\n", query->words);
     // If no query was found there is an error.
     if (!query)
         return EC_NO_AVAIL_RES;
@@ -420,7 +419,31 @@ void* help_MatchDocument (void* tmpjob) {
         }
 
         if(list_size(jscheduler->queue) == 0){
-            pthread_cond_wait(&jscheduler->queue_not_empty, &jscheduler->mtx_queue);                                //wait until there are some data to retrieve
+            if (pthread_mutex_lock(&(jscheduler->mtx_finish))) {
+                perror(" ");
+                exit(-1);
+            }
+
+            if (jscheduler->finish == 1) {
+                if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
+                    perror(" ");
+                    exit(-1);
+                }
+
+                if (pthread_mutex_unlock(&(jscheduler->mtx_queue))) {
+                    perror(" ");
+                    exit(-1);
+                }
+
+                break;
+            }  else {
+                if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
+                    perror(" ");
+                    exit(-1);
+                }
+
+                pthread_cond_wait(&jscheduler->queue_not_empty, &jscheduler->mtx_queue);                                //wait until there are some data to retrieve
+            }
         }
 
 
@@ -432,33 +455,8 @@ void* help_MatchDocument (void* tmpjob) {
             exit(-1);
         }
 
-        if (pthread_mutex_lock(&(jscheduler->mtx_finish))) {
-            perror(" ");
-            exit(-1);
-        }
-
-        if (job == NULL && jscheduler->finish == 1) {
-            if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
-                perror(" ");
-                exit(-1);
-            }
-
-            break;
-        } else if (job == NULL && jscheduler->finish == 0){
-            if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
-                perror(" ");
-                exit(-1);
-            }
-
+        if(job == NULL )
             continue;
-        } else {
-            if (pthread_mutex_unlock(&(jscheduler->mtx_finish))) {
-                perror(" ");
-                exit(-1);
-            }
-        }
-        
-
 
         // Create a new document.
         Document document = malloc(sizeof(*document));
@@ -588,7 +586,6 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
 
     Document document = list_remove_first(doc_list);
     
-    printf("sizeeee = %d\n", list_size(doc_list));
 
     if (pthread_mutex_unlock(&(jscheduler->mtx_document))) {
         perror(" ");
