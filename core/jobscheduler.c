@@ -48,6 +48,8 @@ void initialize_scheduler(int execution_threads, JobScheduler jscheduler) {
 
 
 void submit_job(JobScheduler sch, Job j) {
+
+
     if (pthread_mutex_lock(&(sch->mtx_queue))) {
         perror(" ");
         j->errcode = EC_FAIL;
@@ -56,19 +58,14 @@ void submit_job(JobScheduler sch, Job j) {
 
     list_insert(sch->queue, j);
 
-   
-    
+
     if (pthread_mutex_unlock(&(sch->mtx_queue))) {
         perror(" ");
         j->errcode = EC_FAIL;
         return ;
     }
 
-     if (pthread_cond_signal(&(sch->queue_not_empty))) {
-        perror(" ");
-        j->errcode = EC_FAIL;
-        return ;
-    }
+     
    
     if (pthread_mutex_lock(&(sch->mtx_counter))) {
         perror(" ");
@@ -82,6 +79,12 @@ void submit_job(JobScheduler sch, Job j) {
         perror(" ");
         j->errcode = EC_FAIL;
         return ;  
+    }
+    
+    if (pthread_cond_signal(&(sch->queue_not_empty))) {
+        perror(" ");
+        j->errcode = EC_FAIL;
+        return ;
     }
     
     j->errcode = EC_SUCCESS;

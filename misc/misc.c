@@ -25,15 +25,16 @@ int hash_func(Query query){
 }
 
 Query convert_to_query(String string){ 
+    String saveptr;
     Query query = malloc(sizeof(*query));               // Create query
     query->words = strdup(string);
     int count = 0;
 
-    String token = strtok(string, " \t\n");
+    String token = strtok_r(string, " \t\n", &saveptr);
 
     while (token != NULL ){                             // Count number of words
         count++;
-        token = strtok(NULL, "  \t\n");   
+        token = strtok_r(NULL, "  \t\n", &saveptr);   
     }
     
     query->length = count;
@@ -44,15 +45,15 @@ Query convert_to_query(String string){
 String *Seperate_sentence(Query query){
     String *Array = malloc(sizeof(String)*query->length);           // Create array
     String dummy = strdup(query->words);                            // Create a dummy string
-
+    String saveptr;
     int i  = 0;
 
-    String token = strtok(dummy, " \t\n");
+    String token = strtok_r(dummy, " \t\n", &saveptr);
 
     Array[i] = strdup(token);
 
 
-    while( (token = strtok(NULL, " \t\n")) != NULL){                // For every word in sentence
+    while( (token = strtok_r(NULL, " \t\n", &saveptr)) != NULL){                // For every word in sentence
         i++;
         Array[i] = strdup(token);                                   // Copy to Array[i]
     }
@@ -68,9 +69,11 @@ List deduplicated_words_map(String doc_str){
 
     List list_words = list_create((CompareFunc)strcmp);
 
+    String saveptr;
     String dummy = strdup(doc_str);                            // Create a dummy string
-    String token = strtok(dummy, " \t\n");
+    String token = strtok_r(dummy, " \t\n", &saveptr);
     String word =  strdup(token);
+
 
     if(!map_find(map, word)){
         map_insert(map, word);
@@ -80,7 +83,7 @@ List deduplicated_words_map(String doc_str){
 
 
 
-    while( (token = strtok(NULL, " \t\n")) != NULL){                // For every word in sentence
+    while( (token = strtok_r(NULL, " \t\n", &saveptr)) != NULL){                // For every word in sentence
         
         word = strdup(token);                                   // Copy to Array[i]
         

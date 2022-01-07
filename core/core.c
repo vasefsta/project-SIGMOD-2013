@@ -250,13 +250,14 @@ ErrorCode StartQuery(QueryID query_id, const char* query_str, MatchType match_ty
     int count = 0;                              //Count words.
 
     // Get query_str.
+    String saveptr;
     String string = strdup(query_str);
-    String token = strtok(string, " \t\n");
+    String token = strtok_r(string, " \t\n", &saveptr);
 
     // Count words of query.
     while (token != NULL ) {                             
         count++;
-        token = strtok(NULL, "  \t\n");   
+        token = strtok_r(NULL, "  \t\n", &saveptr);   
     }
 
     // Free allocated memory for string.
@@ -425,8 +426,6 @@ void* help_MatchDocument (void* tmpjob) {
 
         // Get document's string.
         String doc_str1 = strdup(job->doc_str);
-        puts("Printing document");
-        puts(doc_str1);
         // list_words contains every word of document's string and but has no duplicate strings.
         List list_words = deduplicated_words_map(doc_str1);
 
@@ -445,8 +444,6 @@ void* help_MatchDocument (void* tmpjob) {
         for (ListNode node = list_first(list_words); node != NULL; node = list_find_next(node)) {
             // Get doc_word.
             String doc_word = list_node_value(node);
-            puts("Printing word");
-            puts(doc_word);
             // Look for this word in every index.
             // lookup_entry_index will search if any query matches this document.
             // map_result contains Specials. Struct Special has two members. A query and a list of strings.
@@ -530,10 +527,21 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
     puts("Entering GetNextAvailRes");
 
     // Pop document for doc_list.
+
+    pthread_mutex_lock(&jscheduler->mtx_counter);
+
+    while (jscheduler->counter != 0){
+        pthread_cond_wait(&jscheduler->threads_finished, &jscheduler->mtx_counter);
+        pthread_mutex_lock(&jscheduler->mtx_counter);
+    }
+
+    pthread_mutex_unlock(&jscheduler->mtx_counter);
+
     pthread_mutex_lock(&(jscheduler->mtx_document));
 
     Document document = list_remove_first(doc_list);
 
+    pthread_mutex_unlock(&(jscheduler->mtx_document));
 
 
     printf("sizeeee = %d\n", list_size(doc_list));
@@ -562,7 +570,6 @@ ErrorCode GetNextAvailRes (DocID * p_doc_id, unsigned int * p_num_res, QueryID *
 
     // Assign to the pointer the tmp array.
     *p_query_ids = tmp;
-    pthread_mutex_unlock(&(jscheduler->mtx_document));
 
     puts("Leaving GetNextAvailRes");
 
