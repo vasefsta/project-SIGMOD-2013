@@ -10,6 +10,8 @@
 
 # Εκτός από τα παρακάτω
 !*.c
+!*.cpp
+!small_test.txt
 !*.h
 !*.mk
 !Makefile
