@@ -18,4 +18,4 @@
 !.gitignore
 !README.md
 !.vscode/*.json
-!Document1
+!*.pdf
