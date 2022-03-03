@@ -16,6 +16,7 @@
 struct bknode {
     Entry entry;      // Holds an entry.
     List children;      // A list that contains bknodes that are the children of a bk-parent node.
+    int dist_from_parent;
 };
 
 struct bktree {
@@ -66,6 +67,7 @@ ErrorCode insert(BKTree bktree,BKNode bkparent, BKNode new, CompareFunc compare)
         bkparent->children = list_create(NULL);
         list_insert(bkparent->children, new);
         bktree->size++;
+        new->dist_from_parent = compare(bkparent->entry->word, new->entry->word);
         return EC_SUCCESS;
     }
 
@@ -78,7 +80,7 @@ ErrorCode insert(BKTree bktree,BKNode bkparent, BKNode new, CompareFunc compare)
         child = list_node_value(node);
 
         // If new has same distance as child with parent get Child node
-        if(compare(child->entry->word, bkparent->entry->word) == dist) {    
+        if(child->dist_from_parent == dist) {    
             break;
         }
     }
@@ -88,7 +90,8 @@ ErrorCode insert(BKTree bktree,BKNode bkparent, BKNode new, CompareFunc compare)
     // Else:
     // -> If entry with same word exists append the query of new in the existing entry.
     // -> Else call recursively the insert function with chile. 
-    if(!node){                                                                                
+    if(!node){                               
+        new->dist_from_parent = dist;                                                 
         list_insert(bkparent->children, new);
         bktree->size++;
         return EC_SUCCESS;
@@ -188,7 +191,7 @@ List complete_queries, String word, int threshold) {         // Find entries wit
         // Get node value.
         BKNode child = list_node_value(node);
         // Calculate distance between child and parent.
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);                      
+        int dist_parent_child = child->dist_from_parent;                      
         // If distance between child and oarent is <= distance between new node and parent + threshold
         // and distance between child and parent is >= distance between new node and parent - threshold.
         // Call function recursively with child as parent.
@@ -222,9 +225,9 @@ Entry help_find_entry(BKNode bkparent, CompareFunc compare, String word) {
     for(ListNode node = list_first(bkparent->children); node != NULL; node = list_find_next(node)){       
         // Get listNode value.
         BKNode child = list_node_value(node);
-        // Calculate d for parent and child
-
-        int dist_parent_child = compare(child->entry->word, bkparent->entry->word);
+ 
+        // Calculate d for parent and child 
+        int dist_parent_child = child->dist_from_parent;
         // If distance of child and parent is in range ([d-n], [d+n])
         if ( (dist_parent_child <= dist_value_parent + 0 ) && (dist_parent_child >= low_range))    
             // Call recursice for child
