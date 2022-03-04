@@ -1,13 +1,6 @@
 ![example branch parameter](https://github.com/vasiliki2000/project-SIGMOD-2013/actions/workflows/c.yml/badge.svg?branch=main)
 # project-SIGMOD-2013
 
- |Authors|sdi*******|
- |-------|----------|
- |Vasiliki Efstathiou|1800229|
- |Nikos Eftychiou|1800221|
-
-
-
 ### Compilation And Execution
 
 - With the command **"make"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled.
