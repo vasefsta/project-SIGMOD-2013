@@ -8,7 +8,7 @@
 
 
 
-### Compile And Execution
+### Compilation And Execution
 
 - With the command **"make"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled.
 - With the command **"make run"** in PROJECT-SIGMOD-2013 dir all source code needed by the program is compiled and
