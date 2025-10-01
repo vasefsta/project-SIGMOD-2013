@@ -11,19 +11,16 @@
 
 #include "ADTMap.h"
 
-
 // A bktree is represented from the type of BKTree.
 typedef struct bktree* BKTree;
 
 typedef struct bknode* BKNode;
-
 
 // Create and returns an empty BKTree with Matchtype = type, 
 // (MT_HAMMING_DIST or MT_EDIT_DIST is defined in MatchType)
 // If the matchtype is wrong then it returns NULL.
 // 
 BKTree bk_create(MatchType type);                                       
-
 
 // Insert a new entry in the bktree.
 // -> If the new entry already exists in the bktree, then 
@@ -34,23 +31,19 @@ BKTree bk_create(MatchType type);
 // 
 ErrorCode bk_insert(BKTree bktree, Entry value);                        
 
-
 // Returns the number of entries in the bktree.
 // 
 int bk_size(BKTree bktree);
-
 
 // Returns the entry that exists in the node (BKNode->entry).
 // If the entry does not exist then it returns NULL.
 // 
 Entry bk_node_value(BKNode node);                                       
 
-
 // Destroys recursively the bktree. The entries are destroyed by 
 // the function destroy. When bktree is destroyed, it can't be used again.
 // 
 void bk_destroy(BKTree bktree, DestroyFunc destroy);  
-
 
 // map_result stores Special elements, complete_queries stores all QueryID's that are fully matched.
 // Searches at tree to find an entry with entry->word = word. If such entry exists then adds entry's queries
@@ -58,7 +51,6 @@ void bk_destroy(BKTree bktree, DestroyFunc destroy);
 // then the query is added in complete_queries.
 // 
 int bk_find(BKTree bktree, Map map_result, List complete_queries, CompareFunc compare_query, String word, int n);    
-
 
 // Search in the bktree if the entry exists.
 // -> If it does then it returns the exist entry.
@@ -73,7 +65,6 @@ Entry bk_find_entry(BKTree bktree, String word);
 // Returns the hamming distance of value1 and value2
 // 
 int hamming_distance(Pointer value1, Pointer value2);                   
-
 
 // Returns the edit distance of value1 and value2
 // 
